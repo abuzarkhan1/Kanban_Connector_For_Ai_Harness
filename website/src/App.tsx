@@ -28,8 +28,8 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-foreground selection:text-background flex flex-col justify-between">
-      {/* Hero Section & Navigation from design.md */}
-      <HeroSection onOpenCommandPalette={() => setCommandPaletteOpen(true)} />
+      {/* Hero Section & Navigation directly from design.md */}
+      <HeroSection />
       
       <main className="flex-1">
         {/* Interactive Kanban Simulator */}
