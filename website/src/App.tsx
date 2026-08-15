@@ -1,10 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Navbar } from './components/Navbar'
-import { Hero } from './components/Hero'
+import { HeroSection } from './components/HeroSection'
 import { InteractiveBoardDemo } from './components/InteractiveBoardDemo'
 import { McpTopologyExplorer } from './components/McpTopologyExplorer'
-import { InteractiveTerminalMcp } from './components/InteractiveTerminalMcp'
-import { MotionReelShowcase } from './components/MotionReelShowcase'
 import { ArchitectureDeepDive } from './components/ArchitectureDeepDive'
 import { TokenRoiCalculator } from './components/TokenRoiCalculator'
 import { ComparisonMatrix } from './components/ComparisonMatrix'
@@ -30,25 +27,36 @@ export function App() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#030407] text-[#f0f3f6] selection:bg-white/20 selection:text-white flex flex-col justify-between">
-      <Navbar onOpenCommandPalette={() => setCommandPaletteOpen(true)} />
+    <div className="min-h-screen bg-background text-foreground selection:bg-foreground selection:text-background flex flex-col justify-between">
+      {/* Hero Section & Navigation from design.md */}
+      <HeroSection onOpenCommandPalette={() => setCommandPaletteOpen(true)} />
       
       <main className="flex-1">
-        <Hero />
+        {/* Interactive Kanban Simulator */}
         <InteractiveBoardDemo />
+
+        {/* Universal Model Context Protocol Explorer */}
         <McpTopologyExplorer />
-        <InteractiveTerminalMcp />
-        <MotionReelShowcase />
+
+        {/* Deterministic Architecture Deep Dive */}
         <ArchitectureDeepDive />
+
+        {/* Token ROI Calculator */}
         <TokenRoiCalculator />
+
+        {/* Competitive Benchmark Comparison */}
         <ComparisonMatrix />
+
+        {/* Multi-Platform Download Center */}
         <DownloadHub />
+
+        {/* FAQ Accordion */}
         <FaqSection />
       </main>
 
       <Footer />
 
-      {/* Global Raycast/Linear-Style Command Palette */}
+      {/* Global Command Palette */}
       <CommandPalette
         isOpen={commandPaletteOpen}
         onClose={() => setCommandPaletteOpen(false)}

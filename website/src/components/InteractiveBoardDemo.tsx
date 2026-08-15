@@ -7,6 +7,7 @@ import {
   Terminal,
   Activity
 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 interface SimulatedTask {
   id: string
@@ -173,83 +174,89 @@ export const InteractiveBoardDemo: React.FC = () => {
       case 'HIGH':
         return 'bg-orange-500/10 text-orange-400 border-orange-500/20'
       case 'MEDIUM':
-        return 'bg-white/10 text-white/80 border-white/10'
+        return 'bg-muted text-foreground border-border'
       case 'LOW':
-        return 'bg-white/5 text-white/50 border-white/5'
+        return 'bg-muted text-muted-foreground border-border'
     }
   }
 
   return (
-    <section id="interactive-demo" className="py-20 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="interactive-demo" className="py-24 bg-background relative border-b border-border/40">
+      <div className="max-w-6xl mx-auto px-6">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-[#0d0f12] text-xs font-mono text-[#c4c9d0] mb-4">
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-muted/60 text-xs font-mono text-foreground mb-4">
             <Activity className="size-3.5 text-emerald-400" />
-            <span>Interactive Live Simulation</span>
+            <span>Interactive Simulator</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-4">
-            Experience the Autonomous Inference Engine
+          <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground mb-4">
+            Experience Deterministic State Derivation
           </h2>
-          <p className="text-base text-[#a0a5ad] leading-relaxed">
+          <p className="text-base text-muted-foreground leading-relaxed">
             Test how Git observations and MCP commands automatically transition task states across Kanban columns
-            with zero user friction. Click simulation buttons or interact with cards below:
+            with zero user friction. Click simulation buttons below:
           </p>
         </div>
 
         {/* Live Simulator Outer Shell */}
-        <div className="rounded-2xl border border-white/[0.08] bg-[#0d0f12] shadow-2xl overflow-hidden">
+        <div className="rounded-3xl border border-border bg-card shadow-2xl overflow-hidden">
           {/* Top Control Bar */}
-          <div className="p-4 border-b border-white/[0.08] bg-[#14171c]/80 flex flex-wrap items-center justify-between gap-4">
+          <div className="p-4 border-b border-border bg-muted/30 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <span className="size-3 rounded-full bg-red-500/40 border border-red-500/80" />
               <span className="size-3 rounded-full bg-yellow-500/40 border border-yellow-500/80" />
               <span className="size-3 rounded-full bg-green-500/40 border border-green-500/80" />
-              <span className="ml-2 font-mono text-[12px] text-[#a0a5ad] font-medium hidden sm:inline">
+              <span className="ml-2 font-mono text-[12px] text-muted-foreground font-medium hidden sm:inline">
                 ai-harness-pm :: project/Ai Harness (Local SQLite)
               </span>
             </div>
 
             {/* Quick Action Simulator Buttons */}
             <div className="flex flex-wrap items-center gap-2">
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={simulateAgentCommit}
-                className="px-3 py-1.5 rounded-lg border border-white/10 bg-[#1f242c] hover:bg-[#282f3a] text-white text-[12px] font-mono flex items-center gap-2 transition-colors cursor-pointer"
+                className="font-mono text-xs cursor-pointer border-border"
               >
-                <GitCommit className="size-3.5 text-cyan-400" />
+                <GitCommit className="size-3.5 text-cyan-400 mr-1.5" />
                 <span>Simulate Git Commit</span>
-              </button>
+              </Button>
 
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={simulateTestPass}
-                className="px-3 py-1.5 rounded-lg border border-white/10 bg-[#1f242c] hover:bg-[#282f3a] text-white text-[12px] font-mono flex items-center gap-2 transition-colors cursor-pointer"
+                className="font-mono text-xs cursor-pointer border-border"
               >
-                <CheckCircle className="size-3.5 text-emerald-400" />
+                <CheckCircle className="size-3.5 text-emerald-400 mr-1.5" />
                 <span>Simulate Tests Pass</span>
-              </button>
+              </Button>
 
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={resetDemo}
-                className="p-1.5 rounded-lg border border-white/10 bg-[#1f242c] hover:bg-[#282f3a] text-[#a0a5ad] hover:text-white transition-colors"
+                className="size-8 cursor-pointer text-muted-foreground hover:text-foreground"
                 title="Reset simulation"
               >
                 <RotateCcw className="size-3.5" />
-              </button>
+              </Button>
             </div>
           </div>
 
           {/* Kanban Board Grid */}
-          <div className="p-5 grid grid-cols-1 md:grid-cols-4 gap-4 bg-[#07080a]">
+          <div className="p-6 grid grid-cols-1 md:grid-cols-4 gap-4 bg-background/50">
             {columns.map((col) => (
               <div
                 key={col.id}
-                className="flex flex-col rounded-xl border border-white/[0.06] bg-[#0d0f12] p-3 min-h-[380px]"
+                className="flex flex-col rounded-2xl border border-border bg-card p-3 min-h-[380px]"
               >
-                <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/[0.06]">
-                  <span className="font-mono text-[12px] font-semibold tracking-wider uppercase text-white">
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-border/60">
+                  <span className="font-mono text-[12px] font-medium tracking-wider uppercase text-foreground">
                     {col.label}
                   </span>
-                  <span className="size-5 rounded bg-white/[0.06] text-[#a0a5ad] font-mono text-[10px] grid place-items-center font-medium">
+                  <span className="size-5 rounded bg-muted text-muted-foreground font-mono text-[10px] grid place-items-center font-medium">
                     {col.count}
                   </span>
                 </div>
@@ -262,11 +269,11 @@ export const InteractiveBoardDemo: React.FC = () => {
                         value={newTitle}
                         onChange={(e) => setNewTitle(e.target.value)}
                         placeholder="+ Add quick task…"
-                        className="w-full h-8 pl-2.5 pr-8 rounded-lg border border-white/10 bg-[#14171c] text-[12px] text-white placeholder-white/30 focus:outline-hidden focus:border-white/30"
+                        className="w-full h-8 pl-2.5 pr-8 rounded-lg border border-border bg-muted/40 text-[12px] text-foreground placeholder-muted-foreground focus:outline-hidden focus:border-border"
                       />
                       <button
                         type="submit"
-                        className="absolute right-1.5 top-1/2 -translate-y-1/2 text-white/50 hover:text-white"
+                        className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       >
                         <Plus className="size-3.5" />
                       </button>
@@ -283,14 +290,14 @@ export const InteractiveBoardDemo: React.FC = () => {
                         <div
                           key={task.id}
                           onClick={() => setSelectedTask(task)}
-                          className={`p-3 rounded-lg border transition-all cursor-pointer glow-card ${
+                          className={`p-3 rounded-xl border transition-all cursor-pointer ${
                             isSelected
-                              ? 'border-white/30 bg-[#1a1e24] shadow-lg'
-                              : 'border-white/[0.06] bg-[#14171c] hover:border-white/20'
+                              ? 'border-primary bg-muted/60 shadow-md'
+                              : 'border-border bg-card hover:border-border/80'
                           }`}
                         >
                           <div className="flex items-center justify-between gap-2 mb-2">
-                            <span className="font-mono text-[10px] text-[#a0a5ad] font-semibold">{task.id}</span>
+                            <span className="font-mono text-[10px] text-muted-foreground font-semibold">{task.id}</span>
                             <span
                               className={`text-[9px] font-mono uppercase font-semibold px-1.5 py-0.5 rounded border ${getPriorityBadge(
                                 task.priority
@@ -300,10 +307,10 @@ export const InteractiveBoardDemo: React.FC = () => {
                             </span>
                           </div>
 
-                          <h4 className="text-[13px] font-medium text-white leading-snug mb-2.5">{task.title}</h4>
+                          <h4 className="text-[13px] font-medium text-foreground leading-snug mb-2.5">{task.title}</h4>
 
-                          <div className="flex items-center justify-between text-[10px] font-mono text-[#a0a5ad]">
-                            <span className="truncate max-w-[120px] text-white/60">git: {task.branch}</span>
+                          <div className="flex items-center justify-between text-[10px] font-mono text-muted-foreground">
+                            <span className="truncate max-w-[120px] opacity-70">git: {task.branch}</span>
                             <span>{task.updatedAgo}</span>
                           </div>
                         </div>
@@ -315,18 +322,18 @@ export const InteractiveBoardDemo: React.FC = () => {
           </div>
 
           {/* Telemetry Stream & State Transition Live Feed */}
-          <div className="p-4 border-t border-white/[0.08] bg-[#0d0f12] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="flex items-center gap-2 text-[12px] font-mono text-[#c4c9d0]">
+          <div className="p-4 border-t border-border bg-muted/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-[12px] font-mono text-foreground">
               <Terminal className="size-4 text-emerald-400" />
               <span>Real-Time Inference Telemetry Stream</span>
             </div>
 
-            <div className="flex-1 max-w-2xl w-full bg-[#14171c] rounded-lg border border-white/[0.06] p-2.5 font-mono text-[11px] text-[#a0a5ad] space-y-1">
+            <div className="flex-1 max-w-2xl w-full bg-background rounded-xl border border-border p-3 font-mono text-[11px] text-muted-foreground space-y-1">
               {events.slice(0, 2).map((ev) => (
                 <div key={ev.id} className="flex items-start gap-2">
-                  <span className="text-white/40">[{ev.timestamp}]</span>
+                  <span className="opacity-50">[{ev.timestamp}]</span>
                   <span className="text-emerald-400 font-semibold">{ev.ruleId}</span>
-                  <span className="text-white/80 truncate flex-1">{ev.summary}</span>
+                  <span className="text-foreground truncate flex-1">{ev.summary}</span>
                 </div>
               ))}
             </div>

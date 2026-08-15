@@ -7,6 +7,7 @@ import {
   Copy,
   CheckCircle2
 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { sounds } from '../lib/audio'
 
 interface NodeItem {
@@ -116,28 +117,28 @@ export const McpTopologyExplorer: React.FC = () => {
   }
 
   return (
-    <section id="mcp-playground" className="py-24 bg-[#05070a] relative border-t border-white/[0.06]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="mcp-playground" className="py-24 bg-background relative border-b border-border/40">
+      <div className="max-w-6xl mx-auto px-6">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/10 text-xs font-mono text-cyan-300 mb-4 shadow-sm">
+        <div className="text-center max-w-2xl mx-auto mb-16">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-border bg-muted/60 text-xs font-mono text-foreground mb-4">
             <Server className="size-3.5 text-cyan-400" />
             <span>Universal Model Context Protocol</span>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground mb-4">
             The "USB-C" for AI Coding Agents
           </h2>
-          <p className="text-base sm:text-lg text-[#a0a5ad] leading-relaxed">
+          <p className="text-base text-muted-foreground leading-relaxed">
             AI Harness PM connects seamlessly to any agentic environment over standard `stdio`. Click any node in the
-            topology graph to inspect live JSON-RPC payloads.
+            topology to inspect live JSON-RPC payloads.
           </p>
         </div>
 
         {/* Interactive Topology Graph & Inspector Split */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           {/* Topology Node Matrix (6 cols) */}
-          <div className="lg:col-span-6 space-y-4">
-            <div className="text-xs font-mono text-white/50 uppercase tracking-wider mb-2">
+          <div className="lg:col-span-6 space-y-3">
+            <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">
               Select Connected Harness or Observer:
             </div>
 
@@ -148,38 +149,38 @@ export const McpTopologyExplorer: React.FC = () => {
                 <div
                   key={node.id}
                   onClick={() => handleNodeClick(node.id)}
-                  className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-4 ${
+                  className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-4 ${
                     isSelected
-                      ? 'border-cyan-500/50 bg-[#0e1622] shadow-[0_0_25px_-5px_rgba(6,182,212,0.25)]'
-                      : 'border-white/[0.08] bg-[#0c0f16] hover:border-white/20 hover:bg-[#111620]'
+                      ? 'border-primary bg-muted/60 shadow-md'
+                      : 'border-border bg-card hover:border-border/80 hover:bg-muted/30'
                   }`}
                 >
                   <div className="flex items-center gap-3.5">
                     <div
-                      className={`size-10 rounded-lg grid place-items-center border ${
+                      className={`size-10 rounded-xl grid place-items-center border ${
                         isSelected
-                          ? 'border-cyan-400/40 bg-cyan-500/20 text-cyan-300'
-                          : 'border-white/10 bg-[#161a24] text-white/60'
+                          ? 'border-primary bg-primary text-primary-foreground'
+                          : 'border-border bg-muted text-muted-foreground'
                       }`}
                     >
                       {isHarness ? <Bot className="size-5" /> : <GitBranch className="size-5" />}
                     </div>
                     <div>
-                      <div className="text-[14px] font-semibold text-white tracking-tight flex items-center gap-2">
+                      <div className="text-[14px] font-medium text-foreground tracking-tight flex items-center gap-2">
                         <span>{node.name}</span>
                         {isSelected && (
-                          <span className="size-2 rounded-full bg-cyan-400 animate-pulse" />
+                          <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
                         )}
                       </div>
-                      <div className="text-[12px] text-[#a0a5ad] line-clamp-1">{node.description}</div>
+                      <div className="text-[12px] text-muted-foreground line-clamp-1">{node.description}</div>
                     </div>
                   </div>
 
                   <span
                     className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded border ${
                       isHarness
-                        ? 'border-purple-500/30 bg-purple-500/10 text-purple-300'
-                        : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                        ? 'border-purple-500/30 bg-purple-500/10 text-purple-400'
+                        : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
                     }`}
                   >
                     {node.type}
@@ -190,49 +191,51 @@ export const McpTopologyExplorer: React.FC = () => {
           </div>
 
           {/* Real-time JSON-RPC Payload Inspector (6 cols) */}
-          <div className="lg:col-span-6 rounded-2xl border border-white/15 bg-[#0a0d14] shadow-2xl overflow-hidden">
+          <div className="lg:col-span-6 rounded-3xl border border-border bg-card shadow-2xl overflow-hidden">
             {/* Header */}
-            <div className="p-4 border-b border-white/[0.08] bg-[#11151e] flex items-center justify-between">
+            <div className="p-4 border-b border-border bg-muted/30 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Terminal className="size-4 text-cyan-400" />
-                <span className="font-mono text-[12px] text-white font-medium">
-                  {activeNode.name} :: JSON-RPC 2.0 Payload
+                <span className="font-mono text-[12px] text-foreground font-medium">
+                  {activeNode.name} :: JSON-RPC 2.0
                 </span>
               </div>
 
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={copyPayload}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-white/10 bg-[#161b26] hover:bg-[#1f2636] text-[11px] font-mono text-white/80 hover:text-white transition-colors cursor-pointer"
+                className="font-mono text-xs cursor-pointer border-border"
               >
                 {copied ? (
                   <>
-                    <CheckCircle2 className="size-3.5 text-emerald-400" />
-                    <span className="text-emerald-400">Copied</span>
+                    <CheckCircle2 className="size-3.5 text-emerald-400 mr-1.5" />
+                    <span>Copied</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="size-3.5" />
+                    <Copy className="size-3.5 text-muted-foreground mr-1.5" />
                     <span>Copy JSON</span>
                   </>
                 )}
-              </button>
+              </Button>
             </div>
 
             {/* Code Output */}
-            <div className="p-5 font-mono text-[12px] text-[#c4c9d0] overflow-x-auto min-h-[300px] bg-[#05070a]">
-              <div className="text-white/40 text-[10px] mb-3 pb-1 border-b border-white/[0.06] flex items-center justify-between">
+            <div className="p-5 font-mono text-[12px] text-muted-foreground overflow-x-auto min-h-[280px] bg-background/50">
+              <div className="text-muted-foreground text-[10px] mb-3 pb-1 border-b border-border/40 flex items-center justify-between">
                 <span>TRANSPORT: STDIO · LATENCY: 0.2MS</span>
                 <span className="text-emerald-400">CONFIRMED</span>
               </div>
-              <pre className="text-cyan-300">
+              <pre className="text-foreground">
                 <code>{JSON.stringify(activeNode.samplePayload, null, 2)}</code>
               </pre>
             </div>
 
             {/* Explainer Box */}
-            <div className="p-4 border-t border-white/[0.08] bg-[#0e121a] flex items-center justify-between text-[12px] text-[#a0a5ad]">
-              <span>Zero cloud server setup required</span>
-              <span className="text-white font-mono text-[11px]">stdio transport</span>
+            <div className="p-4 border-t border-border bg-muted/20 flex items-center justify-between text-[12px] text-muted-foreground">
+              <span>Zero cloud setup required</span>
+              <span className="text-foreground font-mono text-[11px]">stdio transport</span>
             </div>
           </div>
         </div>
