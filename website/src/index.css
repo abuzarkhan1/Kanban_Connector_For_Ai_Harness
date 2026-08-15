@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #07080a;
+    color: #f0f3f6;
+  }
+
+  code, pre, kbd {
+    font-family: var(--font-mono);
+  }
+}
+
+/* Custom Utilities */
+.border-hairline {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.border-subtle {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.bg-surface {
+  background-color: #0d0f12;
+}
+
+.bg-surface-elevated {
+  background-color: #14171c;
+}
+
+.bg-surface-card {
+  background-color: #1a1e24;
+}
+
+.text-ink {
+  color: #f0f3f6;
+}
+
+.text-body {
+  color: #c4c9d0;
+}
+
+.text-mute {
+  color: #a0a5ad;
+}
+
+.text-ash {
+  color: #606771;
+}
+
+.glow-card {
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glow-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.glow-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.7), 0 0 20px -2px rgba(255, 255, 255, 0.04);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #07080a;
+}
+::-webkit-scrollbar-thumb {
+  background: #1f242c;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #333a44;
+}
+
+/* Subtle Shimmer for High-Tech Components */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.shimmer-line {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  animation: shimmer 3s infinite;
+}
