@@ -1,10 +1,21 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useBoardStore } from '../../stores/useBoardStore'
 import { AgentIcon, RefreshIcon, LiveObserverBlip } from '../icons'
 import { Button, Badge } from '../ui'
 
 export const AgentMonitor: React.FC = () => {
   const { agents, sessions, loadSessionsAndAgents } = useBoardStore()
+  const [initialLoading, setInitialLoading] = useState(true)
+
+  useEffect(() => {
+    let mounted = true
+    void loadSessionsAndAgents().finally(() => {
+      if (mounted) setInitialLoading(false)
+    })
+    return () => {
+      mounted = false
+    }
+  }, [loadSessionsAndAgents])
 
   const getSessionBadgeClass = (state: string): string => {
     switch (state) {
@@ -47,7 +58,13 @@ export const AgentMonitor: React.FC = () => {
       {/* Discovered Agents */}
       <div className="mb-8">
         <h2 className="mb-3 text-sm font-semibold text-ink">Detected Coding Harnesses</h2>
-        {agents.length === 0 ? (
+        {initialLoading && agents.length === 0 && sessions.length === 0 ? (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-32 animate-pulse rounded-lg bg-surface-elevated" />
+            ))}
+          </div>
+        ) : agents.length === 0 ? (
           <div className="rounded-lg border border-hairline bg-surface p-8 text-center text-xs text-ash">
             No agents or harness processes detected yet. Launch Antigravity CLI (`agy`), Claude Code (`claude`), or Cursor in your project directory.
           </div>
@@ -98,7 +115,13 @@ export const AgentMonitor: React.FC = () => {
       {/* Active Sessions */}
       <div>
         <h2 className="mb-3 text-sm font-semibold text-ink">Live &amp; Recent Development Sessions</h2>
-        {sessions.length === 0 ? (
+        {initialLoading && agents.length === 0 && sessions.length === 0 ? (
+          <div className="space-y-3">
+            {[0, 1].map((i) => (
+              <div key={i} className="h-20 animate-pulse rounded-lg bg-surface-elevated" />
+            ))}
+          </div>
+        ) : sessions.length === 0 ? (
           <div className="rounded-lg border border-dashed border-hairline p-8 text-center text-xs text-ash">
             No active development sessions recorded. Sessions start automatically when an AI harness begins work on a task.
           </div>

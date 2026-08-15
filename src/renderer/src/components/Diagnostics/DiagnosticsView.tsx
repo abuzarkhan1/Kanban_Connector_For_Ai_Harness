@@ -1,17 +1,71 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useBoardStore } from '../../stores/useBoardStore'
-import { DiagnosticsIcon, RefreshIcon, LiveObserverBlip } from '../icons'
+import { useToastStore } from '../../stores/useToastStore'
+import { api, unwrap } from '../../api/client'
+import { DiagnosticsIcon, RefreshIcon, LiveObserverBlip, DownloadIcon, UploadIcon } from '../icons'
 import { Button } from '../ui'
 
 export const DiagnosticsView: React.FC = () => {
-  const { diagnostics, loadDiagnostics } = useBoardStore()
+  const { diagnostics, loadDiagnostics, loadProjects } = useBoardStore()
+  const addToast = useToastStore((s) => s.addToast)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [exporting, setExporting] = useState(false)
+  const [importing, setImporting] = useState(false)
 
   useEffect(() => {
     void loadDiagnostics()
   }, [loadDiagnostics])
 
+  const handleExport = async () => {
+    setExporting(true)
+    try {
+      const res = unwrap(await api.diagnostics.exportData())
+      const jsonStr = JSON.stringify(res, null, 2)
+      const blob = new Blob([jsonStr], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `kanban-backup-${new Date().toISOString().slice(0, 10)}.json`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      addToast('success', 'Database backup exported successfully')
+    } catch (err) {
+      addToast('error', `Export failed: ${err instanceof Error ? err.message : String(err)}`)
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setImporting(true)
+    try {
+      const text = await file.text()
+      const res = unwrap(await api.diagnostics.importData({ jsonContent: text }))
+      addToast('success', res.message || 'Backup imported successfully')
+      await loadDiagnostics()
+      await loadProjects()
+    } catch (err) {
+      addToast('error', `Import failed: ${err instanceof Error ? err.message : String(err)}`)
+    } finally {
+      setImporting(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
   return (
     <div className="flex flex-1 flex-col overflow-auto bg-canvas p-6 text-ink">
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept=".json"
+        className="hidden"
+      />
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="grid size-9 place-items-center rounded-md border border-hairline bg-surface text-ink">
@@ -24,18 +78,46 @@ export const DiagnosticsView: React.FC = () => {
             </p>
           </div>
         </div>
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={() => void loadDiagnostics()}
-        >
-          <RefreshIcon size="sm" animate="hover-rotate" />
-          <span>Refresh Metrics</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={handleExport}
+            disabled={exporting}
+          >
+            <DownloadIcon size="sm" />
+            <span>{exporting ? 'Exporting…' : 'Export Backup'}</span>
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={importing}
+          >
+            <UploadIcon size="sm" />
+            <span>{importing ? 'Importing…' : 'Restore Backup'}</span>
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => void loadDiagnostics()}
+          >
+            <RefreshIcon size="sm" animate="hover-rotate" />
+            <span>Refresh Metrics</span>
+          </Button>
+        </div>
       </div>
-
-      {diagnostics && (
+      
+      {!diagnostics ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="h-28 animate-pulse rounded-lg bg-surface-elevated" />
+          ))}
+        </div>
+      ) : (
         <>
           {/* Runtime Metrics Grid */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

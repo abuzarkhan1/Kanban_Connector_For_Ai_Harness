@@ -212,6 +212,9 @@ function boardFor(projectId: string): BoardDto {
 }
 
 export const previewApi: RendererApi = {
+  onSync: (_callback) => () => {},
+  onNavigate: (_callback) => () => {},
+  onAction: (_callback) => () => {},
   projects: {
     async list() {
       return ok([...projects])
@@ -487,9 +490,25 @@ export const previewApi: RendererApi = {
         recentLogs: [{ ts: new Date().toISOString(), level: 'info', component: 'app', message: 'ready' }]
       }
       return ok(diag)
+    },
+    async exportData() {
+      return ok({
+        exportedAt: Date.now(),
+        version: '0.1.0',
+        data: {
+          projects: projects as unknown as Record<string, unknown>[],
+          tasks: tasks as unknown as Record<string, unknown>[]
+        }
+      })
+    },
+    async importData() {
+      return ok({
+        success: true,
+        importedCounts: { projects: 1, tasks: 2 },
+        message: 'Mock backup imported'
+      })
     }
-  },
-  onSync: () => () => {}
+  }
 }
 
 export function installPreviewApi(): void {

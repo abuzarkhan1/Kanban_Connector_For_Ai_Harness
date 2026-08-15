@@ -20,8 +20,13 @@ const PRIORITY_STYLE: Record<Priority, string> = {
 export function TaskCard({ task }: { task: TaskDto }) {
   const selectTask = useBoardStore((s) => s.selectTask)
   const selectedTaskId = useBoardStore((s) => s.selectedTaskId)
+  const repositories = useBoardStore((s) => s.repositories)
   const selected = selectedTaskId === task.id
   const [dragging, setDragging] = useState(false)
+  
+  const repo = task.repositoryId ? repositories.find(r => r.id === task.repositoryId) : null
+  const relTime = formatRelative(task.updatedAt)
+  const timeText = relTime === 'now' || relTime.includes(' ') ? `Updated ${relTime}` : `Updated ${relTime} ago`
 
   return (
     <div
@@ -59,14 +64,17 @@ export function TaskCard({ task }: { task: TaskDto }) {
         )}
       </div>
 
-      {task.branch && (
+      {(task.branch || repo) && (
         <div className="mt-1.5 flex items-center gap-1.5 font-mono text-[10px] text-mute">
           <RepositoryIcon size="xs" />
-          <span className="truncate max-w-[160px]">{task.branch}</span>
+          {repo && <span className="truncate max-w-[100px]">{repo.name}</span>}
+          {repo && task.branch && <span className="text-ash">/</span>}
+          {task.branch && <span className="truncate max-w-[140px]">{task.branch}</span>}
         </div>
       )}
 
       <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+        <Badge className="border-hairline text-mute">{task.status}</Badge>
         <Badge className={PRIORITY_STYLE[task.priority]}>{task.priority}</Badge>
         {task.labels.slice(0, 2).map((label) => (
           <span
@@ -80,8 +88,12 @@ export function TaskCard({ task }: { task: TaskDto }) {
         {task.labels.length > 2 && (
           <span className="font-mono text-[10px] text-ash">+{task.labels.length - 2}</span>
         )}
+        {/* Future confidence score - will be added to TaskDto when ready */}
+        {'confidence' in task && typeof (task as Record<string, unknown>).confidence === 'number' && (
+          <span className="font-mono text-[10px] text-mute">{String((task as Record<string, unknown>).confidence)}%</span>
+        )}
         <span className="ml-auto font-mono text-[10px] tabular-nums text-ash">
-          {formatRelative(task.createdAt)}
+          {timeText}
         </span>
       </div>
     </div>

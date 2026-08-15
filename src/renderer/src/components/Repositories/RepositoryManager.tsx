@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useBoardStore } from '../../stores/useBoardStore'
 import {
   FolderIcon,
@@ -16,13 +16,25 @@ export const RepositoryManager: React.FC = () => {
     addRepository,
     deleteRepository,
     scanRepository,
-    pickDirectory
+    pickDirectory,
+    loadRepositories
   } = useBoardStore()
 
   const [pathInput, setPathInput] = useState('')
   const [nameInput, setNameInput] = useState('')
   const [isScanning, setIsScanning] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const [initialLoading, setInitialLoading] = useState(true)
+
+  useEffect(() => {
+    let mounted = true
+    void loadRepositories().finally(() => {
+      if (mounted) setInitialLoading(false)
+    })
+    return () => {
+      mounted = false
+    }
+  }, [loadRepositories])
 
   const activeProject = projects.find((p) => p.id === selectedProjectId)
 
@@ -111,7 +123,13 @@ export const RepositoryManager: React.FC = () => {
 
       {/* Repositories List */}
       <div className="space-y-4">
-        {repositories.length === 0 ? (
+        {initialLoading && repositories.length === 0 ? (
+          <div className="space-y-4">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-24 animate-pulse rounded-lg bg-surface-elevated" />
+            ))}
+          </div>
+        ) : repositories.length === 0 ? (
           <div className="rounded-lg border border-dashed border-hairline p-12 text-center text-xs text-ash">
             No repositories registered yet. Use the form above to link a local Git repository.
           </div>

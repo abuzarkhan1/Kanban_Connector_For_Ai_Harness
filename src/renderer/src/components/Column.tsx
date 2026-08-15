@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import type { BoardColumnDto, TaskDto } from '@ipc'
 import { defaultStatusForColumn, type ColumnId } from '@domain/state-machine/status'
 import type { Priority } from '@domain/value-objects/priority'
@@ -35,14 +35,27 @@ const SORT_ORDER: SortMode[] = ['created', 'updated', 'priority']
 
 const PRIORITY_RANK: Record<Priority, number> = { LOW: 0, MEDIUM: 1, HIGH: 2, URGENT: 3 }
 
-function matchesQuery(task: TaskDto, query: string): boolean {
+function matchesQuery(task: TaskDto, query: string, priorityFilter: string, labelFilter: string): boolean {
+  if (priorityFilter !== 'all' && task.priority !== priorityFilter) return false
+  if (labelFilter !== 'all' && !task.labels.includes(labelFilter)) return false
+
   const q = query.trim().toLowerCase()
   if (!q) return true
   if (task.title.toLowerCase().includes(q)) return true
   return task.labels.some((label) => label.toLowerCase().includes(q))
 }
 
-export function Column({ column, query }: { column: BoardColumnDto; query: string }) {
+export function Column({ 
+  column, 
+  query, 
+  priorityFilter, 
+  labelFilter 
+}: { 
+  column: BoardColumnDto
+  query: string
+  priorityFilter: string
+  labelFilter: string
+}) {
   const selectedProjectId = useBoardStore((s) => s.selectedProjectId)
   const createTask = useBoardStore((s) => s.createTask)
   const moveTaskToColumn = useBoardStore((s) => s.moveTaskToColumn)
@@ -50,6 +63,18 @@ export function Column({ column, query }: { column: BoardColumnDto; query: strin
   const [isOver, setIsOver] = useState(false)
   const [collapsed, setCollapsed] = useLocalStorage(`ahpm:col:${selectedProjectId}:${column.id}`, false)
   const [sort, setSort] = useLocalStorage<SortMode>(`ahpm:sort:${selectedProjectId}:${column.id}`, 'created')
+  const newTaskInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (column.id === 'TODO') {
+      const handler = () => {
+        setCollapsed(false)
+        setTimeout(() => newTaskInputRef.current?.focus(), 50)
+      }
+      window.addEventListener('focus-create-task', handler)
+      return () => window.removeEventListener('focus-create-task', handler)
+    }
+  }, [column.id, setCollapsed])
 
   const StatusIconComponent = STATUS_ICONS[column.id]
 
@@ -96,7 +121,7 @@ export function Column({ column, query }: { column: BoardColumnDto; query: strin
   }
 
   const visibleTasks = column.tasks
-    .filter((t) => matchesQuery(t, query))
+    .filter((t) => matchesQuery(t, query, priorityFilter, labelFilter))
     .sort((a, b) => {
       switch (sort) {
         case 'updated':
@@ -149,6 +174,7 @@ export function Column({ column, query }: { column: BoardColumnDto; query: strin
 
       <form onSubmit={handleCreate} className="px-2.5 pb-2.5 pt-2.5">
         <TextInput
+          ref={newTaskInputRef}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="+ Add task"

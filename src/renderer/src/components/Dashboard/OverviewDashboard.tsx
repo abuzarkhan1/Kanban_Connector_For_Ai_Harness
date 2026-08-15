@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useBoardStore } from '../../stores/useBoardStore'
 import {
   ClipboardIcon,
@@ -14,7 +14,20 @@ import {
 import { Button } from '../ui'
 
 export const OverviewDashboard: React.FC = () => {
-  const { board, repositories, agents, sessions, setCurrentView } = useBoardStore()
+  const { board, repositories, agents, sessions, setCurrentView, refreshBoard, loadRepositories, loadSessionsAndAgents } = useBoardStore()
+  const [initialLoading, setInitialLoading] = useState(true)
+
+  useEffect(() => {
+    let mounted = true
+    Promise.all([
+      refreshBoard(),
+      loadRepositories(),
+      loadSessionsAndAgents()
+    ]).finally(() => {
+      if (mounted) setInitialLoading(false)
+    })
+    return () => { mounted = false }
+  }, [refreshBoard, loadRepositories, loadSessionsAndAgents])
 
   const allTasks = board?.columns.flatMap((c) => c.tasks) || []
   const inProgress = allTasks.filter(
@@ -47,7 +60,14 @@ export const OverviewDashboard: React.FC = () => {
       </div>
 
       {/* Metrics Row */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {initialLoading ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="h-28 animate-pulse rounded-lg bg-surface-elevated" />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="group rounded-lg border border-hairline bg-surface p-4 transition-colors hover:border-hairline-strong">
           <div className="flex items-center justify-between">
             <span className="label">Total Tasks</span>
@@ -88,10 +108,11 @@ export const OverviewDashboard: React.FC = () => {
           <p className="mt-1 font-mono text-[11px] text-ash">
             {allTasks.length ? Math.round((completed.length / allTasks.length) * 100) : 0}% completion rate
           </p>
+          </div>
         </div>
-      </div>
+      )}
 
-      {blocked.length > 0 && (
+      {!initialLoading && blocked.length > 0 && (
         <div className="mt-6 rounded-lg border border-status-danger-border bg-status-danger-bg p-4">
           <div className="flex items-center gap-2 text-status-danger">
             <AlertIcon size="md" animate="pulse-slow" />

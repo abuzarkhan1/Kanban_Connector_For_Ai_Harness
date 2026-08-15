@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useBoardStore } from '../../stores/useBoardStore'
 import { RefreshIcon, TimelineIcon } from '../icons'
 import { Button, Badge } from '../ui'
@@ -6,6 +6,17 @@ import { Button, Badge } from '../ui'
 export const ActivityTimeline: React.FC = () => {
   const { events, loadEvents } = useBoardStore()
   const [filterCategory, setFilterCategory] = useState<string>('all')
+  const [initialLoading, setInitialLoading] = useState(true)
+
+  useEffect(() => {
+    let mounted = true
+    void loadEvents().finally(() => {
+      if (mounted) setInitialLoading(false)
+    })
+    return () => {
+      mounted = false
+    }
+  }, [loadEvents])
 
   const categories = ['all', 'harness', 'filesystem', 'git', 'test', 'mcp', 'process']
 
@@ -72,7 +83,13 @@ export const ActivityTimeline: React.FC = () => {
 
       {/* Events List */}
       <div className="space-y-3">
-        {filtered.length === 0 ? (
+        {initialLoading && events.length === 0 ? (
+          <div className="space-y-3">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-20 animate-pulse rounded-lg bg-surface-elevated" />
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="rounded-lg border border-dashed border-hairline p-12 text-center text-xs text-ash">
             No events recorded for this category yet.
           </div>

@@ -1,6 +1,6 @@
 import { join } from 'node:path'
 import { watch } from 'node:fs'
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, Notification } from 'electron'
 import {
   ProjectRepository,
   TaskRepository,
@@ -26,6 +26,7 @@ import { initDatabase } from './db'
 import { registerIpcHandlers } from './ipc'
 import { createMainWindow } from './window'
 import { setupApplicationMenu } from './menu'
+import { setupSystemTray, destroySystemTray } from './tray'
 
 const SMOKE_TEST = process.argv.includes('--smoke-test')
 
@@ -35,6 +36,7 @@ let engine: ObservationEngine | null = null
 let syncWatcher: ReturnType<typeof watch> | null = null
 
 function finish(code: number): void {
+  destroySystemTray()
   syncWatcher?.close()
   engine?.stop()
   closeDatabase?.()
@@ -113,6 +115,15 @@ async function bootstrap(): Promise<void> {
     eventService,
     evidenceRepo
   )
+  engine.onTransition = (taskTitle, fromStatus, toStatus) => {
+    if (Notification.isSupported()) {
+      new Notification({
+        title: 'Task State Changed',
+        body: `"${taskTitle}" moved from ${fromStatus} to ${toStatus}`,
+        silent: true
+      }).show()
+    }
+  }
   engine.start()
 
   const mcpManager = new HarnessConfigManager()
@@ -130,11 +141,13 @@ async function bootstrap(): Promise<void> {
     mcpManager,
     mcpCliPath,
     dbPath,
+    db: db.raw,
     onMutation: () => broadcastSync('ipc')
   }
 
   registerIpcHandlers(services, logger)
   const window = createMainWindow()
+  setupSystemTray(window)
 
   // Watch for external database/sync changes (e.g. from kanban-mcp.js CLI)
   let debounceTimer: NodeJS.Timeout | null = null
@@ -216,6 +229,7 @@ app.on('activate', () => {
 })
 
 app.on('will-quit', () => {
+  destroySystemTray()
   syncWatcher?.close()
   engine?.stop()
   closeDatabase?.()

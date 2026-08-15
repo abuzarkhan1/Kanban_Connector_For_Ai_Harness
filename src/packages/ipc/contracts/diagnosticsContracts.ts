@@ -38,3 +38,26 @@ function stringOrNumber(): z.ZodType<string | number> {
 }
 
 export type DiagnosticsInfoDto = z.infer<typeof DiagnosticsInfoSchema>
+
+export const ExportDataResultSchema = z.object({
+  exportedAt: z.number(),
+  version: z.string(),
+  data: z.record(z.string(), z.array(z.record(z.string(), z.unknown())))
+})
+
+export type ExportDataResultDto = z.infer<typeof ExportDataResultSchema>
+
+export const ImportDataInputSchema = z.object({
+  jsonContent: z.string()
+})
+
+export type ImportDataInput = z.infer<typeof ImportDataInputSchema>
+
+export const ImportDataResultSchema = z.object({
+  success: z.boolean(),
+  importedCounts: z.record(z.string(), z.number()),
+  message: z.string()
+})
+
+export type ImportDataResultDto = z.infer<typeof ImportDataResultSchema>
+

@@ -56,7 +56,9 @@ const api: RendererApi = {
     removeCustomHarness: (input) => ipcRenderer.invoke(IPC_CHANNELS.mcp.removeCustomHarness, input)
   },
   diagnostics: {
-    getInfo: () => ipcRenderer.invoke(IPC_CHANNELS.diagnostics.getInfo)
+    getInfo: () => ipcRenderer.invoke(IPC_CHANNELS.diagnostics.getInfo),
+    exportData: () => ipcRenderer.invoke(IPC_CHANNELS.diagnostics.exportData),
+    importData: (input) => ipcRenderer.invoke(IPC_CHANNELS.diagnostics.importData, input)
   },
   onSync: (callback) => {
     const handler = (_event: Electron.IpcRendererEvent, data: { timestamp: number; type?: string }) => {
@@ -65,6 +67,24 @@ const api: RendererApi = {
     ipcRenderer.on('kanban:sync', handler)
     return () => {
       ipcRenderer.removeListener('kanban:sync', handler)
+    }
+  },
+  onNavigate: (callback) => {
+    const handler = (_event: Electron.IpcRendererEvent, view: string) => {
+      callback(view)
+    }
+    ipcRenderer.on('kanban:navigate', handler)
+    return () => {
+      ipcRenderer.removeListener('kanban:navigate', handler)
+    }
+  },
+  onAction: (callback) => {
+    const handler = (_event: Electron.IpcRendererEvent, action: string) => {
+      callback(action)
+    }
+    ipcRenderer.on('kanban:action', handler)
+    return () => {
+      ipcRenderer.removeListener('kanban:action', handler)
     }
   }
 }

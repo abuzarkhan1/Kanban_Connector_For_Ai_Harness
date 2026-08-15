@@ -9,7 +9,7 @@ import type { TaskService } from '@application/services/taskService'
 import type { SessionService } from '@application/services/sessionService'
 import type { EventService } from '@application/services/eventService'
 import type { EvidenceRepository } from '@persistence/repositories/evidenceRepository'
-import type { ObservedEvent } from '@domain/entities/ObservedEvent'
+import { createObservedEvent, type ObservedEvent } from '@domain/entities/ObservedEvent'
 
 export class ObservationEngine {
   readonly git: GitService
@@ -20,6 +20,10 @@ export class ObservationEngine {
   readonly inference: InferenceEngine
 
   private isRunning = false
+  private gitPollTimer: NodeJS.Timeout | null = null
+  private lastKnownGitState = new Map<string, { headCommit: string | null; currentBranch: string }>()
+
+  public onTransition?: (taskTitle: string, fromStatus: string, toStatus: string, ruleId: string) => void
 
   constructor(
     private readonly repositories: RepositoryService,
@@ -47,17 +51,98 @@ export class ObservationEngine {
     // Start process polling
     this.processes.start(4000)
 
-    // Watch all registered repositories
+    // Watch all registered repositories for filesystem events
     const allRepos = this.repositories.listAll()
     for (const repo of allRepos) {
       this.filesystem.watchRepository(repo.id, repo.projectId, repo.path)
     }
+
+    // Start periodic Git observation
+    void this.pollGit()
+    this.gitPollTimer = setInterval(() => {
+      void this.pollGit()
+    }, 8000)
   }
 
   stop(): void {
     this.isRunning = false
+    if (this.gitPollTimer) {
+      clearInterval(this.gitPollTimer)
+      this.gitPollTimer = null
+    }
     this.processes.stop()
     this.filesystem.closeAll()
+  }
+
+  async pollGit(): Promise<void> {
+    if (!this.isRunning) return
+    const repos = this.repositories.listAll()
+    for (const repo of repos) {
+      try {
+        const info = await this.git.inspect(repo.path)
+        if (!info.isGitRepo) continue
+
+        const prev = this.lastKnownGitState.get(repo.id)
+        if (!prev) {
+          this.lastKnownGitState.set(repo.id, {
+            headCommit: info.headCommit,
+            currentBranch: info.currentBranch
+          })
+          continue
+        }
+
+        // Branch changed
+        if (info.currentBranch !== prev.currentBranch) {
+          this.handleEvent(
+            createObservedEvent({
+              source: 'git-observer',
+              category: 'git',
+              type: 'BRANCH_CHANGED',
+              projectId: repo.projectId,
+              repositoryId: repo.id,
+              payload: {
+                fromBranch: prev.currentBranch,
+                toBranch: info.currentBranch,
+                headCommit: info.headCommit
+              }
+            })
+          )
+        }
+
+        // Commit created
+        if (info.headCommit && info.headCommit !== prev.headCommit) {
+          const latestCommit = info.recentCommits[0]
+          const message = latestCommit?.message ?? ''
+          const isMerge =
+            message.toLowerCase().includes('merge branch') ||
+            message.toLowerCase().includes('merge pull request') ||
+            message.toLowerCase().startsWith('merge')
+
+          this.handleEvent(
+            createObservedEvent({
+              source: 'git-observer',
+              category: 'git',
+              type: isMerge ? 'MERGE_DETECTED' : 'COMMIT_CREATED',
+              projectId: repo.projectId,
+              repositoryId: repo.id,
+              payload: {
+                hash: info.headCommit,
+                message,
+                branch: info.currentBranch,
+                modifiedFilesCount: info.modifiedFilesCount
+              }
+            })
+          )
+        }
+
+        this.lastKnownGitState.set(repo.id, {
+          headCommit: info.headCommit,
+          currentBranch: info.currentBranch
+        })
+      } catch {
+        // Non-blocking
+      }
+    }
   }
 
   handleEvent(rawEvent: ObservedEvent): void {
@@ -99,7 +184,13 @@ export class ObservationEngine {
     if (enrichedEvent.taskId) {
       try {
         const task = this.tasks.get(enrichedEvent.taskId)
-        this.inference.processTransition(enrichedEvent, task)
+        const oldStatus = task.status
+        const updated = this.inference.processTransition(enrichedEvent, task)
+        if (updated && this.onTransition) {
+          const transitions = this.tasks.transitionsFor(task.id)
+          const latest = transitions[transitions.length - 1]
+          this.onTransition(task.title, oldStatus, updated.status, latest?.ruleId || 'unknown')
+        }
       } catch {
         // Task not found or deleted
       }

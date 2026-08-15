@@ -1,4 +1,5 @@
-import type {
+import {
+  forwardRef,
   ButtonHTMLAttributes,
   InputHTMLAttributes,
   ReactNode,
@@ -88,9 +89,12 @@ interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
   density?: 'sm' | 'md'
 }
 
-export function TextInput({ className, density = 'md', ...rest }: TextInputProps) {
-  return <input className={cx('control', density === 'sm' ? 'h-8 px-2.5 text-[12px]' : 'h-9 px-3 text-[13px]', className)} {...rest} />
-}
+export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
+  function TextInput({ className, density = 'md', ...rest }, ref) {
+    return <input ref={ref} className={cx('control', density === 'sm' ? 'h-8 px-2.5 text-[12px]' : 'h-9 px-3 text-[13px]', className)} {...rest} />
+  }
+)
+TextInput.displayName = 'TextInput'
 
 export function TextArea({ className, ...rest }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return <textarea className={cx('control px-3 py-2 text-[13px] leading-relaxed', className)} {...rest} />

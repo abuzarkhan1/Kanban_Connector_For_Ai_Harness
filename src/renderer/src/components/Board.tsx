@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useBoardStore } from '../stores/useBoardStore'
 import { Column } from './Column'
 import { SearchIcon, CloseIcon } from './icons'
+import { Select } from './ui'
 
 function BoardSkeleton() {
   return (
@@ -23,6 +24,27 @@ function BoardSkeleton() {
 export function Board() {
   const board = useBoardStore((s) => s.board)
   const [query, setQuery] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(query), 200)
+    return () => clearTimeout(timer)
+  }, [query])
+  const [priorityFilter, setPriorityFilter] = useState<string>('all')
+  const [labelFilter, setLabelFilter] = useState<string>('all')
+
+  const allLabels = useMemo(() => {
+    if (!board) return []
+    const labels = new Set<string>()
+    for (const col of board.columns) {
+      for (const task of col.tasks) {
+        for (const l of task.labels) {
+          labels.add(l)
+        }
+      }
+    }
+    return Array.from(labels).sort()
+  }, [board])
 
   if (!board) {
     return <BoardSkeleton />
@@ -32,7 +54,7 @@ export function Board() {
   const openTasks = board.columns
     .filter((c) => c.id !== 'DONE')
     .reduce((n, c) => n + c.tasks.length, 0)
-  const filtering = query.trim().length > 0
+  const filtering = query.trim().length > 0 || priorityFilter !== 'all' || labelFilter !== 'all'
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -45,6 +67,35 @@ export function Board() {
         </div>
 
         <div className="flex shrink-0 items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Select
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value)}
+              className="h-8 py-0 pl-2 pr-6 text-[11px]"
+              aria-label="Filter by priority"
+            >
+              <option value="all">All Priorities</option>
+              <option value="LOW">LOW</option>
+              <option value="MEDIUM">MEDIUM</option>
+              <option value="HIGH">HIGH</option>
+              <option value="URGENT">URGENT</option>
+            </Select>
+
+            <Select
+              value={labelFilter}
+              onChange={(e) => setLabelFilter(e.target.value)}
+              className="h-8 py-0 pl-2 pr-6 text-[11px]"
+              aria-label="Filter by label"
+            >
+              <option value="all">All Labels</option>
+              {allLabels.map((l) => (
+                <option key={l} value={l}>
+                  {l}
+                </option>
+              ))}
+            </Select>
+          </div>
+
           <div className="relative">
             <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-ash" aria-hidden>
               <SearchIcon size="xs" />
@@ -83,7 +134,13 @@ export function Board() {
 
       <div className="flex min-h-0 flex-1 gap-4 overflow-x-auto p-4">
         {board.columns.map((column) => (
-          <Column key={column.id} column={column} query={query} />
+          <Column 
+            key={column.id} 
+            column={column} 
+            query={debouncedQuery} 
+            priorityFilter={priorityFilter}
+            labelFilter={labelFilter}
+          />
         ))}
       </div>
     </div>

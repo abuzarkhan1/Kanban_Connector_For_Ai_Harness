@@ -15,6 +15,7 @@ import type {
 import type { ColumnId, InternalStatus } from '@domain/state-machine/status'
 import { defaultStatusForColumn } from '@domain/state-machine/status'
 import { api, unwrap } from '../api/client'
+import { useToastStore } from './useToastStore'
 
 export type NavigationView =
   | 'kanban'
@@ -144,7 +145,7 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
       if (currentView === 'diagnostics') {
         void get().loadDiagnostics()
       }
-    }, 1200)
+    }, 10000)
 
     return () => {
       cleanupIpc()
@@ -205,6 +206,7 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
       const projects = [...get().projects, project]
       set({ projects, selectedProjectId: project.id, loading: false })
       await get().refreshBoard()
+      useToastStore.getState().addToast('success', 'Project created')
     } catch (err) {
       set({ error: toError(err), loading: false })
     }
@@ -236,6 +238,7 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
       } else {
         set({ board: null })
       }
+      useToastStore.getState().addToast('success', 'Project deleted')
     } catch (err) {
       set({ error: toError(err), loading: false })
     }
@@ -246,6 +249,7 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
     try {
       unwrap(await api.tasks.create(input))
       await get().refreshBoard()
+      useToastStore.getState().addToast('success', 'Task created')
     } catch (err) {
       set({ error: toError(err) })
     }
@@ -274,6 +278,7 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
     try {
       unwrap(await api.tasks.move({ id, toStatus }))
       await get().refreshBoard()
+      useToastStore.getState().addToast('success', `Task moved to ${toStatus}`)
     } catch (err) {
       set({ board: prevBoard, error: toError(err) })
     }
@@ -301,6 +306,7 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
     try {
       unwrap(await api.tasks.moveToColumn({ id, columnId }))
       await get().refreshBoard()
+      useToastStore.getState().addToast('success', `Task moved to ${defaultStatusForColumn(columnId)}`)
     } catch (err) {
       set({ board: prevBoard, error: toError(err) })
     }
@@ -314,6 +320,7 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
         set({ selectedTaskId: null })
       }
       await get().refreshBoard()
+      useToastStore.getState().addToast('success', 'Task deleted')
     } catch (err) {
       set({ error: toError(err) })
     }
@@ -358,6 +365,7 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
     try {
       unwrap(await api.repositories.create({ projectId, path, name }))
       await get().loadRepositories()
+      useToastStore.getState().addToast('success', 'Repository registered')
     } catch (err) {
       set({ error: toError(err) })
     }
@@ -430,6 +438,11 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
     try {
       const res = unwrap(await api.mcp.configureHarness({ harness: harnessId, configPath: customPath }))
       await get().loadMcpStatus()
+      if (res.success) {
+        useToastStore.getState().addToast('success', res.message)
+      } else {
+        useToastStore.getState().addToast('error', res.message)
+      }
       return res
     } catch (err) {
       return { success: false, message: toError(err) }

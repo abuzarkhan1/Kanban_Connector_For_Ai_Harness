@@ -51,6 +51,8 @@ export const IPC_CHANNELS = {
     removeCustomHarness: 'mcp:remove-custom-harness'
   },
   diagnostics: {
-    getInfo: 'diagnostics:get-info'
+    getInfo: 'diagnostics:get-info',
+    exportData: 'diagnostics:export-data',
+    importData: 'diagnostics:import-data'
   }
 } as const

@@ -7,6 +7,7 @@ import { api, unwrap } from '../api/client'
 import { useBoardStore } from '../stores/useBoardStore'
 import { formatDateTime } from '../lib/format'
 import { useLocalStorage } from '../lib/useLocalStorage'
+import { useToastStore } from '../stores/useToastStore'
 import { Button, cx, Field, IconButton, Select, TextArea, TextInput } from './ui'
 import {
   ChevronDoubleRightIcon,
@@ -68,6 +69,7 @@ export function TaskDetail() {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(true)
   const [collapsed, setCollapsed] = useLocalStorage('ahpm:detail:collapsed', false)
+  const [showDirtyWarning, setShowDirtyWarning] = useState(false)
 
   useEffect(() => {
     if (!task) return
@@ -107,6 +109,73 @@ export function TaskDetail() {
     }
   }, [task?.id, task?.status])
 
+  const isDirty =
+    !!task &&
+    (title !== task.title ||
+      description !== task.description ||
+      priority !== task.priority ||
+      labels !== task.labels.join(', ') ||
+      branch !== (task.branch || '') ||
+      repositoryId !== (task.repositoryId || '') ||
+      automationMode !== (task.automationMode || 'AUTO'))
+
+  const canSave = !!task && isDirty && title.trim().length > 0 && !saving
+
+  useEffect(() => {
+    if (!isDirty) {
+      setShowDirtyWarning(false)
+      return
+    }
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [isDirty])
+
+  useEffect(() => {
+    const handleRequestClose = () => {
+      if (isDirty) {
+        setShowDirtyWarning(true)
+      } else {
+        selectTask(null)
+      }
+    }
+    window.addEventListener('request-close-task', handleRequestClose)
+    return () => window.removeEventListener('request-close-task', handleRequestClose)
+  }, [isDirty, selectTask])
+
+  const handleClose = () => {
+    if (isDirty) {
+      setShowDirtyWarning(true)
+    } else {
+      selectTask(null)
+    }
+  }
+
+  const handleSave = async () => {
+    if (!task || !canSave) return
+    setSaving(true)
+    const labelList = labels
+      .split(',')
+      .map((l) => l.trim())
+      .filter(Boolean)
+    await updateTask(task.id, {
+      title: title.trim(),
+      description,
+      priority,
+      labels: labelList,
+      branch: branch.trim() || null,
+      repositoryId: repositoryId || null,
+      automationMode
+    })
+    setSaving(false)
+    setSaved(true)
+    useToastStore.getState().addToast('success', 'Changes saved')
+    setTimeout(() => setSaved(false), 1800)
+  }
+
   if (!task) {
     if (collapsed) {
       return <CollapsedRail className="hidden lg:flex" onExpand={() => setCollapsed(false)} />
@@ -130,38 +199,6 @@ export function TaskDetail() {
     return <CollapsedRail task={task} className="hidden lg:flex" onExpand={() => setCollapsed(false)} />
   }
 
-  const isDirty =
-    title !== task.title ||
-    description !== task.description ||
-    priority !== task.priority ||
-    labels !== task.labels.join(', ') ||
-    branch !== (task.branch || '') ||
-    repositoryId !== (task.repositoryId || '') ||
-    automationMode !== (task.automationMode || 'AUTO')
-
-  const canSave = isDirty && title.trim().length > 0 && !saving
-
-  const handleSave = async () => {
-    if (!canSave) return
-    setSaving(true)
-    const labelList = labels
-      .split(',')
-      .map((l) => l.trim())
-      .filter(Boolean)
-    await updateTask(task.id, {
-      title: title.trim(),
-      description,
-      priority,
-      labels: labelList,
-      branch: branch.trim() || null,
-      repositoryId: repositoryId || null,
-      automationMode
-    })
-    setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 1800)
-  }
-
   return (
     <aside className="flex w-full flex-col border-l border-hairline bg-canvas sm:w-96 lg:w-96">
       <header className="flex h-14 shrink-0 items-center justify-between border-b border-hairline px-4">
@@ -173,11 +210,21 @@ export function TaskDetail() {
           <IconButton label="Collapse panel" onClick={() => setCollapsed(true)} className="hidden lg:flex">
             <ChevronRightIcon size="xs" />
           </IconButton>
-          <IconButton label="Close detail" onClick={() => selectTask(null)}>
+          <IconButton label="Close detail" onClick={handleClose}>
             <CloseIcon size="xs" />
           </IconButton>
         </div>
       </header>
+
+      {showDirtyWarning && (
+        <div className="flex flex-col gap-2 border-b border-hairline bg-surface-elevated p-3 text-sm">
+          <p className="text-[12px] text-body">You have unsaved changes</p>
+          <div className="flex gap-2">
+            <Button onClick={() => { selectTask(null) }} className="flex-1">Discard</Button>
+            <Button variant="primary" onClick={async () => { await handleSave(); selectTask(null); }} className="flex-1">Save & Close</Button>
+          </div>
+        </div>
+      )}
 
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
         {/* Title */}

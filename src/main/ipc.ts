@@ -33,8 +33,10 @@ import {
   UnconfigureHarnessSchema,
   VerifyHarnessSchema,
   AddCustomHarnessSchema,
-  RemoveCustomHarnessSchema
+  RemoveCustomHarnessSchema,
+  ImportDataInputSchema
 } from '@ipc'
+import type { Database } from 'better-sqlite3'
 import type { McpVerificationResultDto } from '@ipc'
 import { DomainError, NotFoundError } from '@domain/errors/domainError'
 import type { Logger } from './logger'
@@ -82,6 +84,7 @@ export interface AppServices {
   mcpManager: HarnessConfigManager
   mcpCliPath: string
   dbPath: string
+  db?: Database
   onMutation?: () => void
 }
 
@@ -97,6 +100,7 @@ export function registerIpcHandlers(services: AppServices, logger: Logger): void
     mcpManager,
     mcpCliPath,
     dbPath,
+    db,
     onMutation
   } = services
 
@@ -361,6 +365,98 @@ export function registerIpcHandlers(services: AppServices, logger: Logger): void
         mcp: 'ready (stdio & socket)'
       },
       recentLogs: logger.getRecentLogs()
+    }
+  }, logger)
+
+  handle(IPC_CHANNELS.diagnostics.exportData, NoPayloadSchema, () => {
+    if (!db) {
+      throw new Error('Database handle not available')
+    }
+    const tableNames = [
+      'projects',
+      'tasks',
+      'task_labels',
+      'transitions',
+      'repositories',
+      'workspaces',
+      'agents',
+      'sessions',
+      'events',
+      'evidence',
+      'settings'
+    ]
+    const data: Record<string, Record<string, unknown>[]> = {}
+    for (const table of tableNames) {
+      try {
+        data[table] = db.prepare(`SELECT * FROM ${table}`).all() as Record<string, unknown>[]
+      } catch {
+        data[table] = []
+      }
+    }
+    return {
+      exportedAt: Date.now(),
+      version: app.getVersion(),
+      data
+    }
+  }, logger)
+
+  handle(IPC_CHANNELS.diagnostics.importData, ImportDataInputSchema, ({ jsonContent }) => {
+    if (!db) {
+      throw new Error('Database handle not available')
+    }
+    let parsed: { data?: Record<string, Record<string, unknown>[]> }
+    try {
+      parsed = JSON.parse(jsonContent) as { data?: Record<string, Record<string, unknown>[]> }
+    } catch {
+      throw new Error('Invalid JSON format')
+    }
+
+    if (!parsed || typeof parsed !== 'object' || !parsed.data) {
+      throw new Error('Invalid backup file format: missing data payload')
+    }
+
+    const importedCounts: Record<string, number> = {}
+    const tables = [
+      'projects',
+      'tasks',
+      'task_labels',
+      'transitions',
+      'repositories',
+      'workspaces',
+      'agents',
+      'sessions',
+      'events',
+      'evidence',
+      'settings'
+    ]
+
+    const runImport = db.transaction(() => {
+      for (const table of tables) {
+        const rows = parsed.data?.[table]
+        if (!Array.isArray(rows) || rows.length === 0) continue
+
+        let count = 0
+        for (const row of rows) {
+          const keys = Object.keys(row)
+          if (keys.length === 0) continue
+          const placeholders = keys.map(() => '?').join(', ')
+          const columns = keys.map((k) => `"${k}"`).join(', ')
+          const values = keys.map((k) => row[k])
+          const stmt = db.prepare(`INSERT OR REPLACE INTO ${table} (${columns}) VALUES (${placeholders})`)
+          stmt.run(...values)
+          count++
+        }
+        importedCounts[table] = count
+      }
+    })
+
+    runImport()
+    notify()
+
+    return {
+      success: true,
+      importedCounts,
+      message: 'Backup imported successfully'
     }
   }, logger)
 }

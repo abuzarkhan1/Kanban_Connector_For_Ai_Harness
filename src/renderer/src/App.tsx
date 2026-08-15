@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { useBoardStore } from './stores/useBoardStore'
+import { api } from './api/client'
+import { useBoardStore, type NavigationView } from './stores/useBoardStore'
 import { Sidebar } from './components/Sidebar'
 import { Board } from './components/Board'
 import { TaskDetail } from './components/TaskDetail'
@@ -11,8 +12,9 @@ import { ActivityTimeline } from './components/Timeline/ActivityTimeline'
 import { McpSettings } from './components/Settings/McpSettings'
 import { DiagnosticsView } from './components/Diagnostics/DiagnosticsView'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { BrandMark, IconButton } from './components/ui'
-import { AlertIcon, CloseIcon } from './components/icons'
+import { BrandMark } from './components/ui'
+import { ToastContainer } from './components/Toast'
+import { useToastStore } from './stores/useToastStore'
 
 function EmptyState() {
   return (
@@ -44,6 +46,21 @@ export default function App() {
     return cleanup
   }, [loadProjects])
 
+  useEffect(() => {
+    const cleanupNav = api.onNavigate((view: string) => {
+      useBoardStore.getState().setCurrentView(view as NavigationView)
+    })
+    
+    const cleanupAction = api.onAction((action: string) => {
+      window.dispatchEvent(new CustomEvent(action))
+    })
+
+    return () => {
+      cleanupNav()
+      cleanupAction()
+    }
+  }, [])
+
   // Escape: blur a focused field first, otherwise close the task detail.
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -53,11 +70,18 @@ export default function App() {
         el.blur()
         return
       }
-      selectTask(null)
+      window.dispatchEvent(new CustomEvent('request-close-task'))
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [selectTask])
+
+  useEffect(() => {
+    if (error) {
+      useToastStore.getState().addToast('error', error)
+      clearError()
+    }
+  }, [error, clearError])
 
   return (
     <ErrorBoundary>
@@ -66,33 +90,22 @@ export default function App() {
         <div className="flex min-h-0 flex-1 overflow-hidden">
           {currentView === 'kanban' && <Sidebar />}
 
-          <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
-            {currentView === 'kanban' && (selectedProjectId ? <Board /> : <EmptyState />)}
-            {currentView === 'dashboard' && <OverviewDashboard />}
-            {currentView === 'repositories' && <RepositoryManager />}
-            {currentView === 'agents' && <AgentMonitor />}
-            {currentView === 'timeline' && <ActivityTimeline />}
-            {currentView === 'mcp' && <McpSettings />}
-            {currentView === 'diagnostics' && <DiagnosticsView />}
+          <main className="flex min-w-0 flex-1 flex-col overflow-hidden" key={currentView}>
+            <div className="view-enter flex min-h-0 flex-1 flex-col">
+              {currentView === 'kanban' && (selectedProjectId ? <Board /> : <EmptyState />)}
+              {currentView === 'dashboard' && <OverviewDashboard />}
+              {currentView === 'repositories' && <RepositoryManager />}
+              {currentView === 'agents' && <AgentMonitor />}
+              {currentView === 'timeline' && <ActivityTimeline />}
+              {currentView === 'mcp' && <McpSettings />}
+              {currentView === 'diagnostics' && <DiagnosticsView />}
+            </div>
           </main>
 
           {currentView === 'kanban' && <TaskDetail />}
         </div>
 
-        {error && (
-          <div
-            role="alert"
-            className="fixed bottom-4 right-4 z-50 flex max-w-sm items-start gap-3 rounded-lg border border-hairline bg-surface-elevated px-3.5 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
-          >
-            <div className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-md border border-status-danger-border bg-status-danger-bg text-status-danger">
-              <AlertIcon size="xs" />
-            </div>
-            <p className="min-w-0 flex-1 text-[12px] leading-snug text-body">{error}</p>
-            <IconButton label="Dismiss error" onClick={clearError}>
-              <CloseIcon size="xs" />
-            </IconButton>
-          </div>
-        )}
+        <ToastContainer />
       </div>
     </ErrorBoundary>
   )

@@ -34,7 +34,10 @@ import type {
   McpVerificationResultDto,
   AddCustomHarnessInput,
   RemoveCustomHarnessInput,
-  DiagnosticsInfoDto
+  DiagnosticsInfoDto,
+  ExportDataResultDto,
+  ImportDataInput,
+  ImportDataResultDto
 } from '@ipc'
 
 /**
@@ -90,6 +93,10 @@ export interface RendererApi {
   }
   diagnostics: {
     getInfo(): Promise<IpcResult<DiagnosticsInfoDto>>
+    exportData(): Promise<IpcResult<ExportDataResultDto>>
+    importData(input: ImportDataInput): Promise<IpcResult<ImportDataResultDto>>
   }
   onSync(callback: (payload: { timestamp: number; type?: string }) => void): () => void
+  onNavigate(callback: (view: string) => void): () => void
+  onAction(callback: (action: string) => void): () => void
 }

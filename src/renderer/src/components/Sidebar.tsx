@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useBoardStore } from '../stores/useBoardStore'
 import { useLocalStorage } from '../lib/useLocalStorage'
 import { BrandMark, Button, cx, IconButton, TextInput } from './ui'
@@ -16,6 +16,13 @@ export function Sidebar() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
   const [confirmId, setConfirmId] = useState<string | null>(null)
+  const newProjectInputRef = useRef<HTMLInputElement>(null)
+  const diagnostics = useBoardStore((s) => s.diagnostics)
+  const isEngineRunning = diagnostics ? diagnostics.observers.process === 'active' : false
+  const engineStatus: 'active' | 'idle' = diagnostics ? (isEngineRunning ? 'active' : 'idle') : 'idle'
+  const engineLabel = diagnostics 
+    ? (isEngineRunning ? 'observation engine: active' : 'observation engine: stopped') 
+    : 'observation engine: idle'
 
   // Auto-disarm the delete confirmation after a pause.
   useEffect(() => {
@@ -23,6 +30,15 @@ export function Sidebar() {
     const timer = window.setTimeout(() => setConfirmId(null), 2500)
     return () => window.clearTimeout(timer)
   }, [confirmId])
+
+  useEffect(() => {
+    const handler = () => {
+      setCollapsed(false)
+      setTimeout(() => newProjectInputRef.current?.focus(), 50)
+    }
+    window.addEventListener('focus-create-project', handler)
+    return () => window.removeEventListener('focus-create-project', handler)
+  }, [setCollapsed])
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault()
@@ -80,6 +96,7 @@ export function Sidebar() {
           {/* Create project */}
           <form onSubmit={handleCreate} className="flex gap-1.5 border-y border-hairline px-3 py-3">
             <TextInput
+              ref={newProjectInputRef}
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="New project…"
@@ -196,7 +213,7 @@ export function Sidebar() {
 
           {/* Status footer */}
           <div className="flex items-center gap-2 border-t border-hairline px-4 py-2.5">
-            <LiveObserverBlip status="active" label="observation engine: active" />
+            <LiveObserverBlip status={engineStatus} label={engineLabel} />
           </div>
         </>
       )}
