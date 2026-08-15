@@ -290,7 +290,7 @@ export function TaskDetail() {
               <button
                 type="button"
                 onClick={() => void moveTask(task.id, 'BACKLOG')}
-                className="flex items-center gap-1 rounded-md border border-hairline bg-surface-elevated px-2.5 py-1.5 text-[11px] font-medium text-amber-300 hover:bg-surface-card"
+                className="btn btn-secondary btn-sm text-[11px]"
               >
                 <RefreshIcon size="xs" />
                 <span>Reopen Task (Backlog)</span>
@@ -308,14 +308,14 @@ export function TaskDetail() {
             <span className="label">Inference Evidence ({evidenceList.length})</span>
             <div className="space-y-2">
               {evidenceList.map((ev) => (
-                <div key={ev.id} className="rounded-md border border-line bg-surface-elevated p-2.5 text-xs">
+                <div key={ev.id} className="rounded-md border border-hairline bg-surface-elevated p-2.5 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-[10px] text-sky-400 font-semibold">{ev.ruleId}</span>
+                    <span className="font-mono text-[10px] text-ink font-semibold">{ev.ruleId}</span>
                     <span className="font-mono text-[10px] text-ash">{Math.round(ev.confidence * 100)}% conf</span>
                   </div>
-                  <p className="mt-1 text-[11px] text-snow">{ev.summary}</p>
+                  <p className="mt-1 text-[11px] text-body">{ev.summary}</p>
                   {ev.items.length > 0 && (
-                    <div className="mt-2 space-y-1 border-t border-line/40 pt-1.5">
+                    <div className="mt-2 space-y-1 border-t border-hairline pt-1.5">
                       {ev.items.map((item, idx) => (
                         <div key={idx} className="font-mono text-[10px] text-ash">
                           • [{item.type}] {item.description}
@@ -369,7 +369,7 @@ export function TaskDetail() {
                         )}
                       </p>
                       {t.ruleId && (
-                        <p className="font-mono text-[10px] text-sky-400">rule: {t.ruleId}</p>
+                        <p className="font-mono text-[10px] text-mute">rule: {t.ruleId}</p>
                       )}
                       <p className="mt-0.5 font-mono text-[10px] text-stone">{formatDateTime(t.createdAt)}</p>
                     </li>
@@ -385,7 +385,7 @@ export function TaskDetail() {
             <Button
               variant="danger"
               onClick={() => void deleteTask(task.id)}
-              className="w-full border-white/40 text-ink"
+              className="w-full"
             >
               Delete task?
             </Button>

@@ -82,7 +82,7 @@ export default function App() {
             role="alert"
             className="fixed bottom-4 right-4 z-50 flex max-w-sm items-start gap-3 rounded-lg border border-hairline bg-surface-elevated px-3.5 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
           >
-            <div className="mt-0.5 grid size-5 shrink-0 place-items-center rounded bg-rose-500/20 text-rose-400">
+            <div className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-md border border-status-danger-border bg-status-danger-bg text-status-danger">
               <AlertIcon size="xs" />
             </div>
             <p className="min-w-0 flex-1 text-[12px] leading-snug text-body">{error}</p>

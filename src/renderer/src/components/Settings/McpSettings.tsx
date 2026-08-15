@@ -8,10 +8,10 @@ import {
   AlertIcon,
   SpinnerIcon,
   CopyIcon,
-  CloseIcon,
   LiveObserverBlip,
   TerminalIcon
 } from '../icons'
+import { Button, IconButton, TextInput, Field, Badge } from '../ui'
 
 export const McpSettings: React.FC = () => {
   const {
@@ -42,7 +42,6 @@ export const McpSettings: React.FC = () => {
       const res = await configureHarness(h.id, h.configPath)
       setFeedback({ harness: h.id, msg: res.message, success: res.success })
       if (res.success) {
-        // Auto-run connection verification probe
         void verifyHarness(h.id)
       }
     } finally {
@@ -106,55 +105,57 @@ export const McpSettings: React.FC = () => {
   const connectedCount = harnesses.filter((h) => h.configured).length
 
   return (
-    <div className="flex flex-1 flex-col overflow-auto bg-canvas p-6 text-snow">
+    <div className="flex flex-1 flex-col overflow-auto bg-canvas p-6 text-ink">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-snow">Model Context Protocol (MCP) & Agent Integrations</h1>
+          <h1 className="text-lg font-semibold tracking-tight text-ink">Model Context Protocol (MCP) &amp; Agent Integrations</h1>
           <p className="text-xs text-ash">
             Seamlessly connect Google Antigravity (CLI, Desktop, IDE), Claude Code, Cursor, and custom agent harnesses.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={() => void verifyAllHarnesses()}
             disabled={verifyingHarness === 'all' || connectedCount === 0}
-            className="flex items-center gap-1.5 rounded-md border border-line bg-surface-elevated px-3 py-1.5 text-xs font-medium text-snow hover:bg-surface-card disabled:opacity-40"
           >
             {verifyingHarness === 'all' ? <SpinnerIcon size="xs" animate="spin" /> : <McpPlugIcon size="xs" />}
             <span>{verifyingHarness === 'all' ? 'Verifying All…' : 'Verify All Connections'}</span>
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={() => void loadMcpStatus()}
-            className="group flex items-center gap-1.5 rounded-md border border-line bg-surface-elevated px-3 py-1.5 text-xs font-medium text-snow hover:bg-surface-card"
           >
             <RefreshIcon size="sm" animate="hover-rotate" />
             <span>Refresh</span>
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Live MCP Server Status Banner */}
-      <div className="mb-6 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
+      <div className="mb-6 rounded-lg border border-status-success-border bg-status-success-bg p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="grid size-10 place-items-center rounded-lg bg-emerald-500/20 text-emerald-400">
+            <div className="grid size-10 place-items-center rounded-md border border-status-success-border bg-surface text-status-success">
               <McpPlugIcon size="md" animate="pulse-slow" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-emerald-300">Kanban MCP Server Online</h2>
+                <h2 className="text-xs font-bold uppercase tracking-wider text-status-success">Kanban MCP Server Online</h2>
                 <LiveObserverBlip />
               </div>
-              <p className="mt-0.5 text-[11px] text-emerald-400/90">
+              <p className="mt-0.5 text-[11px] text-mute">
                 Direct Stdio JSON-RPC Bridge · {connectedCount} connected harness{connectedCount === 1 ? '' : 'es'} · 8 exposed agent tools
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-[11px] text-emerald-300">
-            <span className="rounded bg-emerald-500/20 px-2 py-0.5 font-mono text-[10px]">
+          <div className="flex items-center gap-2 text-[11px] text-mute">
+            <span className="rounded-[5px] border border-status-success-border bg-surface px-2 py-0.5 font-mono text-[10px]">
               stdio: kanban-mcp.js
             </span>
           </div>
@@ -163,14 +164,14 @@ export const McpSettings: React.FC = () => {
 
       {feedback && (
         <div
-          className={`mb-6 flex items-center justify-between rounded-md p-3 text-xs ${
-            feedback.success ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30' : 'bg-red-500/10 text-red-300 border border-red-500/30'
+          className={`mb-6 flex items-center justify-between rounded-md p-3 text-xs border ${
+            feedback.success
+              ? 'border-status-success-border bg-status-success-bg text-status-success'
+              : 'border-status-danger-border bg-status-danger-bg text-status-danger'
           }`}
         >
           <span>{feedback.msg}</span>
-          <button type="button" onClick={() => setFeedback(null)} className="text-ash hover:text-snow">
-            <CloseIcon size="xs" />
-          </button>
+          <IconButton label="Dismiss feedback" size="sm" onClick={() => setFeedback(null)} />
         </div>
       )}
 
@@ -178,7 +179,7 @@ export const McpSettings: React.FC = () => {
       <div className="mb-8">
         <div className="mb-3 flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-snow">Google Antigravity Ecosystem</h2>
+            <h2 className="text-sm font-semibold text-ink">Google Antigravity Ecosystem</h2>
             <p className="text-xs text-ash">
               Configure and verify connections for all Antigravity variants (CLI, Desktop App, IDE).
             </p>
@@ -194,24 +195,24 @@ export const McpSettings: React.FC = () => {
             return (
               <div
                 key={h.id}
-                className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-4 transition-all hover:border-white/20 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-4 transition-colors hover:border-hairline-strong sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-xs font-semibold text-snow">{h.name}</h3>
+                    <h3 className="text-xs font-semibold text-ink">{h.name}</h3>
                     {h.configured ? (
-                      <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
+                      <Badge className="badge-success">
                         <CheckIcon size="xs" />
                         <span>Connected</span>
-                      </span>
+                      </Badge>
                     ) : h.detected ? (
-                      <span className="rounded bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-400">
+                      <Badge className="badge-warning">
                         Detected
-                      </span>
+                      </Badge>
                     ) : (
-                      <span className="rounded bg-surface-card px-2 py-0.5 text-[10px] text-ash">
+                      <Badge className="badge-neutral">
                         Path Not Found
-                      </span>
+                      </Badge>
                     )}
 
                     {/* Verification Badge */}
@@ -219,18 +220,16 @@ export const McpSettings: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setSelectedDiagnosticHarness(h)}
-                        className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium transition-colors ${
-                          verification.success
-                            ? 'bg-sky-500/10 text-sky-400 hover:bg-sky-500/20'
-                            : 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20'
-                        }`}
+                        className="focus-ring rounded-[5px]"
                       >
-                        {verification.success ? <CheckIcon size="xs" /> : <AlertIcon size="xs" />}
-                        <span>
-                          {verification.success
-                            ? `Verified (${verification.latencyMs ?? 0}ms · ${verification.toolsDiscovered ?? 8} tools)`
-                            : 'Verification Failed'}
-                        </span>
+                        <Badge className={verification.success ? 'badge-info' : 'badge-danger'}>
+                          {verification.success ? <CheckIcon size="xs" /> : <AlertIcon size="xs" />}
+                          <span>
+                            {verification.success
+                              ? `Verified (${verification.latencyMs ?? 0}ms · ${verification.toolsDiscovered ?? 8} tools)`
+                              : 'Verification Failed'}
+                          </span>
+                        </Badge>
                       </button>
                     )}
                   </div>
@@ -241,45 +240,49 @@ export const McpSettings: React.FC = () => {
 
                 <div className="flex items-center gap-2 shrink-0">
                   {h.configured && (
-                    <button
+                    <Button
                       type="button"
+                      variant="secondary"
+                      size="sm"
                       onClick={() => void handleTestConnection(h)}
                       disabled={isVerifying}
-                      className="flex items-center gap-1 rounded-md border border-line bg-surface-elevated px-2.5 py-1.5 text-xs font-medium text-snow hover:bg-surface-card disabled:opacity-40"
                     >
                       {isVerifying ? <SpinnerIcon size="xs" animate="spin" /> : <McpPlugIcon size="xs" />}
                       <span>{isVerifying ? 'Testing…' : 'Test Connection'}</span>
-                    </button>
+                    </Button>
                   )}
 
                   {verification && (
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="sm"
                       onClick={() => setSelectedDiagnosticHarness(h)}
-                      className="rounded-md border border-line bg-surface-elevated px-2.5 py-1.5 text-xs font-medium text-ash hover:text-snow hover:bg-surface-card"
                     >
                       Diagnostics
-                    </button>
+                    </Button>
                   )}
 
                   {h.configured ? (
-                    <button
+                    <Button
                       type="button"
+                      variant="danger"
+                      size="sm"
                       onClick={() => void handleDisconnect(h)}
                       disabled={isConfiguring}
-                      className="rounded-md border border-red-500/30 bg-red-500/10 px-2.5 py-1.5 text-xs font-semibold text-red-300 hover:bg-red-500/20 disabled:opacity-40"
                     >
                       {isConfiguring ? 'Disconnecting…' : 'Disconnect'}
-                    </button>
+                    </Button>
                   ) : (
-                    <button
+                    <Button
                       type="button"
+                      variant="primary"
+                      size="sm"
                       onClick={() => void handleConnect(h)}
                       disabled={isConfiguring}
-                      className="rounded-md border border-line bg-surface-elevated px-3 py-1.5 text-xs font-semibold text-snow hover:bg-surface-card disabled:opacity-40"
                     >
                       {isConfiguring ? 'Connecting…' : '1-Click Connect'}
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>
@@ -290,7 +293,7 @@ export const McpSettings: React.FC = () => {
 
       {/* 2. Claude, Cursor & AI IDEs Section */}
       <div className="mb-8">
-        <h2 className="mb-3 text-sm font-semibold text-snow">Claude, Cursor & AI Code Editors</h2>
+        <h2 className="mb-3 text-sm font-semibold text-ink">Claude, Cursor &amp; AI Code Editors</h2>
         <div className="space-y-3">
           {editorHarnesses.map((h) => {
             const verification = mcpVerifications[h.id]
@@ -300,42 +303,40 @@ export const McpSettings: React.FC = () => {
             return (
               <div
                 key={h.id}
-                className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-4 transition-all hover:border-white/20 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-4 transition-colors hover:border-hairline-strong sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-xs font-semibold text-snow">{h.name}</h3>
+                    <h3 className="text-xs font-semibold text-ink">{h.name}</h3>
                     {h.configured ? (
-                      <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
+                      <Badge className="badge-success">
                         <CheckIcon size="xs" />
                         <span>Connected</span>
-                      </span>
+                      </Badge>
                     ) : h.detected ? (
-                      <span className="rounded bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-400">
+                      <Badge className="badge-warning">
                         Detected
-                      </span>
+                      </Badge>
                     ) : (
-                      <span className="rounded bg-surface-card px-2 py-0.5 text-[10px] text-ash">
+                      <Badge className="badge-neutral">
                         Not installed
-                      </span>
+                      </Badge>
                     )}
 
                     {verification && (
                       <button
                         type="button"
                         onClick={() => setSelectedDiagnosticHarness(h)}
-                        className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium transition-colors ${
-                          verification.success
-                            ? 'bg-sky-500/10 text-sky-400 hover:bg-sky-500/20'
-                            : 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20'
-                        }`}
+                        className="focus-ring rounded-[5px]"
                       >
-                        {verification.success ? <CheckIcon size="xs" /> : <AlertIcon size="xs" />}
-                        <span>
-                          {verification.success
-                            ? `Verified (${verification.latencyMs ?? 0}ms · ${verification.toolsDiscovered ?? 8} tools)`
-                            : 'Verification Failed'}
-                        </span>
+                        <Badge className={verification.success ? 'badge-info' : 'badge-danger'}>
+                          {verification.success ? <CheckIcon size="xs" /> : <AlertIcon size="xs" />}
+                          <span>
+                            {verification.success
+                              ? `Verified (${verification.latencyMs ?? 0}ms · ${verification.toolsDiscovered ?? 8} tools)`
+                              : 'Verification Failed'}
+                          </span>
+                        </Badge>
                       </button>
                     )}
                   </div>
@@ -346,45 +347,49 @@ export const McpSettings: React.FC = () => {
 
                 <div className="flex items-center gap-2 shrink-0">
                   {h.configured && (
-                    <button
+                    <Button
                       type="button"
+                      variant="secondary"
+                      size="sm"
                       onClick={() => void handleTestConnection(h)}
                       disabled={isVerifying}
-                      className="flex items-center gap-1 rounded-md border border-line bg-surface-elevated px-2.5 py-1.5 text-xs font-medium text-snow hover:bg-surface-card disabled:opacity-40"
                     >
                       {isVerifying ? <SpinnerIcon size="xs" animate="spin" /> : <McpPlugIcon size="xs" />}
                       <span>{isVerifying ? 'Testing…' : 'Test Connection'}</span>
-                    </button>
+                    </Button>
                   )}
 
                   {verification && (
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="sm"
                       onClick={() => setSelectedDiagnosticHarness(h)}
-                      className="rounded-md border border-line bg-surface-elevated px-2.5 py-1.5 text-xs font-medium text-ash hover:text-snow hover:bg-surface-card"
                     >
                       Diagnostics
-                    </button>
+                    </Button>
                   )}
 
                   {h.configured ? (
-                    <button
+                    <Button
                       type="button"
+                      variant="danger"
+                      size="sm"
                       onClick={() => void handleDisconnect(h)}
                       disabled={isConfiguring}
-                      className="rounded-md border border-red-500/30 bg-red-500/10 px-2.5 py-1.5 text-xs font-semibold text-red-300 hover:bg-red-500/20 disabled:opacity-40"
                     >
                       {isConfiguring ? 'Disconnecting…' : 'Disconnect'}
-                    </button>
+                    </Button>
                   ) : (
-                    <button
+                    <Button
                       type="button"
+                      variant="primary"
+                      size="sm"
                       onClick={() => void handleConnect(h)}
                       disabled={isConfiguring}
-                      className="rounded-md border border-line bg-surface-elevated px-3 py-1.5 text-xs font-semibold text-snow hover:bg-surface-card disabled:opacity-40"
                     >
                       {isConfiguring ? 'Connecting…' : '1-Click Connect'}
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>
@@ -397,22 +402,23 @@ export const McpSettings: React.FC = () => {
       <div className="mb-8">
         <div className="mb-3 flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-snow">Custom Agent Harnesses & Configurations</h2>
+            <h2 className="text-sm font-semibold text-ink">Custom Agent Harnesses &amp; Configurations</h2>
             <p className="text-xs text-ash">
               Register any custom MCP config file path for proprietary agents or experimental tools.
             </p>
           </div>
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={() => setShowAddCustomModal(true)}
-            className="flex items-center gap-1 rounded-md border border-line bg-surface-elevated px-3 py-1.5 text-xs font-medium text-snow hover:bg-surface-card"
           >
             <span>+ Add Custom Path</span>
-          </button>
+          </Button>
         </div>
 
         {customHarnesses.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-line p-4 text-center text-xs text-ash">
+          <div className="rounded-lg border border-dashed border-hairline p-4 text-center text-xs text-ash">
             No custom agent harnesses registered yet. Click &quot;+ Add Custom Path&quot; to configure a custom config location.
           </div>
         ) : (
@@ -424,70 +430,66 @@ export const McpSettings: React.FC = () => {
               return (
                 <div
                   key={h.id}
-                  className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-4 transition-all hover:border-white/20 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-4 transition-colors hover:border-hairline-strong sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-xs font-semibold text-snow">{h.name}</h3>
+                      <h3 className="text-xs font-semibold text-ink">{h.name}</h3>
                       {h.configured ? (
-                        <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
+                        <Badge className="badge-success">
                           <CheckIcon size="xs" />
                           <span>Connected</span>
-                        </span>
+                        </Badge>
                       ) : (
-                        <span className="rounded bg-surface-card px-2 py-0.5 text-[10px] text-ash">
+                        <Badge className="badge-neutral">
                           Not configured
-                        </span>
+                        </Badge>
                       )}
 
                       {verification && (
-                        <span
-                          className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium ${
-                            verification.success ? 'bg-sky-500/10 text-sky-400' : 'bg-rose-500/10 text-rose-400'
-                          }`}
-                        >
+                        <Badge className={verification.success ? 'badge-info' : 'badge-danger'}>
                           {verification.success ? <CheckIcon size="xs" /> : <AlertIcon size="xs" />}
                           <span>{verification.success ? `Verified (${verification.latencyMs}ms)` : 'Failed'}</span>
-                        </span>
+                        </Badge>
                       )}
                     </div>
                     <p className="mt-1 truncate font-mono text-[11px] text-ash">{h.configPath}</p>
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
-                    <button
+                    <Button
                       type="button"
+                      variant="secondary"
+                      size="sm"
                       onClick={() => void handleTestConnection(h)}
                       disabled={isVerifying}
-                      className="rounded-md border border-line bg-surface-elevated px-2.5 py-1.5 text-xs font-medium text-snow hover:bg-surface-card"
                     >
                       {isVerifying ? 'Testing…' : 'Test'}
-                    </button>
+                    </Button>
                     {h.configured ? (
-                      <button
+                      <Button
                         type="button"
+                        variant="danger"
+                        size="sm"
                         onClick={() => void handleDisconnect(h)}
-                        className="rounded-md border border-red-500/30 bg-red-500/10 px-2.5 py-1.5 text-xs font-semibold text-red-300 hover:bg-red-500/20"
                       >
                         Disconnect
-                      </button>
+                      </Button>
                     ) : (
-                      <button
+                      <Button
                         type="button"
+                        variant="primary"
+                        size="sm"
                         onClick={() => void handleConnect(h)}
-                        className="rounded-md border border-line bg-surface-elevated px-3 py-1.5 text-xs font-semibold text-snow hover:bg-surface-card"
                       >
                         Connect
-                      </button>
+                      </Button>
                     )}
-                    <button
-                      type="button"
+                    <IconButton
+                      label="Delete custom harness"
+                      size="sm"
                       onClick={() => void removeCustomHarness(h.id)}
-                      className="text-ash hover:text-red-400 p-1"
-                      title="Delete custom harness"
-                    >
-                      <CloseIcon size="xs" />
-                    </button>
+                    />
                   </div>
                 </div>
               )
@@ -498,11 +500,11 @@ export const McpSettings: React.FC = () => {
 
       {/* 4. Live Recent MCP Tool Calls Audit Log */}
       {mcpStatus?.recentToolCalls && mcpStatus.recentToolCalls.length > 0 && (
-        <div className="mb-8 rounded-lg border border-line bg-surface p-5">
-          <div className="flex items-center justify-between pb-3 border-b border-line">
+        <div className="mb-8 rounded-lg border border-hairline bg-surface p-5">
+          <div className="flex items-center justify-between pb-3 border-b border-hairline">
             <div className="flex items-center gap-2">
-              <TerminalIcon size="sm" className="text-sky-400" />
-              <h2 className="text-sm font-semibold text-snow">Live External Agent Activity (MCP Invocations)</h2>
+              <TerminalIcon size="sm" className="text-mute" />
+              <h2 className="text-sm font-semibold text-ink">Live External Agent Activity (MCP Invocations)</h2>
             </div>
             <span className="text-[11px] text-ash font-mono">
               {mcpStatus.recentToolCalls.length} tool calls recorded
@@ -513,10 +515,10 @@ export const McpSettings: React.FC = () => {
             {mcpStatus.recentToolCalls.slice(0, 10).map((call) => (
               <div
                 key={call.id}
-                className="flex items-center justify-between rounded bg-surface-elevated px-3 py-2 text-[11px]"
+                className="flex items-center justify-between rounded-md border border-hairline bg-surface-elevated px-3 py-2 text-[11px]"
               >
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-sky-400">{call.tool}</span>
+                  <span className="font-semibold text-ink">{call.tool}</span>
                   {call.taskId && <span className="text-ash truncate max-w-xs">task: {call.taskId}</span>}
                 </div>
                 <span className="text-[10px] text-ash">
@@ -529,58 +531,57 @@ export const McpSettings: React.FC = () => {
       )}
 
       {/* 5. Manual JSON Configuration Box */}
-      <div className="rounded-lg border border-line bg-surface p-5">
-        <div className="flex items-center justify-between pb-3 border-b border-line">
-          <h2 className="text-sm font-semibold text-snow">Manual MCP Configuration JSON</h2>
-          <button
+      <div className="rounded-lg border border-hairline bg-surface p-5">
+        <div className="flex items-center justify-between pb-3 border-b border-hairline">
+          <h2 className="text-sm font-semibold text-ink">Manual MCP Configuration JSON</h2>
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={copyConfigSnippet}
-            className="flex items-center gap-1.5 rounded bg-surface-elevated px-2.5 py-1 text-xs font-medium text-snow hover:bg-surface-card"
           >
-            {copied ? <CheckIcon size="xs" className="text-emerald-400" /> : <CopyIcon size="xs" />}
+            {copied ? <CheckIcon size="xs" className="text-status-success" /> : <CopyIcon size="xs" />}
             <span>{copied ? 'Copied!' : 'Copy JSON'}</span>
-          </button>
+          </Button>
         </div>
         <p className="mt-2 text-xs text-ash">
           If you prefer to configure manually, copy and paste this definition into your harness config:
         </p>
-        <pre className="mt-3 overflow-x-auto rounded bg-canvas p-3 font-mono text-xs text-ash">
+        <pre className="mt-3 overflow-x-auto rounded-md border border-hairline bg-canvas p-3 font-mono text-xs text-ash">
           {sampleJsonSnippet}
         </pre>
       </div>
 
       {/* Diagnostic Trace Modal */}
       {selectedDiagnosticHarness && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-xl rounded-lg border border-line bg-surface p-6 shadow-2xl">
-            <div className="flex items-center justify-between pb-4 border-b border-line">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-canvas/80 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-xl rounded-lg border border-hairline bg-surface p-6 shadow-2xl">
+            <div className="flex items-center justify-between pb-4 border-b border-hairline">
               <div>
-                <h3 className="text-sm font-bold text-snow">
+                <h3 className="text-sm font-bold text-ink">
                   Connection Diagnostics: {selectedDiagnosticHarness.name}
                 </h3>
                 <p className="text-[11px] font-mono text-ash truncate mt-0.5">
                   {selectedDiagnosticHarness.configPath}
                 </p>
               </div>
-              <button
-                type="button"
+              <IconButton
+                label="Close modal"
+                size="md"
                 onClick={() => setSelectedDiagnosticHarness(null)}
-                className="rounded p-1 text-ash hover:text-snow hover:bg-surface-elevated"
-              >
-                <CloseIcon size="sm" />
-              </button>
+              />
             </div>
 
             <div className="mt-4 space-y-3">
               {mcpVerifications[selectedDiagnosticHarness.id]?.diagnostics.map((diag, i) => (
                 <div
                   key={i}
-                  className={`flex items-start gap-2.5 rounded-md p-3 text-xs ${
+                  className={`flex items-start gap-2.5 rounded-md p-3 text-xs border ${
                     diag.status === 'ok'
-                      ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'
+                      ? 'border-status-success-border bg-status-success-bg text-status-success'
                       : diag.status === 'warn'
-                      ? 'bg-amber-500/10 text-amber-300 border border-amber-500/20'
-                      : 'bg-rose-500/10 text-rose-300 border border-rose-500/20'
+                      ? 'border-status-warning-border bg-status-warning-bg text-status-warning'
+                      : 'border-status-danger-border bg-status-danger-bg text-status-danger'
                   }`}
                 >
                   <div className="mt-0.5">
@@ -605,11 +606,12 @@ export const McpSettings: React.FC = () => {
             </div>
 
             <div className="mt-6 flex justify-end gap-2">
-              <button
+              <Button
                 type="button"
+                variant="primary"
+                size="sm"
                 onClick={() => void handleTestConnection(selectedDiagnosticHarness)}
                 disabled={verifyingHarness === selectedDiagnosticHarness.id}
-                className="flex items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-xs font-semibold text-snow hover:opacity-90 disabled:opacity-40"
               >
                 {verifyingHarness === selectedDiagnosticHarness.id ? (
                   <SpinnerIcon size="xs" animate="spin" />
@@ -617,14 +619,15 @@ export const McpSettings: React.FC = () => {
                   <RefreshIcon size="xs" />
                 )}
                 <span>Re-run Test</span>
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="secondary"
+                size="sm"
                 onClick={() => setSelectedDiagnosticHarness(null)}
-                className="rounded-md border border-line bg-surface-elevated px-4 py-2 text-xs font-medium text-snow hover:bg-surface-card"
               >
                 Close
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -632,59 +635,54 @@ export const McpSettings: React.FC = () => {
 
       {/* Add Custom Harness Modal */}
       {showAddCustomModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <form onSubmit={handleAddCustom} className="w-full max-w-md rounded-lg border border-line bg-surface p-6 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-line">
-              <h3 className="text-sm font-bold text-snow">Register Custom Harness Config</h3>
-              <button
-                type="button"
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-canvas/80 p-4 backdrop-blur-sm">
+          <form onSubmit={handleAddCustom} className="w-full max-w-md rounded-lg border border-hairline bg-surface p-6 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-hairline">
+              <h3 className="text-sm font-bold text-ink">Register Custom Harness Config</h3>
+              <IconButton
+                label="Close modal"
+                size="sm"
                 onClick={() => setShowAddCustomModal(false)}
-                className="rounded p-1 text-ash hover:text-snow"
-              >
-                <CloseIcon size="sm" />
-              </button>
+              />
             </div>
 
             <div className="mt-4 space-y-4 text-xs">
-              <div>
-                <label className="block font-medium text-ash mb-1">Harness / Agent Name</label>
-                <input
-                  type="text"
+              <Field label="Harness / Agent Name">
+                <TextInput
                   value={customName}
                   onChange={(e) => setCustomName(e.target.value)}
                   placeholder="e.g. My Custom Agent IDE"
-                  className="w-full rounded border border-line bg-surface-elevated px-3 py-2 text-snow outline-none focus:border-white/40"
                   required
                 />
-              </div>
+              </Field>
 
-              <div>
-                <label className="block font-medium text-ash mb-1">Absolute Config File Path</label>
-                <input
-                  type="text"
+              <Field label="Absolute Config File Path">
+                <TextInput
                   value={customPath}
                   onChange={(e) => setCustomPath(e.target.value)}
-                  placeholder="e.g. /Users/name/.my-agent/mcp_config.json"
-                  className="w-full rounded border border-line bg-surface-elevated px-3 py-2 font-mono text-[11px] text-snow outline-none focus:border-white/40"
+                  placeholder="/Users/name/.my-agent/mcp_config.json"
+                  className="font-mono text-[11px]"
                   required
                 />
-              </div>
+              </Field>
             </div>
 
             <div className="mt-6 flex justify-end gap-2">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="sm"
                 onClick={() => setShowAddCustomModal(false)}
-                className="rounded-md border border-line bg-surface-elevated px-3 py-1.5 text-xs font-medium text-snow hover:bg-surface-card"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
-                className="rounded-md bg-accent px-4 py-1.5 text-xs font-semibold text-snow hover:opacity-90"
+                variant="primary"
+                size="sm"
               >
                 Save &amp; Register
-              </button>
+              </Button>
             </div>
           </form>
         </div>

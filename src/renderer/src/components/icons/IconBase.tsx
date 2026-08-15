@@ -47,7 +47,7 @@ export const IconBase = forwardRef<SVGSVGElement, IconProps & { children: React.
         aria-hidden={isAriaHidden}
         className={`inline-block shrink-0 align-middle transition-colors duration-150 ${
           ANIMATION_CLASSES[animate] || ''
-        } ${active ? 'text-ink drop-shadow-[0_0_8px_rgba(255,255,255,0.25)]' : ''} ${className || ''}`}
+        } ${active ? 'text-ink' : ''} ${className || ''}`}
         {...rest}
       >
         {title && <title>{title}</title>}

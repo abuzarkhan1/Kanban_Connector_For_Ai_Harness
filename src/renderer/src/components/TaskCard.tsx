@@ -47,20 +47,20 @@ export function TaskCard({ task }: { task: TaskDto }) {
         'cursor-grab select-none rounded-md border p-3 text-left transition-opacity duration-150 active:cursor-grabbing',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink',
         dragging && 'opacity-40',
-        selected ? 'border-ink bg-surface-elevated' : 'border-hairline bg-surface-card hover:border-ash/70'
+        selected ? 'border-ink bg-surface-elevated' : 'border-hairline bg-surface-card hover:border-hairline-strong'
       )}
     >
       <div className="flex items-start justify-between gap-1">
         <p className="text-[13px] font-medium leading-snug text-ink">{task.title}</p>
         {task.automationMode === 'AUTO' && (
-          <span className="shrink-0 rounded bg-emerald-500/10 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-emerald-400">
+          <span className="shrink-0 rounded-[5px] border border-hairline bg-surface-elevated px-1.5 py-0.5 font-mono text-[9px] font-medium text-mute">
             AUTO
           </span>
         )}
       </div>
 
       {task.branch && (
-        <div className="mt-1.5 flex items-center gap-1.5 font-mono text-[10px] text-sky-400">
+        <div className="mt-1.5 flex items-center gap-1.5 font-mono text-[10px] text-mute">
           <RepositoryIcon size="xs" />
           <span className="truncate max-w-[160px]">{task.branch}</span>
         </div>

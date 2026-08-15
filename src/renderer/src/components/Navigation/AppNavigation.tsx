@@ -39,7 +39,7 @@ export const AppNavigation: React.FC = () => {
   ]
 
   return (
-    <nav className="flex items-center gap-1 border-b border-line bg-surface/90 px-4 py-2 backdrop-blur-md">
+    <nav className="flex items-center gap-1 border-b border-hairline bg-surface px-4 py-2">
       <div className="flex items-center gap-1 overflow-x-auto">
         {navItems.map((item) => {
           const isActive = currentView === item.id
@@ -51,10 +51,10 @@ export const AppNavigation: React.FC = () => {
               key={item.id}
               type="button"
               onClick={() => setCurrentView(item.id)}
-              className={`group flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
+              className={`group flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-medium transition-colors focus-ring ${
                 isActive
-                  ? 'bg-surface-elevated text-snow shadow-sm ring-1 ring-white/10'
-                  : 'text-ash hover:bg-surface-card hover:text-snow'
+                  ? 'border border-hairline bg-surface-elevated text-ink'
+                  : 'border border-transparent text-mute hover:bg-surface-elevated hover:text-ink'
               }`}
             >
               <IconComponent
@@ -65,7 +65,7 @@ export const AppNavigation: React.FC = () => {
               />
               <span>{item.label}</span>
               {typeof item.badge === 'number' && item.badge > 0 && (
-                <span className="rounded-full bg-surface-card px-1.5 py-0.5 font-mono text-[10px] text-ash">
+                <span className="rounded-[5px] bg-surface-card px-1.5 py-0.5 font-mono text-[10px] tabular-nums text-mute">
                   {item.badge}
                 </span>
               )}

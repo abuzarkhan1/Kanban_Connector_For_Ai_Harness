@@ -88,10 +88,10 @@ export const LiveObserverBlip: React.FC<{
   className?: string
 }> = ({ status = 'active', label, className }) => {
   const colorMap = {
-    active: 'bg-emerald-400 text-emerald-400',
+    active: 'bg-status-success text-status-success',
     idle: 'bg-stone text-stone',
-    warning: 'bg-amber-400 text-amber-400',
-    error: 'bg-rose-400 text-rose-400'
+    warning: 'bg-status-warning text-status-warning',
+    error: 'bg-status-danger text-status-danger'
   }
   const colorClass = colorMap[status]
 

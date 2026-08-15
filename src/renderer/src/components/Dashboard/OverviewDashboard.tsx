@@ -8,8 +8,10 @@ import {
   AlertIcon,
   ArrowRightIcon,
   RepositoryIcon,
-  AgentIcon
+  AgentIcon,
+  LiveObserverBlip
 } from '../icons'
+import { Button } from '../ui'
 
 export const OverviewDashboard: React.FC = () => {
   const { board, repositories, agents, sessions, setCurrentView } = useBoardStore()
@@ -27,78 +29,79 @@ export const OverviewDashboard: React.FC = () => {
   const activeSessions = sessions.filter((s) => !s.endedAt)
 
   return (
-    <div className="flex flex-1 flex-col overflow-auto bg-canvas p-6 text-snow">
+    <div className="flex flex-1 flex-col overflow-auto bg-canvas p-6 text-ink">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-snow">Project Overview & Metrics</h1>
+          <h1 className="text-lg font-semibold tracking-tight text-ink">Project Overview &amp; Metrics</h1>
           <p className="text-xs text-ash">Real-time control plane deriving state across coding harnesses</p>
         </div>
-        <button
-          type="button"
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={() => setCurrentView('kanban')}
-          className="group flex items-center gap-1.5 rounded-md bg-surface-elevated px-3 py-1.5 text-xs font-medium text-snow ring-1 ring-white/10 hover:bg-surface-card"
+          className="group"
         >
           <span>View Kanban Board</span>
           <ArrowRightIcon size="xs" animate="hover-nudge" />
-        </button>
+        </Button>
       </div>
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="group rounded-lg border border-line bg-surface p-4 shadow-sm transition-all hover:border-white/20">
+        <div className="group rounded-lg border border-hairline bg-surface p-4 transition-colors hover:border-hairline-strong">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-ash">Total Tasks</span>
-            <ClipboardIcon size="lg" className="text-ash group-hover:text-snow" />
+            <span className="label">Total Tasks</span>
+            <ClipboardIcon size="lg" className="text-ash group-hover:text-ink" />
           </div>
-          <p className="mt-2 text-2xl font-bold text-snow">{allTasks.length}</p>
-          <p className="mt-1 text-[11px] text-ash">Across 4 lifecycle columns</p>
+          <p className="mt-2 text-2xl font-bold text-ink">{allTasks.length}</p>
+          <p className="mt-1 font-mono text-[11px] text-ash">Across 4 lifecycle columns</p>
         </div>
 
-        <div className="group rounded-lg border border-line bg-surface p-4 shadow-sm transition-all hover:border-amber-500/40">
+        <div className="group rounded-lg border border-hairline bg-surface p-4 transition-colors hover:border-hairline-strong">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-ash">In Progress</span>
+            <span className="label">In Progress</span>
             <ZapIcon
               size="lg"
               animate={activeSessions.length > 0 ? 'pulse' : 'none'}
-              className="text-amber-400"
+              className="text-ash group-hover:text-ink"
             />
           </div>
-          <p className="mt-2 text-2xl font-bold text-amber-400">{inProgress.length}</p>
-          <p className="mt-1 text-[11px] text-ash">{activeSessions.length} active agent sessions</p>
+          <p className="mt-2 text-2xl font-bold text-ink">{inProgress.length}</p>
+          <p className="mt-1 font-mono text-[11px] text-ash">{activeSessions.length} active agent sessions</p>
         </div>
 
-        <div className="group rounded-lg border border-line bg-surface p-4 shadow-sm transition-all hover:border-sky-500/40">
+        <div className="group rounded-lg border border-hairline bg-surface p-4 transition-colors hover:border-hairline-strong">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-ash">Ready for Review</span>
-            <SearchIcon size="lg" className="text-sky-400" />
+            <span className="label">Ready for Review</span>
+            <SearchIcon size="lg" className="text-ash group-hover:text-ink" />
           </div>
-          <p className="mt-2 text-2xl font-bold text-sky-400">{inReview.length}</p>
-          <p className="mt-1 text-[11px] text-ash">Tests passed & commits verified</p>
+          <p className="mt-2 text-2xl font-bold text-ink">{inReview.length}</p>
+          <p className="mt-1 font-mono text-[11px] text-ash">Tests passed &amp; commits verified</p>
         </div>
 
-        <div className="group rounded-lg border border-line bg-surface p-4 shadow-sm transition-all hover:border-emerald-500/40">
+        <div className="group rounded-lg border border-hairline bg-surface p-4 transition-colors hover:border-hairline-strong">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-ash">Completed</span>
-            <CheckCircleIcon size="lg" className="text-emerald-400" />
+            <span className="label">Completed</span>
+            <CheckCircleIcon size="lg" className="text-ash group-hover:text-ink" />
           </div>
-          <p className="mt-2 text-2xl font-bold text-emerald-400">{completed.length}</p>
-          <p className="mt-1 text-[11px] text-ash">
+          <p className="mt-2 text-2xl font-bold text-ink">{completed.length}</p>
+          <p className="mt-1 font-mono text-[11px] text-ash">
             {allTasks.length ? Math.round((completed.length / allTasks.length) * 100) : 0}% completion rate
           </p>
         </div>
       </div>
 
       {blocked.length > 0 && (
-        <div className="mt-6 rounded-lg border border-rose-500/30 bg-rose-500/10 p-4">
-          <div className="flex items-center gap-2 text-rose-400">
+        <div className="mt-6 rounded-lg border border-status-danger-border bg-status-danger-bg p-4">
+          <div className="flex items-center gap-2 text-status-danger">
             <AlertIcon size="md" animate="pulse-slow" />
             <span className="text-xs font-semibold">{blocked.length} Blocked Tasks Detected</span>
           </div>
           <div className="mt-2 space-y-1">
             {blocked.map((t) => (
-              <div key={t.id} className="flex items-center justify-between text-xs text-rose-200">
+              <div key={t.id} className="flex items-center justify-between text-xs text-body">
                 <span>{t.title}</span>
-                <span className="font-mono text-[10px] text-rose-400">Awaiting user permission or test fix</span>
+                <span className="font-mono text-[10px] text-mute">Awaiting user permission or test fix</span>
               </div>
             ))}
           </div>
@@ -107,16 +110,16 @@ export const OverviewDashboard: React.FC = () => {
 
       {/* Subsystem Health Cards */}
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-line bg-surface p-5">
-          <div className="flex items-center justify-between pb-3 border-b border-line">
+        <div className="rounded-lg border border-hairline bg-surface p-5">
+          <div className="flex items-center justify-between pb-3 border-b border-hairline">
             <div className="flex items-center gap-2">
-              <RepositoryIcon size="sm" className="text-ash" />
-              <h2 className="text-sm font-semibold text-snow">Connected Repositories</h2>
+              <RepositoryIcon size="sm" className="text-mute" />
+              <h2 className="text-sm font-semibold text-ink">Connected Repositories</h2>
             </div>
             <button
               type="button"
               onClick={() => setCurrentView('repositories')}
-              className="group flex items-center gap-1 text-xs text-ash hover:text-snow"
+              className="group flex items-center gap-1 text-xs text-mute hover:text-ink focus-ring rounded"
             >
               <span>Manage ({repositories.length})</span>
               <ArrowRightIcon size="xs" animate="hover-nudge" />
@@ -129,13 +132,13 @@ export const OverviewDashboard: React.FC = () => {
           ) : (
             <div className="mt-3 space-y-2">
               {repositories.map((repo) => (
-                <div key={repo.id} className="flex items-center justify-between rounded bg-surface-elevated p-3">
+                <div key={repo.id} className="flex items-center justify-between rounded-md border border-hairline bg-surface-elevated p-3">
                   <div>
-                    <p className="text-xs font-medium text-snow">{repo.name}</p>
+                    <p className="text-xs font-medium text-ink">{repo.name}</p>
                     <p className="font-mono text-[11px] text-ash truncate max-w-xs">{repo.path}</p>
                   </div>
                   <div className="text-right">
-                    <span className="rounded bg-surface-card px-2 py-0.5 font-mono text-[10px] text-sky-300">
+                    <span className="rounded-[5px] border border-hairline bg-surface-card px-2 py-0.5 font-mono text-[10px] text-mute">
                       branch: {repo.currentBranch}
                     </span>
                   </div>
@@ -145,16 +148,16 @@ export const OverviewDashboard: React.FC = () => {
           )}
         </div>
 
-        <div className="rounded-lg border border-line bg-surface p-5">
-          <div className="flex items-center justify-between pb-3 border-b border-line">
+        <div className="rounded-lg border border-hairline bg-surface p-5">
+          <div className="flex items-center justify-between pb-3 border-b border-hairline">
             <div className="flex items-center gap-2">
-              <AgentIcon size="sm" className="text-ash" />
-              <h2 className="text-sm font-semibold text-snow">Active Agents & Harnesses</h2>
+              <AgentIcon size="sm" className="text-mute" />
+              <h2 className="text-sm font-semibold text-ink">Active Agents &amp; Harnesses</h2>
             </div>
             <button
               type="button"
               onClick={() => setCurrentView('agents')}
-              className="group flex items-center gap-1 text-xs text-ash hover:text-snow"
+              className="group flex items-center gap-1 text-xs text-mute hover:text-ink focus-ring rounded"
             >
               <span>View All ({agents.length})</span>
               <ArrowRightIcon size="xs" animate="hover-nudge" />
@@ -167,17 +170,14 @@ export const OverviewDashboard: React.FC = () => {
           ) : (
             <div className="mt-3 space-y-2">
               {agents.map((agent) => (
-                <div key={agent.id} className="flex items-center justify-between rounded bg-surface-elevated p-3">
+                <div key={agent.id} className="flex items-center justify-between rounded-md border border-hairline bg-surface-elevated p-3">
                   <div>
-                    <p className="text-xs font-medium text-snow">{agent.displayName}</p>
+                    <p className="text-xs font-medium text-ink">{agent.displayName}</p>
                     <p className="font-mono text-[11px] text-ash">
                       {agent.type} (Level {agent.adapterLevel})
                     </p>
                   </div>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                    {agent.status}
-                  </span>
+                  <LiveObserverBlip status={agent.status === 'active' ? 'active' : 'idle'} label={agent.status} />
                 </div>
               ))}
             </div>

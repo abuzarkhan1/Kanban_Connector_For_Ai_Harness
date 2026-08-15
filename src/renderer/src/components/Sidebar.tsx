@@ -147,7 +147,7 @@ export function Sidebar() {
                       'group mx-2 flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-[7px] text-[13px] outline-none',
                       'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ink',
                       selected
-                        ? 'bg-surface-elevated text-ink shadow-[inset_2px_0_0_0_#ffffff]'
+                        ? 'bg-surface-elevated text-ink shadow-[inset_2px_0_0_0_var(--color-primary)]'
                         : 'text-body hover:bg-surface-elevated hover:text-ink'
                     )}
                   >
@@ -171,7 +171,7 @@ export function Sidebar() {
                           e.stopPropagation()
                           void deleteProject(project.id)
                         }}
-                        className="shrink-0 rounded-md border border-white/40 px-1.5 py-0.5 text-[10px] font-medium text-ink focus-ring"
+                        className="btn btn-danger btn-sm shrink-0 px-2 py-0.5 text-[10px]"
                       >
                         Delete?
                       </button>

@@ -6,6 +6,7 @@ import {
   WorktreeIcon,
   RefreshIcon
 } from '../icons'
+import { Button, TextInput } from '../ui'
 
 export const RepositoryManager: React.FC = () => {
   const {
@@ -53,10 +54,10 @@ export const RepositoryManager: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-1 flex-col overflow-auto bg-canvas p-6 text-snow">
+    <div className="flex flex-1 flex-col overflow-auto bg-canvas p-6 text-ink">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-snow">Repositories & Worktrees</h1>
+          <h1 className="text-lg font-semibold tracking-tight text-ink">Repositories &amp; Worktrees</h1>
           <p className="text-xs text-ash">
             Manage local Git repositories observed for branch changes, commits, diffs, and worktrees
           </p>
@@ -64,69 +65,70 @@ export const RepositoryManager: React.FC = () => {
       </div>
 
       {/* Add Repository Card */}
-      <div className="mb-6 rounded-lg border border-line bg-surface p-5 shadow-sm">
-        <h2 className="text-sm font-semibold text-snow">Register Local Git Repository</h2>
+      <div className="mb-6 rounded-lg border border-hairline bg-surface p-5">
+        <h2 className="text-sm font-semibold text-ink">Register Local Git Repository</h2>
         <p className="mt-1 text-xs text-ash">
           Associate a workspace with {activeProject ? `project "${activeProject.name}"` : 'the active project'}
         </p>
 
         <form onSubmit={handleAdd} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="flex-1 flex gap-2">
-            <input
-              type="text"
+          <div className="flex flex-1 gap-2">
+            <TextInput
               placeholder="/path/to/local/git/repository"
               value={pathInput}
               onChange={(e) => setPathInput(e.target.value)}
-              className="flex-1 rounded-md border border-line bg-surface-elevated px-3 py-1.5 font-mono text-xs text-snow focus:border-white/40 focus:outline-none"
+              className="flex-1 font-mono text-xs"
             />
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="md"
               onClick={handlePickFolder}
-              className="flex items-center gap-1.5 rounded-md border border-line bg-surface-elevated px-3 py-1.5 text-xs font-medium text-snow hover:bg-surface-card"
+              className="shrink-0"
             >
               <FolderIcon size="xs" />
               <span>Browse…</span>
-            </button>
+            </Button>
           </div>
 
-          <input
-            type="text"
+          <TextInput
             placeholder="Display Name (optional)"
             value={nameInput}
             onChange={(e) => setNameInput(e.target.value)}
-            className="w-full sm:w-48 rounded-md border border-line bg-surface-elevated px-3 py-1.5 text-xs text-snow focus:border-white/40 focus:outline-none"
+            className="w-full sm:w-48 text-xs"
           />
 
-          <button
+          <Button
             type="submit"
+            variant="primary"
+            size="md"
             disabled={!pathInput.trim() || !selectedProjectId}
-            className="rounded-md bg-white px-4 py-1.5 text-xs font-semibold text-canvas hover:bg-snow disabled:opacity-40"
           >
             Register Repository
-          </button>
+          </Button>
         </form>
       </div>
 
       {/* Repositories List */}
       <div className="space-y-4">
         {repositories.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-line p-12 text-center text-xs text-ash">
+          <div className="rounded-lg border border-dashed border-hairline p-12 text-center text-xs text-ash">
             No repositories registered yet. Use the form above to link a local Git repository.
           </div>
         ) : (
           repositories.map((repo) => (
-            <div key={repo.id} className="rounded-lg border border-line bg-surface p-5 transition-all hover:border-white/20">
+            <div key={repo.id} className="rounded-lg border border-hairline bg-surface p-5 transition-colors hover:border-hairline-strong">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <div className="grid size-7 place-items-center rounded bg-surface-elevated border border-hairline text-sky-400">
+                    <div className="grid size-7 place-items-center rounded-md border border-hairline bg-surface-elevated text-mute">
                       <RepositoryIcon size="sm" />
                     </div>
-                    <h3 className="text-sm font-semibold text-snow">{repo.name}</h3>
-                    <span className="rounded bg-surface-elevated px-2 py-0.5 font-mono text-[10px] text-sky-400">
+                    <h3 className="text-sm font-semibold text-ink">{repo.name}</h3>
+                    <span className="rounded-[5px] border border-hairline bg-surface-elevated px-2 py-0.5 font-mono text-[10px] text-mute">
                       branch: {repo.currentBranch}
                     </span>
-                    <span className="rounded bg-surface-card px-2 py-0.5 font-mono text-[10px] text-ash">
+                    <span className="rounded-[5px] border border-hairline bg-surface-card px-2 py-0.5 font-mono text-[10px] text-ash">
                       default: {repo.defaultBranch}
                     </span>
                   </div>
@@ -134,59 +136,63 @@ export const RepositoryManager: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button
+                  <Button
                     type="button"
+                    variant="secondary"
+                    size="sm"
                     onClick={() => handleScan(repo.id)}
                     disabled={isScanning === repo.id}
-                    className="flex items-center gap-1.5 rounded-md border border-line bg-surface-elevated px-2.5 py-1 text-xs font-medium text-snow hover:bg-surface-card disabled:opacity-40"
                   >
                     <RefreshIcon size="xs" animate={isScanning === repo.id ? 'spin' : 'hover-rotate'} />
                     <span>{isScanning === repo.id ? 'Scanning…' : 'Scan Git'}</span>
-                  </button>
+                  </Button>
 
                   {confirmDelete === repo.id ? (
                     <div className="flex items-center gap-1">
-                      <button
+                      <Button
                         type="button"
+                        variant="danger"
+                        size="sm"
                         onClick={() => {
                           void deleteRepository(repo.id)
                           setConfirmDelete(null)
                         }}
-                        className="rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-500"
                       >
                         Confirm
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="sm"
                         onClick={() => setConfirmDelete(null)}
-                        className="rounded-md bg-surface-elevated px-2 py-1 text-xs text-ash hover:text-snow"
                       >
                         Cancel
-                      </button>
+                      </Button>
                     </div>
                   ) : (
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="sm"
                       onClick={() => setConfirmDelete(repo.id)}
-                      className="rounded-md border border-line px-2.5 py-1 text-xs font-medium text-ash hover:bg-red-500/10 hover:text-red-400"
                     >
                       Delete
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>
 
               {/* Worktrees list */}
               {repo.worktrees && repo.worktrees.length > 0 && (
-                <div className="mt-4 border-t border-line/60 pt-3">
+                <div className="mt-4 border-t border-hairline pt-3">
                   <div className="flex items-center gap-1.5 text-[11px] font-semibold text-ash">
                     <WorktreeIcon size="xs" />
                     <span>Detected Worktrees:</span>
                   </div>
                   <div className="mt-1.5 grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {repo.worktrees.map((wt, idx) => (
-                      <div key={idx} className="flex items-center justify-between rounded bg-surface-elevated p-2 text-xs">
-                        <span className="truncate font-mono text-[11px] text-snow">{wt.path}</span>
+                      <div key={idx} className="flex items-center justify-between rounded-md border border-hairline bg-surface-elevated p-2 text-xs">
+                        <span className="truncate font-mono text-[11px] text-ink">{wt.path}</span>
                         <span className="ml-2 font-mono text-[10px] text-ash">[{wt.branch || 'detached'}]</span>
                       </div>
                     ))}
