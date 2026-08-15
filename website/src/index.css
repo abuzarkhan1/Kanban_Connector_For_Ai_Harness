@@ -8,8 +8,9 @@
 
   body {
     font-family: var(--font-sans);
-    background-color: #07080a;
+    background-color: #030407;
     color: #f0f3f6;
+    overflow-x: hidden;
   }
 
   code, pre, kbd {
@@ -17,65 +18,83 @@
   }
 }
 
-/* Custom Utilities */
-.border-hairline {
-  border-color: rgba(255, 255, 255, 0.08);
+/* Perspective Grid Background */
+.perspective-grid {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 60%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 60%, transparent 100%);
 }
 
-.border-subtle {
-  border-color: rgba(255, 255, 255, 0.14);
+/* Ultra-Luxury Glassmorphism Card */
+.luxury-glass {
+  background: rgba(13, 16, 22, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 24px 64px -16px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
 }
 
-.bg-surface {
-  background-color: #0d0f12;
+.luxury-glass-elevated {
+  background: rgba(20, 24, 32, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 
+    0 32px 80px -20px rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
 }
 
-.bg-surface-elevated {
-  background-color: #14171c;
-}
-
-.bg-surface-card {
-  background-color: #1a1e24;
-}
-
-.text-ink {
-  color: #f0f3f6;
-}
-
-.text-body {
-  color: #c4c9d0;
-}
-
-.text-mute {
-  color: #a0a5ad;
-}
-
-.text-ash {
-  color: #606771;
-}
-
-.glow-card {
+/* Specular Hover Glow */
+.specular-card {
   position: relative;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.glow-card::before {
+.specular-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 
+    0 30px 80px -15px rgba(0, 0, 0, 0.9),
+    0 0 30px -4px rgba(255, 255, 255, 0.08),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Dynamic Radial Aura */
+.hero-ambient-glow {
+  background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.12) 0%, rgba(120, 140, 180, 0.04) 40%, transparent 70%);
+}
+
+/* 3D Tilt Container */
+.tilt-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out;
+}
+
+/* Shimmer Line */
+@keyframes shimmerWave {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.shimmer-badge {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-badge::after {
   content: '';
   position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
-.glow-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.7), 0 0 20px -2px rgba(255, 255, 255, 0.04);
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: shimmerWave 3.5s infinite;
 }
 
 /* Custom Scrollbar */
@@ -84,34 +103,12 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #07080a;
+  background: #030407;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1f242c;
+  background: #1a1e26;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #333a44;
-}
-
-/* Subtle Shimmer for High-Tech Components */
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(200%); }
-}
-
-.shimmer-line {
-  position: relative;
-  overflow: hidden;
-}
-
-.shimmer-line::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-  animation: shimmer 3s infinite;
+  background: #2d3440;
 }
