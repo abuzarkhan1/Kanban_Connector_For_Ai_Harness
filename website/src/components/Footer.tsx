@@ -109,11 +109,9 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* ========================================================================= */}
-        {/* GIANT HIGH-CONTRAST BOLD ARCHITECTURAL BRAND NAME */}
-        {/* ========================================================================= */}
-        <div className="py-8 sm:py-12 text-center select-none">
-          <h2 className="text-[13vw] sm:text-[14.5vw] font-black tracking-tighter leading-none text-foreground/90 uppercase font-sans m-0 p-0 block">
+        {/* Clean Single-Line Architectural Brand Name */}
+        <div className="py-8 sm:py-10 text-center select-none overflow-hidden">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground/80 uppercase font-sans whitespace-nowrap">
             AI HARNESS
           </h2>
         </div>
