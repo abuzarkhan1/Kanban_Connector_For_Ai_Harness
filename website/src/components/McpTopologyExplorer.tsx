@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import {
-  Server,
   Bot,
   Terminal,
   GitBranch,
@@ -119,12 +118,8 @@ export const McpTopologyExplorer: React.FC = () => {
   return (
     <section id="mcp-playground" className="py-24 bg-background relative border-b border-border/40">
       <div className="max-w-6xl mx-auto px-6">
-        {/* Header */}
+        {/* Header (No top tag pill) */}
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-border bg-muted/40 text-xs font-mono text-muted-foreground mb-4">
-            <Server className="size-3.5 text-foreground" />
-            <span>Universal Model Context Protocol</span>
-          </div>
           <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground mb-4">
             The "USB-C" for AI Coding Agents
           </h2>

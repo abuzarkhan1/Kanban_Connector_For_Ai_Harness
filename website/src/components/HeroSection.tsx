@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { InfiniteSlider } from '@/components/ui/infinite-slider'
 import { ProgressiveBlur } from '@/components/ui/progressive-blur'
-import { Menu, X, Download, Terminal, CheckCircle2, Copy, GitBranch, ArrowRight } from 'lucide-react'
+import { Menu, X, Download, Terminal, CheckCircle2, Copy, GitBranch } from 'lucide-react'
 import confetti from 'canvas-confetti'
 
 export function HeroSection() {
@@ -35,11 +35,6 @@ export function HeroSection() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
               {/* Left Column: Headline & Action CTAs (6 cols) */}
               <div className="lg:col-span-6 text-center lg:text-left z-10">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-muted/40 text-xs font-mono text-muted-foreground mb-6">
-                  <span className="size-1.5 rounded-full bg-foreground animate-pulse" />
-                  <span>v0.1.0 Released · 100% Local-First</span>
-                </div>
-
                 <h1 className="text-balance text-5xl font-medium tracking-tight text-foreground md:text-6xl xl:text-7xl leading-[1.06]">
                   Ship 10x Faster with AI Harness PM
                 </h1>
@@ -90,7 +85,7 @@ export function HeroSection() {
                 </div>
               </div>
 
-              {/* Right Column: Sleek 3D-Tilted Desktop Window Showcase (6 cols) */}
+              {/* Right Column: Sleek Desktop Window Showcase (6 cols) */}
               <div className="lg:col-span-6 relative flex justify-center lg:justify-end">
                 <div className="w-full max-w-lg lg:max-w-none rounded-2xl border border-border bg-card shadow-[0_25px_70px_-15px_rgba(0,0,0,0.7)] overflow-hidden transition-all hover:border-border/80">
                   {/* macOS Titlebar */}

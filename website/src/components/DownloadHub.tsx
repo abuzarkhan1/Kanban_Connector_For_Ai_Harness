@@ -35,11 +35,8 @@ export const DownloadHub: React.FC = () => {
   return (
     <section id="download" className="py-24 bg-background relative border-b border-border/40">
       <div className="max-w-6xl mx-auto px-6">
+        {/* Header (No top tag pill) */}
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-border bg-muted/40 text-xs font-mono text-muted-foreground mb-4">
-            <Download className="size-3.5 text-foreground" />
-            <span>Ready for Production</span>
-          </div>
           <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground mb-4">
             Get Started with AI Harness PM
           </h2>
