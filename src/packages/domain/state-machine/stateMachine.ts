@@ -4,13 +4,14 @@ import type { InternalStatus } from './status'
  * Explicit transition table.
  *
  * This is the single source of truth for legal task-lifecycle transitions.
- * The UI, the application services and (later) the state-inference engine all
- * go through this table; nothing may move a task by bypassing it.
+ * The UI, application services, and state-inference engine all go through this
+ * table. System/inferred moves strictly follow these one-step edges.
+ * User-driven column movements use moveToColumn to change columns directly.
  *
  * Diagram reference: docs/03-domain/STATE_MACHINE.md
  */
 export const TRANSITIONS: Record<InternalStatus, readonly InternalStatus[]> = {
-  BACKLOG: ['READY'],
+  BACKLOG: ['READY', 'ASSIGNED'],
   READY: ['ASSIGNED', 'BACKLOG'],
   ASSIGNED: ['AGENT_STARTED', 'READY'],
   AGENT_STARTED: ['IMPLEMENTING', 'BLOCKED'],
@@ -21,13 +22,15 @@ export const TRANSITIONS: Record<InternalStatus, readonly InternalStatus[]> = {
   CHANGES_REQUESTED: ['IMPLEMENTING'],
   APPROVED: ['MERGED', 'READY_FOR_REVIEW'],
   MERGED: ['DONE'],
-  DONE: []
+  DONE: ['BACKLOG', 'READY']
 }
 
 export function canTransition(from: InternalStatus, to: InternalStatus): boolean {
-  return TRANSITIONS[from].includes(to)
+  if (from === to) return true
+  const list = TRANSITIONS[from]
+  return Boolean(list && list.includes(to))
 }
 
 export function nextStatuses(from: InternalStatus): readonly InternalStatus[] {
-  return TRANSITIONS[from]
+  return TRANSITIONS[from] || []
 }

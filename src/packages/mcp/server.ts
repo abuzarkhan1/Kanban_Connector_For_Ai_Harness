@@ -18,10 +18,11 @@ export interface McpServerContext {
   sessions: SessionService
   events: EventService
   evidence: EvidenceRepository
+  onMutation?: () => void
 }
 
 export function createKanbanMcpServer(context: McpServerContext): McpServer {
-  const { projects, tasks, repositories, sessions, events, evidence } = context
+  const { projects, tasks, repositories, sessions, events, evidence, onMutation } = context
 
   const server = new McpServer({
     name: 'ai-harness-project-manager',
@@ -182,6 +183,12 @@ export function createKanbanMcpServer(context: McpServerContext): McpServer {
         payload: { tool: 'kanban_create_task', taskId: created.id, title: args.title }
       })
 
+      try {
+        onMutation?.()
+      } catch {
+        // Ignore
+      }
+
       return {
         content: [
           {
@@ -232,6 +239,12 @@ export function createKanbanMcpServer(context: McpServerContext): McpServer {
             items: [{ type: 'mcp', description: reason, confidence: 0.9 }]
           })
         )
+      }
+
+      try {
+        onMutation?.()
+      } catch {
+        // Ignore
       }
 
       return {
@@ -286,6 +299,12 @@ export function createKanbanMcpServer(context: McpServerContext): McpServer {
         } catch {
           // Ignore
         }
+      }
+
+      try {
+        onMutation?.()
+      } catch {
+        // Ignore
       }
 
       return {

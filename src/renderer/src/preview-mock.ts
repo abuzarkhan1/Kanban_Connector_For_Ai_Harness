@@ -488,7 +488,8 @@ export const previewApi: RendererApi = {
       }
       return ok(diag)
     }
-  }
+  },
+  onSync: () => () => {}
 }
 
 export function installPreviewApi(): void {

@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import type { BoardColumnDto, TaskDto } from '@ipc'
-import { defaultStatusForColumn, type ColumnId, type InternalStatus } from '@domain/state-machine/status'
+import { defaultStatusForColumn, type ColumnId } from '@domain/state-machine/status'
 import type { Priority } from '@domain/value-objects/priority'
 import { useBoardStore } from '../stores/useBoardStore'
 import { useLocalStorage } from '../lib/useLocalStorage'
@@ -44,7 +44,6 @@ function matchesQuery(task: TaskDto, query: string): boolean {
 
 export function Column({ column, query }: { column: BoardColumnDto; query: string }) {
   const selectedProjectId = useBoardStore((s) => s.selectedProjectId)
-  const board = useBoardStore((s) => s.board)
   const createTask = useBoardStore((s) => s.createTask)
   const moveTaskToColumn = useBoardStore((s) => s.moveTaskToColumn)
   const [title, setTitle] = useState('')
@@ -53,15 +52,6 @@ export function Column({ column, query }: { column: BoardColumnDto; query: strin
   const [sort, setSort] = useLocalStorage<SortMode>(`ahpm:sort:${selectedProjectId}:${column.id}`, 'created')
 
   const StatusIconComponent = STATUS_ICONS[column.id]
-
-  // Map task id → current internal status so a drop on the same column is a no-op.
-  const taskStatusById = useMemo(() => {
-    const map = new Map<string, InternalStatus>()
-    for (const c of board?.columns ?? []) {
-      for (const t of c.tasks) map.set(t.id, t.status)
-    }
-    return map
-  }, [board])
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault()
@@ -83,7 +73,7 @@ export function Column({ column, query }: { column: BoardColumnDto; query: strin
     e.preventDefault()
     setIsOver(false)
     const id = e.dataTransfer.getData('text/plain')
-    if (!id || !taskStatusById.has(id)) return
+    if (!id) return
     void moveTaskToColumn(id, column.id)
   }
 

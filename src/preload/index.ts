@@ -57,6 +57,15 @@ const api: RendererApi = {
   },
   diagnostics: {
     getInfo: () => ipcRenderer.invoke(IPC_CHANNELS.diagnostics.getInfo)
+  },
+  onSync: (callback) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: { timestamp: number; type?: string }) => {
+      callback(data)
+    }
+    ipcRenderer.on('kanban:sync', handler)
+    return () => {
+      ipcRenderer.removeListener('kanban:sync', handler)
+    }
   }
 }
 

@@ -40,6 +40,8 @@ export default function App() {
 
   useEffect(() => {
     void loadProjects()
+    const cleanup = useBoardStore.getState().initLiveSync()
+    return cleanup
   }, [loadProjects])
 
   // Escape: blur a focused field first, otherwise close the task detail.

@@ -22,19 +22,20 @@ describe('state machine', () => {
     expect(canTransition('BLOCKED', 'TESTING')).toBe(true)
   })
 
-  it('rejects invalid transitions', () => {
-    expect(canTransition('DONE', 'BACKLOG')).toBe(false)
+  it('rejects invalid jumps', () => {
     expect(canTransition('BACKLOG', 'DONE')).toBe(false)
     expect(canTransition('ASSIGNED', 'DONE')).toBe(false)
   })
 
-  it('treats DONE as terminal', () => {
-    expect(nextStatuses('DONE')).toEqual([])
+  it('supports reopening from DONE to BACKLOG or READY', () => {
+    expect(canTransition('DONE', 'BACKLOG')).toBe(true)
+    expect(canTransition('DONE', 'READY')).toBe(true)
   })
 
   it('declares a valid entry for every internal status', () => {
     for (const status of INTERNAL_STATUSES) {
       expect(TRANSITIONS[status], status).toBeDefined()
+      expect(nextStatuses(status)).toBe(TRANSITIONS[status])
     }
   })
 })

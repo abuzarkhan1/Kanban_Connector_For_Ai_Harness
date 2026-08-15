@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { TaskDto, TransitionDto, EvidenceDto } from '@ipc'
 import { nextStatuses } from '@domain/state-machine/stateMachine'
+import { columnFor } from '@domain/state-machine/status'
 import { PRIORITIES } from '@domain/value-objects/priority'
 import { api, unwrap } from '../api/client'
 import { useBoardStore } from '../stores/useBoardStore'
@@ -13,7 +14,11 @@ import {
   ChevronDownIcon,
   CloseIcon,
   ArrowRightIcon,
-  RefreshIcon
+  RefreshIcon,
+  StatusTodoIcon,
+  StatusInProgressIcon,
+  StatusReviewIcon,
+  StatusDoneIcon
 } from './icons'
 
 function CollapsedRail({ task, onExpand, className }: { task?: TaskDto; onExpand: () => void; className?: string }) {
@@ -39,6 +44,7 @@ export function TaskDetail() {
   const selectedTaskId = useBoardStore((s) => s.selectedTaskId)
   const selectTask = useBoardStore((s) => s.selectTask)
   const moveTask = useBoardStore((s) => s.moveTask)
+  const moveTaskToColumn = useBoardStore((s) => s.moveTaskToColumn)
   const updateTask = useBoardStore((s) => s.updateTask)
   const deleteTask = useBoardStore((s) => s.deleteTask)
   const repositories = useBoardStore((s) => s.repositories)
@@ -264,41 +270,76 @@ export function TaskDetail() {
           {saving ? 'Saving…' : saved ? 'Saved' : 'Save changes'}
         </Button>
 
-        {/* Status Transition Control */}
-        <section className="space-y-2.5 border-t border-hairline pt-4">
+        {/* Status & Stage Section */}
+        <section className="space-y-3 border-t border-hairline pt-4">
           <div className="flex items-center justify-between">
-            <span className="label">Status</span>
-            <span className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-body">
+            <span className="label">Kanban Stage & Status</span>
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-ink bg-surface-elevated px-2 py-0.5 rounded border border-hairline">
               {task.status}
             </span>
           </div>
-          <div className="flex flex-wrap gap-1.5">
-            {nextStatuses(task.status).map((toStatus) => (
-              <button
-                key={toStatus}
-                type="button"
-                onClick={() => void moveTask(task.id, toStatus)}
-                className={cx(
-                  'rounded-md border border-hairline px-2.5 py-1.5 text-[11px] font-medium text-body',
-                  'transition-colors duration-150 hover:border-stone hover:bg-surface-elevated hover:text-ink focus-ring'
-                )}
-              >
-                Move to {toStatus}
-              </button>
-            ))}
-            {task.status === 'DONE' && (
-              <button
-                type="button"
-                onClick={() => void moveTask(task.id, 'BACKLOG')}
-                className="btn btn-secondary btn-sm text-[11px]"
-              >
-                <RefreshIcon size="xs" />
-                <span>Reopen Task (Backlog)</span>
-              </button>
-            )}
-            {nextStatuses(task.status).length === 0 && task.status !== 'DONE' && (
-              <p className="text-[12px] text-ash">This task is in a terminal state.</p>
-            )}
+
+          {/* 4 Primary Kanban Columns Quick-Move Grid */}
+          <div>
+            <span className="text-[11px] font-medium text-mute block mb-1.5">Move to Column</span>
+            <div className="grid grid-cols-4 gap-1 rounded-md border border-hairline bg-surface p-1">
+              {(
+                [
+                  { id: 'TODO', label: 'To Do', Icon: StatusTodoIcon },
+                  { id: 'IN_PROGRESS', label: 'In Progress', Icon: StatusInProgressIcon },
+                  { id: 'REVIEW', label: 'Review', Icon: StatusReviewIcon },
+                  { id: 'DONE', label: 'Done', Icon: StatusDoneIcon }
+                ] as const
+              ).map(({ id: colId, label, Icon }) => {
+                const isActive = columnFor(task.status) === colId
+                return (
+                  <button
+                    key={colId}
+                    type="button"
+                    onClick={() => void moveTaskToColumn(task.id, colId)}
+                    className={cx(
+                      'flex flex-col items-center justify-center gap-1 rounded py-1.5 px-1 text-[11px] font-medium transition-colors focus-ring',
+                      isActive
+                        ? 'bg-surface-elevated text-ink border border-line shadow-xs font-semibold'
+                        : 'text-mute hover:text-body hover:bg-surface-card border border-transparent'
+                    )}
+                  >
+                    <Icon size="xs" className={isActive ? 'text-ink' : 'text-ash'} />
+                    <span className="text-[10px] leading-none">{label}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Granular Lifecycle Transitions */}
+          <div className="space-y-1.5 pt-1">
+            <span className="text-[11px] font-medium text-mute block">Lifecycle Actions</span>
+            <div className="flex flex-wrap gap-1.5">
+              {nextStatuses(task.status).map((toStatus) => (
+                <button
+                  key={toStatus}
+                  type="button"
+                  onClick={() => void moveTask(task.id, toStatus)}
+                  className={cx(
+                    'rounded-md border border-hairline px-2.5 py-1 text-[11px] font-medium text-body',
+                    'transition-colors duration-150 hover:border-stone hover:bg-surface-elevated hover:text-ink focus-ring'
+                  )}
+                >
+                  <span className="text-ash">→</span> {toStatus}
+                </button>
+              ))}
+              {task.status === 'DONE' && (
+                <button
+                  type="button"
+                  onClick={() => void moveTask(task.id, 'BACKLOG')}
+                  className="btn btn-secondary btn-sm text-[11px]"
+                >
+                  <RefreshIcon size="xs" />
+                  <span>Reopen Task (Backlog)</span>
+                </button>
+              )}
+            </div>
           </div>
         </section>
 

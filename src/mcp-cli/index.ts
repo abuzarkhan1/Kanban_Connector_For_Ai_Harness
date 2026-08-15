@@ -1,6 +1,7 @@
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { join } from 'node:path'
 import { homedir } from 'node:os'
+import { writeFileSync } from 'node:fs'
 import {
   openDatabase,
   ProjectRepository,
@@ -36,13 +37,23 @@ async function main(): Promise<void> {
   const evidenceRepo = new EvidenceRepository(dbHandle.raw)
   const agentRepo = new AgentRepository(dbHandle.raw)
 
+  const syncSignalFile = join(userDataDir, '.kanban_sync')
+  const triggerSync = (): void => {
+    try {
+      writeFileSync(syncSignalFile, String(Date.now()), 'utf8')
+    } catch {
+      // Non-blocking
+    }
+  }
+
   const services = {
     projects: new ProjectService(projectRepo),
     tasks: new TaskService(projectRepo, taskRepo, transitionRepo),
     repositories: new RepositoryService(projectRepo, repoRepo),
     sessions: new SessionService(sessionRepo, agentRepo),
     events: new EventService(eventRepo),
-    evidence: evidenceRepo
+    evidence: evidenceRepo,
+    onMutation: triggerSync
   }
 
   const server = createKanbanMcpServer(services)

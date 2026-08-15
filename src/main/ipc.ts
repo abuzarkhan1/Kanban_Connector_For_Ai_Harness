@@ -82,6 +82,7 @@ export interface AppServices {
   mcpManager: HarnessConfigManager
   mcpCliPath: string
   dbPath: string
+  onMutation?: () => void
 }
 
 export function registerIpcHandlers(services: AppServices, logger: Logger): void {
@@ -95,40 +96,78 @@ export function registerIpcHandlers(services: AppServices, logger: Logger): void
     engine,
     mcpManager,
     mcpCliPath,
-    dbPath
+    dbPath,
+    onMutation
   } = services
+
+  const notify = (): void => {
+    try {
+      onMutation?.()
+    } catch {
+      // Non-blocking
+    }
+  }
 
   // --- Projects ---
   handle(IPC_CHANNELS.projects.list, NoPayloadSchema, () => projects.list(), logger)
-  handle(IPC_CHANNELS.projects.create, CreateProjectSchema, (input) => projects.create(input.name).project, logger)
+  handle(IPC_CHANNELS.projects.create, CreateProjectSchema, (input) => {
+    const res = projects.create(input.name).project
+    notify()
+    return res
+  }, logger)
   handle(
     IPC_CHANNELS.projects.update,
     UpdateProjectSchema,
-    ({ id, ...patch }) => projects.rename(id, patch.name),
+    ({ id, ...patch }) => {
+      const res = projects.rename(id, patch.name)
+      notify()
+      return res
+    },
     logger
   )
   handle(IPC_CHANNELS.projects.delete, DeleteProjectSchema, ({ id }) => {
     projects.delete(id)
+    notify()
     return { deleted: true }
   }, logger)
 
   // --- Tasks ---
   handle(IPC_CHANNELS.tasks.list, ListTasksSchema, ({ projectId }) => tasks.listByProject(projectId), logger)
-  handle(IPC_CHANNELS.tasks.create, CreateTaskSchema, (input) => tasks.create(input), logger)
+  handle(IPC_CHANNELS.tasks.create, CreateTaskSchema, (input) => {
+    const res = tasks.create(input)
+    notify()
+    return res
+  }, logger)
   handle(
     IPC_CHANNELS.tasks.update,
     UpdateTaskSchema,
-    ({ id, ...patch }) => tasks.update(id, patch),
+    ({ id, ...patch }) => {
+      const res = tasks.update(id, patch)
+      notify()
+      return res
+    },
     logger
   )
-  handle(IPC_CHANNELS.tasks.move, MoveTaskSchema, ({ id, toStatus }) => tasks.move(id, toStatus), logger)
+  handle(IPC_CHANNELS.tasks.move, MoveTaskSchema, ({ id, toStatus }) => {
+    const res = tasks.move(id, toStatus)
+    notify()
+    return res
+  }, logger)
   handle(
     IPC_CHANNELS.tasks.moveToColumn,
     MoveTaskToColumnSchema,
-    ({ id, columnId }) => tasks.moveToColumn(id, columnId),
+    ({ id, columnId }) => {
+      const res = tasks.moveToColumn(id, columnId)
+      notify()
+      return res
+    },
     logger
   )
-  handle(IPC_CHANNELS.tasks.delete, DeleteTaskSchema, ({ id }) => tasks.delete(id), logger)
+  handle(IPC_CHANNELS.tasks.delete, DeleteTaskSchema, ({ id }) => {
+    tasks.delete(id)
+    notify()
+    return { deleted: true }
+  }, logger)
   handle(IPC_CHANNELS.tasks.transitions, ListTransitionsSchema, ({ taskId }) =>
     tasks.transitionsFor(taskId), logger
   )

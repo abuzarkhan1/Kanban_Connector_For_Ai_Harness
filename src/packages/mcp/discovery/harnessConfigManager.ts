@@ -105,7 +105,8 @@ export class HarnessConfigManager {
     // 6. Try `which node` / `where node`
     try {
       const cmd = isWindows ? 'where node' : 'which node'
-      const out = execSync(cmd, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim().split('\n')[0].trim()
+      const lines = execSync(cmd, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim().split('\n')
+      const out = lines[0]?.trim()
       if (out && existsSync(out)) {
         return out
       }
@@ -243,14 +244,14 @@ export class HarnessConfigManager {
       // 2. Claude Suite
       {
         id: 'claude_code',
-        harness: 'claude',
+        harness: 'claude_code',
         name: 'Claude Code CLI',
         path: join(home, '.claude.json'),
         category: 'claude'
       },
       {
         id: 'claude_desktop',
-        harness: 'claude',
+        harness: 'claude_desktop',
         name: 'Claude Desktop App',
         path: claudeDesktopPath,
         category: 'claude'

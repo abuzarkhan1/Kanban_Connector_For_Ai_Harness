@@ -1,4 +1,5 @@
 import { join } from 'node:path'
+import { watch } from 'node:fs'
 import { app, BrowserWindow } from 'electron'
 import {
   ProjectRepository,
@@ -31,11 +32,26 @@ const SMOKE_TEST = process.argv.includes('--smoke-test')
 let logger: Logger
 let closeDatabase: (() => void) | null = null
 let engine: ObservationEngine | null = null
+let syncWatcher: ReturnType<typeof watch> | null = null
 
 function finish(code: number): void {
+  syncWatcher?.close()
   engine?.stop()
   closeDatabase?.()
   app.exit(code)
+}
+
+/**
+ * Broadcast real-time state synchronization event to all open renderer windows.
+ * Similar to a WebSocket push event, this triggers instant on-the-spot UI updates.
+ */
+export function broadcastSync(type: string = 'mutation'): void {
+  const windows = BrowserWindow.getAllWindows()
+  for (const win of windows) {
+    if (!win.isDestroyed() && !win.webContents.isDestroyed()) {
+      win.webContents.send('kanban:sync', { timestamp: Date.now(), type })
+    }
+  }
 }
 
 // Ensure single instance lock to protect SQLite WAL DB from multiple concurrent processes
@@ -113,11 +129,32 @@ async function bootstrap(): Promise<void> {
     engine,
     mcpManager,
     mcpCliPath,
-    dbPath
+    dbPath,
+    onMutation: () => broadcastSync('ipc')
   }
 
   registerIpcHandlers(services, logger)
   const window = createMainWindow()
+
+  // Watch for external database/sync changes (e.g. from kanban-mcp.js CLI)
+  let debounceTimer: NodeJS.Timeout | null = null
+  try {
+    syncWatcher = watch(userDataDir, (_eventType, filename) => {
+      if (
+        filename &&
+        (filename.includes('ai-harness-pm.db') ||
+          filename.includes('.kanban_sync') ||
+          filename.includes('sync_signal'))
+      ) {
+        if (debounceTimer) clearTimeout(debounceTimer)
+        debounceTimer = setTimeout(() => {
+          broadcastSync('external_db_mutation')
+        }, 50)
+      }
+    })
+  } catch (err) {
+    logger.warn('main', 'failed to watch database dir for external changes', { error: String(err) })
+  }
 
   logger.info('app', 'ready')
 
@@ -179,6 +216,7 @@ app.on('activate', () => {
 })
 
 app.on('will-quit', () => {
+  syncWatcher?.close()
   engine?.stop()
   closeDatabase?.()
 })

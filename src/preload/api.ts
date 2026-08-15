@@ -91,4 +91,5 @@ export interface RendererApi {
   diagnostics: {
     getInfo(): Promise<IpcResult<DiagnosticsInfoDto>>
   }
+  onSync(callback: (payload: { timestamp: number; type?: string }) => void): () => void
 }

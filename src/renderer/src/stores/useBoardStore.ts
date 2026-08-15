@@ -13,6 +13,7 @@ import type {
   DiagnosticsInfoDto
 } from '@ipc'
 import type { ColumnId, InternalStatus } from '@domain/state-machine/status'
+import { defaultStatusForColumn } from '@domain/state-machine/status'
 import { api, unwrap } from '../api/client'
 
 export type NavigationView =
@@ -41,6 +42,7 @@ interface BoardStoreState {
   loading: boolean
   error: string | null
 
+  initLiveSync: () => () => void
   setCurrentView: (view: NavigationView) => void
   loadProjects: () => Promise<void>
   selectProject: (projectId: string | null) => Promise<void>
@@ -95,6 +97,60 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
   diagnostics: null,
   loading: false,
   error: null,
+
+  initLiveSync: () => {
+    const cleanupIpc =
+      typeof api.onSync === 'function'
+        ? api.onSync(() => {
+            const { currentView, selectedProjectId } = get()
+            if (selectedProjectId) {
+              void get().refreshBoard()
+            }
+            if (currentView === 'agents' || currentView === 'dashboard') {
+              void get().loadSessionsAndAgents()
+            }
+            if (currentView === 'timeline' || currentView === 'dashboard') {
+              void get().loadEvents()
+            }
+            if (currentView === 'repositories' || currentView === 'dashboard') {
+              void get().loadRepositories()
+            }
+            if (currentView === 'mcp') {
+              void get().loadMcpStatus()
+            }
+            if (currentView === 'diagnostics') {
+              void get().loadDiagnostics()
+            }
+          })
+        : () => {}
+
+    const interval = setInterval(() => {
+      const { currentView, selectedProjectId } = get()
+      if (selectedProjectId) {
+        void get().refreshBoard()
+      }
+      if (currentView === 'agents' || currentView === 'dashboard') {
+        void get().loadSessionsAndAgents()
+      }
+      if (currentView === 'timeline') {
+        void get().loadEvents()
+      }
+      if (currentView === 'repositories') {
+        void get().loadRepositories()
+      }
+      if (currentView === 'mcp') {
+        void get().loadMcpStatus()
+      }
+      if (currentView === 'diagnostics') {
+        void get().loadDiagnostics()
+      }
+    }, 1200)
+
+    return () => {
+      cleanupIpc()
+      clearInterval(interval)
+    }
+  },
 
   setCurrentView: (view) => {
     set({ currentView: view })
@@ -206,12 +262,20 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
   },
 
   moveTask: async (id, toStatus) => {
+    const prevBoard = get().board
+    if (prevBoard) {
+      const nextColumns = prevBoard.columns.map((col) => ({
+        ...col,
+        tasks: col.tasks.map((t) => (t.id === id ? { ...t, status: toStatus, updatedAt: Date.now() } : t))
+      }))
+      set({ board: { ...prevBoard, columns: nextColumns } })
+    }
     set({ error: null })
     try {
       unwrap(await api.tasks.move({ id, toStatus }))
       await get().refreshBoard()
     } catch (err) {
-      set({ error: toError(err) })
+      set({ board: prevBoard, error: toError(err) })
     }
   },
 
@@ -221,9 +285,11 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
       const allTasks = prevBoard.columns.flatMap((c) => c.tasks)
       const movingTask = allTasks.find((t) => t.id === id)
       if (movingTask) {
+        const nextStatus = defaultStatusForColumn(columnId)
+        const updatedTask = { ...movingTask, status: nextStatus, updatedAt: Date.now() }
         const nextColumns = prevBoard.columns.map((col) => {
           if (col.id === columnId) {
-            return { ...col, tasks: [...col.tasks.filter((t) => t.id !== id), movingTask] }
+            return { ...col, tasks: [...col.tasks.filter((t) => t.id !== id), updatedTask] }
           }
           return { ...col, tasks: col.tasks.filter((t) => t.id !== id) }
         })
