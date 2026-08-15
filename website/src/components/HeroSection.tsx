@@ -39,12 +39,11 @@ export function HeroSection() {
                   Ship 10x Faster with AI Harness PM
                 </h1>
 
-                <p className="mt-6 text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
-                  The local-first development control plane for Google Antigravity, Claude Desktop, and Cursor.
-                  Zero cloud servers, 0ms SQLite latency, and deterministic Kanban state derivation without spending a single API token.
+                <p className="mt-5 text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
+                  The local control plane for Google Antigravity, Claude, and Cursor. Zero cloud servers, 0ms SQLite latency, and automatic Kanban tracking with $0 token cost.
                 </p>
 
-                <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
+                <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
                   <Button
                     asChild
                     size="lg"
@@ -239,11 +238,8 @@ export function HeroSection() {
 
                   {/* OpenAI */}
                   <div className="flex items-center gap-2.5 opacity-60 hover:opacity-100 transition-opacity font-mono text-xs font-semibold text-foreground tracking-wider">
-                    <svg viewBox="0 0 24 24" className="size-5 fill-current">
-                      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                    <span>OPENAI</span>
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
+                    <circle cx="12" cy="12" r="3" />
                   </div>
 
                   {/* Windsurf */}
