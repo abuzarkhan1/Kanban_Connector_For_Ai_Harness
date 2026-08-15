@@ -5,6 +5,7 @@ import { buildBoard } from '@application'
 import type { ProjectService, TaskService, RepositoryService, SessionService, EventService } from '@application'
 import type { ObservationEngine } from '@engine'
 import type { HarnessConfigManager } from '@mcp'
+import type { EvidenceRepository } from '@persistence/repositories/evidenceRepository'
 import {
   IPC_CHANNELS,
   IPC_ERROR_CODES,
@@ -20,6 +21,7 @@ import {
   ListTasksSchema,
   DeleteTaskSchema,
   ListTransitionsSchema,
+  ListEvidenceSchema,
   GetBoardSchema,
   CreateRepositorySchema,
   ListRepositoriesSchema,
@@ -27,8 +29,13 @@ import {
   ScanRepositorySchema,
   ListSessionsSchema,
   ListEventsSchema,
-  ConfigureHarnessSchema
+  ConfigureHarnessSchema,
+  UnconfigureHarnessSchema,
+  VerifyHarnessSchema,
+  AddCustomHarnessSchema,
+  RemoveCustomHarnessSchema
 } from '@ipc'
+import type { McpVerificationResultDto } from '@ipc'
 import { DomainError, NotFoundError } from '@domain/errors/domainError'
 import type { Logger } from './logger'
 
@@ -45,14 +52,20 @@ function handle<TInput, TOutput>(
     try {
       const parsed = schema.safeParse(raw)
       if (!parsed.success) {
-        return fail(IPC_ERROR_CODES.VALIDATION, `Invalid payload for ${channel}: ${parsed.error.issues[0]?.message ?? 'unknown'}`)
+        return fail(
+          IPC_ERROR_CODES.VALIDATION,
+          `Invalid payload for ${channel}: ${parsed.error.issues[0]?.message ?? 'unknown'}`
+        )
       }
       return ok(await fn(parsed.data))
     } catch (err) {
       if (err instanceof DomainError) {
         return fail(err.code, err.message)
       }
-      logger.error('ipc', 'handler failed', { channel, error: err instanceof Error ? err.message : String(err) })
+      logger.error('ipc', 'handler failed', {
+        channel,
+        error: err instanceof Error ? err.message : String(err)
+      })
       return fail(IPC_ERROR_CODES.INTERNAL, 'Unexpected internal error')
     }
   })
@@ -64,6 +77,7 @@ export interface AppServices {
   repositories: RepositoryService
   sessions: SessionService
   events: EventService
+  evidence: EvidenceRepository
   engine: ObservationEngine
   mcpManager: HarnessConfigManager
   mcpCliPath: string
@@ -71,12 +85,28 @@ export interface AppServices {
 }
 
 export function registerIpcHandlers(services: AppServices, logger: Logger): void {
-  const { projects, tasks, repositories, sessions, events, engine, mcpManager, mcpCliPath, dbPath } = services
+  const {
+    projects,
+    tasks,
+    repositories,
+    sessions,
+    events,
+    evidence,
+    engine,
+    mcpManager,
+    mcpCliPath,
+    dbPath
+  } = services
 
   // --- Projects ---
   handle(IPC_CHANNELS.projects.list, NoPayloadSchema, () => projects.list(), logger)
-  handle(IPC_CHANNELS.projects.create, CreateProjectSchema, ({ name }) => projects.create(name).project, logger)
-  handle(IPC_CHANNELS.projects.update, UpdateProjectSchema, ({ id, name }) => projects.rename(id, name), logger)
+  handle(IPC_CHANNELS.projects.create, CreateProjectSchema, (input) => projects.create(input.name).project, logger)
+  handle(
+    IPC_CHANNELS.projects.update,
+    UpdateProjectSchema,
+    ({ id, ...patch }) => projects.rename(id, patch.name),
+    logger
+  )
   handle(IPC_CHANNELS.projects.delete, DeleteProjectSchema, ({ id }) => {
     projects.delete(id)
     return { deleted: true }
@@ -85,58 +115,94 @@ export function registerIpcHandlers(services: AppServices, logger: Logger): void
   // --- Tasks ---
   handle(IPC_CHANNELS.tasks.list, ListTasksSchema, ({ projectId }) => tasks.listByProject(projectId), logger)
   handle(IPC_CHANNELS.tasks.create, CreateTaskSchema, (input) => tasks.create(input), logger)
-  handle(IPC_CHANNELS.tasks.update, UpdateTaskSchema, ({ id, ...patch }) => tasks.update(id, patch), logger)
-  handle(IPC_CHANNELS.tasks.move, MoveTaskSchema, ({ id, toStatus }) => tasks.move(id, toStatus, { actor: 'user' }), logger)
-  handle(IPC_CHANNELS.tasks.moveToColumn, MoveTaskToColumnSchema, ({ id, columnId }) => tasks.moveToColumn(id, columnId, { actor: 'user' }), logger)
-  handle(IPC_CHANNELS.tasks.delete, DeleteTaskSchema, ({ id }) => {
-    tasks.delete(id)
-    return { deleted: true }
-  }, logger)
-  handle(IPC_CHANNELS.tasks.transitions, ListTransitionsSchema, ({ taskId }) => tasks.transitionsFor(taskId), logger)
+  handle(
+    IPC_CHANNELS.tasks.update,
+    UpdateTaskSchema,
+    ({ id, ...patch }) => tasks.update(id, patch),
+    logger
+  )
+  handle(IPC_CHANNELS.tasks.move, MoveTaskSchema, ({ id, toStatus }) => tasks.move(id, toStatus), logger)
+  handle(
+    IPC_CHANNELS.tasks.moveToColumn,
+    MoveTaskToColumnSchema,
+    ({ id, columnId }) => tasks.moveToColumn(id, columnId),
+    logger
+  )
+  handle(IPC_CHANNELS.tasks.delete, DeleteTaskSchema, ({ id }) => tasks.delete(id), logger)
+  handle(IPC_CHANNELS.tasks.transitions, ListTransitionsSchema, ({ taskId }) =>
+    tasks.transitionsFor(taskId), logger
+  )
+  handle(IPC_CHANNELS.tasks.evidence, ListEvidenceSchema, ({ taskId }) =>
+    evidence.listByTask(taskId), logger
+  )
 
   // --- Board ---
-  handle(IPC_CHANNELS.board.get, GetBoardSchema, ({ projectId }) => {
-    const project = projects.list().find((p) => p.id === projectId)
-    if (!project) throw new NotFoundError('Project', projectId)
-    return buildBoard(project, tasks.listByProject(projectId))
-  }, logger)
+  handle(
+    IPC_CHANNELS.board.get,
+    GetBoardSchema,
+    ({ projectId }) => {
+      const project = projects.get(projectId)
+      if (!project) throw new NotFoundError('Project', projectId)
+      const taskList = tasks.listByProject(projectId)
+      return buildBoard(project, taskList)
+    },
+    logger
+  )
 
   // --- Repositories ---
-  handle(IPC_CHANNELS.repositories.list, ListRepositoriesSchema, ({ projectId }) => repositories.listByProject(projectId), logger)
+  handle(
+    IPC_CHANNELS.repositories.list,
+    ListRepositoriesSchema,
+    ({ projectId }) => repositories.listByProject(projectId),
+    logger
+  )
   handle(IPC_CHANNELS.repositories.listAll, NoPayloadSchema, () => repositories.listAll(), logger)
-  handle(IPC_CHANNELS.repositories.create, CreateRepositorySchema, async ({ projectId, path, name }) => {
-    const gitInfo = await engine.git.inspect(path)
-    const repo = repositories.create({
-      projectId,
-      path,
-      name,
-      defaultBranch: gitInfo.defaultBranch,
-      currentBranch: gitInfo.currentBranch,
-      headCommit: gitInfo.headCommit,
-      worktrees: gitInfo.worktrees
-    })
-    engine.filesystem.watchRepository(repo.id, repo.projectId, repo.path)
-    return repo
-  }, logger)
-
-  handle(IPC_CHANNELS.repositories.scan, ScanRepositorySchema, async ({ id }) => {
-    const repo = repositories.get(id)
-    const gitInfo = await engine.git.inspect(repo.path)
-    const updated = repositories.update(id, {
-      defaultBranch: gitInfo.defaultBranch,
-      currentBranch: gitInfo.currentBranch,
-      headCommit: gitInfo.headCommit,
-      worktrees: gitInfo.worktrees,
-      lastScannedAt: Date.now()
-    })
-    return updated
-  }, logger)
-
-  handle(IPC_CHANNELS.repositories.delete, DeleteRepositorySchema, ({ id }) => {
-    engine.filesystem.unwatchRepository(id)
-    repositories.delete(id)
-    return { deleted: true }
-  }, logger)
+  handle(
+    IPC_CHANNELS.repositories.create,
+    CreateRepositorySchema,
+    async (input) => {
+      const repo = repositories.create(input)
+      engine.filesystem.watchRepository(repo.id, repo.projectId, repo.path)
+      if (repo.worktrees) {
+        for (const wt of repo.worktrees) {
+          engine.filesystem.watchRepository(repo.id, repo.projectId, wt.path)
+        }
+      }
+      return repo
+    },
+    logger
+  )
+  handle(
+    IPC_CHANNELS.repositories.delete,
+    DeleteRepositorySchema,
+    ({ id }) => {
+      engine.filesystem.unwatchRepository(id)
+      repositories.delete(id)
+      return { deleted: true }
+    },
+    logger
+  )
+  handle(
+    IPC_CHANNELS.repositories.scan,
+    ScanRepositorySchema,
+    async ({ id }) => {
+      const repo = repositories.get(id)
+      const inspection = await engine.git.inspect(repo.path)
+      const updated = repositories.update(id, {
+        currentBranch: inspection.currentBranch,
+        defaultBranch: inspection.defaultBranch,
+        headCommit: inspection.headCommit,
+        worktrees: inspection.worktrees
+      })
+      if (updated.worktrees) {
+        for (const wt of updated.worktrees) {
+          engine.filesystem.watchRepository(updated.id, updated.projectId, wt.path)
+        }
+      }
+      return updated
+    },
+    logger
+  )
 
   handle(IPC_CHANNELS.repositories.pickDirectory, NoPayloadSchema, async () => {
     const res = await dialog.showOpenDialog({
@@ -147,7 +213,8 @@ export function registerIpcHandlers(services: AppServices, logger: Logger): void
   }, logger)
 
   // --- Sessions & Agents ---
-  handle(IPC_CHANNELS.sessions.list, ListSessionsSchema, ({ projectId, taskId }) => {
+  handle(IPC_CHANNELS.sessions.list, ListSessionsSchema, (input) => {
+    const { projectId, taskId } = input || {}
     if (taskId) return sessions.listByTask(taskId)
     if (projectId) return sessions.listByProject(projectId)
     return sessions.listActive()
@@ -157,7 +224,8 @@ export function registerIpcHandlers(services: AppServices, logger: Logger): void
   handle(IPC_CHANNELS.sessions.listAgents, NoPayloadSchema, () => sessions.listAgents(), logger)
 
   // --- Events ---
-  handle(IPC_CHANNELS.events.list, ListEventsSchema, ({ projectId, taskId, limit }) => {
+  handle(IPC_CHANNELS.events.list, ListEventsSchema, (input) => {
+    const { projectId, taskId, limit } = input || {}
     if (taskId) return events.listByTask(taskId, limit)
     if (projectId) return events.listByProject(projectId, limit)
     return events.listRecent(limit || 100)
@@ -166,16 +234,60 @@ export function registerIpcHandlers(services: AppServices, logger: Logger): void
   // --- MCP ---
   handle(IPC_CHANNELS.mcp.getStatus, NoPayloadSchema, () => {
     const harnesses = mcpManager.getStatusList()
+    const mcpEvents = events.listRecent(50).filter((e) => e.category === 'mcp')
+    
+    const recentToolCalls = mcpEvents.map((e) => ({
+      id: e.id,
+      tool: String(e.payload?.tool || e.type),
+      taskId: e.taskId,
+      source: e.source,
+      payload: e.payload,
+      timestamp: e.timestamp
+    }))
+
+    const latest = recentToolCalls[0]
+    const lastActiveSession = latest
+      ? { tool: latest.tool, timestamp: latest.timestamp, source: latest.source }
+      : undefined
+
     return {
       serverRunning: true,
       socketPath: 'stdio:kanban-mcp',
       harnesses,
-      recentToolCalls: []
+      recentToolCalls,
+      lastActiveSession
     }
   }, logger)
 
-  handle(IPC_CHANNELS.mcp.configureHarness, ConfigureHarnessSchema, ({ harness }) => {
-    return mcpManager.configureHarness(harness, mcpCliPath)
+  handle(IPC_CHANNELS.mcp.configureHarness, ConfigureHarnessSchema, ({ harness, configPath }) => {
+    return mcpManager.configureHarness(harness, mcpCliPath, configPath)
+  }, logger)
+
+  handle(IPC_CHANNELS.mcp.unconfigureHarness, UnconfigureHarnessSchema, ({ harness }) => {
+    return mcpManager.unconfigureHarness(harness)
+  }, logger)
+
+  handle(IPC_CHANNELS.mcp.verifyHarness, VerifyHarnessSchema, async ({ harness }) => {
+    return await mcpManager.verifyHarnessConnection(harness, mcpCliPath)
+  }, logger)
+
+  handle(IPC_CHANNELS.mcp.verifyAll, NoPayloadSchema, async () => {
+    const list = mcpManager.getStatusList().filter((h) => h.configured)
+    const results: Record<string, McpVerificationResultDto> = {}
+    for (const h of list) {
+      results[h.id] = await mcpManager.verifyHarnessConnection(h.id, mcpCliPath)
+    }
+    return results
+  }, logger)
+
+  handle(IPC_CHANNELS.mcp.addCustomHarness, AddCustomHarnessSchema, ({ name, configPath }) => {
+    const entry = mcpManager.saveCustomLocation(name, configPath)
+    return { success: true, entry }
+  }, logger)
+
+  handle(IPC_CHANNELS.mcp.removeCustomHarness, RemoveCustomHarnessSchema, ({ id }) => {
+    const deleted = mcpManager.removeCustomLocation(id)
+    return { success: deleted }
   }, logger)
 
   // --- Diagnostics ---

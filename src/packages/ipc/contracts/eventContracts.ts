@@ -23,6 +23,6 @@ export const ListEventsSchema = z.object({
   taskId: z.string().uuid().optional(),
   sessionId: z.string().uuid().optional(),
   limit: z.number().int().min(1).max(500).optional()
-}).strict()
+}).strict().optional().default({})
 
 export type ListEventsInput = z.infer<typeof ListEventsSchema>

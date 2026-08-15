@@ -19,6 +19,7 @@ export interface CreateTaskInput {
   workspaceId?: string | null
   branch?: string | null
   automationMode?: 'AUTO' | 'MANUAL' | 'CONFIRM'
+  status?: InternalStatus
 }
 
 export interface UpdateTaskInput {
@@ -57,7 +58,8 @@ export class TaskService {
       repositoryId: input.repositoryId,
       workspaceId: input.workspaceId,
       branch: input.branch,
-      automationMode: input.automationMode
+      automationMode: input.automationMode,
+      status: input.status
     })
     this.tasks.insert(task)
     return task

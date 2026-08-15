@@ -22,10 +22,13 @@ const api: RendererApi = {
     move: (input) => ipcRenderer.invoke(IPC_CHANNELS.tasks.move, input),
     moveToColumn: (input) => ipcRenderer.invoke(IPC_CHANNELS.tasks.moveToColumn, input),
     delete: (input) => ipcRenderer.invoke(IPC_CHANNELS.tasks.delete, input),
-    transitions: (input) => ipcRenderer.invoke(IPC_CHANNELS.tasks.transitions, input)
+    transitions: (input) => ipcRenderer.invoke(IPC_CHANNELS.tasks.transitions, input),
+    evidence: (input) => ipcRenderer.invoke(IPC_CHANNELS.tasks.evidence, input)
   },
   board: {
-    get: (input) => ipcRenderer.invoke(IPC_CHANNELS.board.get, input)
+    get(input) {
+      return ipcRenderer.invoke(IPC_CHANNELS.board.get, input)
+    }
   },
   repositories: {
     list: (input) => ipcRenderer.invoke(IPC_CHANNELS.repositories.list, input),
@@ -45,7 +48,12 @@ const api: RendererApi = {
   },
   mcp: {
     getStatus: () => ipcRenderer.invoke(IPC_CHANNELS.mcp.getStatus),
-    configureHarness: (input) => ipcRenderer.invoke(IPC_CHANNELS.mcp.configureHarness, input)
+    configureHarness: (input) => ipcRenderer.invoke(IPC_CHANNELS.mcp.configureHarness, input),
+    unconfigureHarness: (input) => ipcRenderer.invoke(IPC_CHANNELS.mcp.unconfigureHarness, input),
+    verifyHarness: (input) => ipcRenderer.invoke(IPC_CHANNELS.mcp.verifyHarness, input),
+    verifyAll: () => ipcRenderer.invoke(IPC_CHANNELS.mcp.verifyAll),
+    addCustomHarness: (input) => ipcRenderer.invoke(IPC_CHANNELS.mcp.addCustomHarness, input),
+    removeCustomHarness: (input) => ipcRenderer.invoke(IPC_CHANNELS.mcp.removeCustomHarness, input)
   },
   diagnostics: {
     getInfo: () => ipcRenderer.invoke(IPC_CHANNELS.diagnostics.getInfo)

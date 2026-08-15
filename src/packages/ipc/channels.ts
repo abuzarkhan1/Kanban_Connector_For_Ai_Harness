@@ -19,7 +19,8 @@ export const IPC_CHANNELS = {
     move: 'tasks:move',
     moveToColumn: 'tasks:move-to-column',
     delete: 'tasks:delete',
-    transitions: 'tasks:transitions'
+    transitions: 'tasks:transitions',
+    evidence: 'tasks:evidence'
   },
   board: {
     get: 'board:get'
@@ -42,7 +43,12 @@ export const IPC_CHANNELS = {
   },
   mcp: {
     getStatus: 'mcp:get-status',
-    configureHarness: 'mcp:configure-harness'
+    configureHarness: 'mcp:configure-harness',
+    unconfigureHarness: 'mcp:unconfigure-harness',
+    verifyHarness: 'mcp:verify-harness',
+    verifyAll: 'mcp:verify-all',
+    addCustomHarness: 'mcp:add-custom-harness',
+    removeCustomHarness: 'mcp:remove-custom-harness'
   },
   diagnostics: {
     getInfo: 'diagnostics:get-info'

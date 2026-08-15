@@ -3,6 +3,8 @@ import type {
   ProjectDto,
   TaskDto,
   TransitionDto,
+  EvidenceDto,
+  ListEvidenceInput,
   BoardDto,
   CreateProjectInput,
   UpdateProjectInput,
@@ -27,6 +29,11 @@ import type {
   ListEventsInput,
   McpStatusDto,
   ConfigureHarnessInput,
+  UnconfigureHarnessInput,
+  VerifyHarnessInput,
+  McpVerificationResultDto,
+  AddCustomHarnessInput,
+  RemoveCustomHarnessInput,
   DiagnosticsInfoDto
 } from '@ipc'
 
@@ -51,6 +58,7 @@ export interface RendererApi {
     moveToColumn(input: MoveTaskToColumnInput): Promise<IpcResult<TaskDto>>
     delete(input: DeleteTaskInput): Promise<IpcResult<{ deleted: boolean }>>
     transitions(input: ListTransitionsInput): Promise<IpcResult<TransitionDto[]>>
+    evidence(input: ListEvidenceInput): Promise<IpcResult<EvidenceDto[]>>
   }
   board: {
     get(input: GetBoardInput): Promise<IpcResult<BoardDto>>
@@ -64,16 +72,21 @@ export interface RendererApi {
     pickDirectory(): Promise<IpcResult<string | null>>
   }
   sessions: {
-    list(input: ListSessionsInput): Promise<IpcResult<SessionDto[]>>
+    list(input?: ListSessionsInput): Promise<IpcResult<SessionDto[]>>
     listActive(): Promise<IpcResult<SessionDto[]>>
     listAgents(): Promise<IpcResult<AgentDto[]>>
   }
   events: {
-    list(input: ListEventsInput): Promise<IpcResult<ObservedEventDto[]>>
+    list(input?: ListEventsInput): Promise<IpcResult<ObservedEventDto[]>>
   }
   mcp: {
     getStatus(): Promise<IpcResult<McpStatusDto>>
     configureHarness(input: ConfigureHarnessInput): Promise<IpcResult<{ success: boolean; message: string }>>
+    unconfigureHarness(input: UnconfigureHarnessInput): Promise<IpcResult<{ success: boolean; message: string }>>
+    verifyHarness(input: VerifyHarnessInput): Promise<IpcResult<McpVerificationResultDto>>
+    verifyAll(): Promise<IpcResult<Record<string, McpVerificationResultDto>>>
+    addCustomHarness(input: AddCustomHarnessInput): Promise<IpcResult<{ success: boolean; entry: unknown }>>
+    removeCustomHarness(input: RemoveCustomHarnessInput): Promise<IpcResult<{ success: boolean }>>
   }
   diagnostics: {
     getInfo(): Promise<IpcResult<DiagnosticsInfoDto>>

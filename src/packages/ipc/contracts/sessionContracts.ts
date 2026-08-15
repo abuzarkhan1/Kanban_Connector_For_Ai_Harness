@@ -61,6 +61,6 @@ export type SessionDto = z.infer<typeof SessionSchema>
 export const ListSessionsSchema = z.object({
   projectId: z.string().uuid().optional(),
   taskId: z.string().uuid().optional()
-}).strict()
+}).strict().optional().default({})
 
 export type ListSessionsInput = z.infer<typeof ListSessionsSchema>

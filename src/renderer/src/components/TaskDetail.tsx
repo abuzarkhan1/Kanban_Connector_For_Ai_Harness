@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { TaskDto, TransitionDto } from '@ipc'
+import type { TaskDto, TransitionDto, EvidenceDto } from '@ipc'
 import { nextStatuses } from '@domain/state-machine/stateMachine'
 import { PRIORITIES } from '@domain/value-objects/priority'
 import { api, unwrap } from '../api/client'
@@ -12,7 +12,8 @@ import {
   ChevronRightIcon,
   ChevronDownIcon,
   CloseIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  RefreshIcon
 } from './icons'
 
 function CollapsedRail({ task, onExpand, className }: { task?: TaskDto; onExpand: () => void; className?: string }) {
@@ -48,6 +49,7 @@ export function TaskDetail() {
   }, [board, selectedTaskId])
 
   const [transitions, setTransitions] = useState<TransitionDto[]>([])
+  const [evidenceList, setEvidenceList] = useState<EvidenceDto[]>([])
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState<TaskDto['priority']>('MEDIUM')
@@ -78,13 +80,21 @@ export function TaskDetail() {
   useEffect(() => {
     if (!task) return
     let cancelled = false
-    void api.tasks
-      .transitions({ taskId: task.id })
-      .then((result) => {
-        if (!cancelled) setTransitions(unwrap(result))
+    void Promise.all([
+      api.tasks.transitions({ taskId: task.id }),
+      api.tasks.evidence({ taskId: task.id })
+    ])
+      .then(([transRes, evidRes]) => {
+        if (!cancelled) {
+          setTransitions(unwrap(transRes))
+          setEvidenceList(unwrap(evidRes))
+        }
       })
       .catch(() => {
-        if (!cancelled) setTransitions([])
+        if (!cancelled) {
+          setTransitions([])
+          setEvidenceList([])
+        }
       })
     return () => {
       cancelled = true
@@ -98,89 +108,89 @@ export function TaskDetail() {
     return (
       <aside className="hidden w-80 shrink-0 flex-col border-l border-hairline bg-canvas lg:flex">
         <header className="flex h-14 shrink-0 items-center justify-between border-b border-hairline px-4">
-          <h3 className="text-[13px] font-medium tracking-tight text-ink">Task detail</h3>
-          <IconButton label="Collapse task detail" onClick={() => setCollapsed(true)}>
+          <span className="label">Task Details</span>
+          <IconButton label="Collapse panel" onClick={() => setCollapsed(true)}>
             <ChevronRightIcon size="xs" />
           </IconButton>
         </header>
-        <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
-          <span className="grid size-9 place-items-center rounded-md border border-hairline bg-surface text-ash">
-            <ArrowRightIcon size="xs" />
-          </span>
-          <p className="mt-3 text-[12px] text-ash">Select a task to inspect it</p>
+        <div className="flex flex-1 items-center justify-center p-6 text-center text-[12px] text-ash">
+          Select a task on the board to view its properties and transition history.
         </div>
       </aside>
     )
   }
 
   if (collapsed) {
-    return <CollapsedRail task={task} onExpand={() => setCollapsed(false)} />
+    return <CollapsedRail task={task} className="hidden lg:flex" onExpand={() => setCollapsed(false)} />
   }
 
-  const canSave = title.trim().length > 0 && !saving
+  const isDirty =
+    title !== task.title ||
+    description !== task.description ||
+    priority !== task.priority ||
+    labels !== task.labels.join(', ') ||
+    branch !== (task.branch || '') ||
+    repositoryId !== (task.repositoryId || '') ||
+    automationMode !== (task.automationMode || 'AUTO')
 
-  const handleSave = () => {
+  const canSave = isDirty && title.trim().length > 0 && !saving
+
+  const handleSave = async () => {
     if (!canSave) return
     setSaving(true)
-    setSaved(false)
-    void updateTask(task.id, {
+    const labelList = labels
+      .split(',')
+      .map((l) => l.trim())
+      .filter(Boolean)
+    await updateTask(task.id, {
       title: title.trim(),
       description,
       priority,
-      labels: labels
-        .split(',')
-        .map((l) => l.trim())
-        .filter(Boolean),
+      labels: labelList,
       branch: branch.trim() || null,
       repositoryId: repositoryId || null,
       automationMode
-    }).finally(() => {
-      setSaving(false)
-      setSaved(true)
-      window.setTimeout(() => setSaved(false), 1600)
     })
+    setSaving(false)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 1800)
   }
 
   return (
-    <aside className="flex w-80 min-h-0 shrink-0 flex-col border-l border-hairline bg-canvas">
+    <aside className="flex w-full flex-col border-l border-hairline bg-canvas sm:w-96 lg:w-96">
       <header className="flex h-14 shrink-0 items-center justify-between border-b border-hairline px-4">
-        <h3 className="text-[13px] font-medium tracking-tight text-ink">Task detail</h3>
+        <div className="flex items-center gap-2">
+          <span className="label">Task</span>
+          <span className="font-mono text-[11px] text-ash truncate max-w-[140px]">{task.id.slice(0, 8)}</span>
+        </div>
         <div className="flex items-center gap-1">
-          <IconButton label="Collapse task detail" onClick={() => setCollapsed(true)}>
+          <IconButton label="Collapse panel" onClick={() => setCollapsed(true)} className="hidden lg:flex">
             <ChevronRightIcon size="xs" />
           </IconButton>
-          <IconButton label="Close task detail" onClick={() => selectTask(null)}>
+          <IconButton label="Close detail" onClick={() => selectTask(null)}>
             <CloseIcon size="xs" />
           </IconButton>
         </div>
       </header>
 
-      <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-4">
-        <Field label="Title" htmlFor="task-title">
+      <div className="flex-1 space-y-4 overflow-y-auto p-4">
+        {/* Title */}
+        <Field label="Title">
           <TextInput
-            id="task-title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            maxLength={500}
-            aria-invalid={title.trim().length === 0}
+            placeholder="Task summary"
+            className="w-full"
           />
         </Field>
 
-        <Field label="Description" htmlFor="task-description">
-          <TextArea
-            id="task-description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={4}
-          />
-        </Field>
-
+        {/* Priority & Automation Mode */}
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Priority" htmlFor="task-priority">
+          <Field label="Priority">
             <Select
-              id="task-priority"
               value={priority}
               onChange={(e) => setPriority(e.target.value as TaskDto['priority'])}
+              className="w-full"
             >
               {PRIORITIES.map((p) => (
                 <option key={p} value={p}>
@@ -189,61 +199,72 @@ export function TaskDetail() {
               ))}
             </Select>
           </Field>
-          <Field label="Labels" hint="comma separated" htmlFor="task-labels">
-            <TextInput
-              id="task-labels"
-              value={labels}
-              onChange={(e) => setLabels(e.target.value)}
-              placeholder="bug, ui"
-            />
-          </Field>
-        </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Git Branch" htmlFor="task-branch">
-            <TextInput
-              id="task-branch"
-              value={branch}
-              onChange={(e) => setBranch(e.target.value)}
-              placeholder="feature/xyz"
-            />
-          </Field>
-
-          <Field label="Automation" htmlFor="task-automation">
+          <Field label="Automation">
             <Select
-              id="task-automation"
               value={automationMode}
               onChange={(e) => setAutomationMode(e.target.value as 'AUTO' | 'MANUAL' | 'CONFIRM')}
+              className="w-full"
             >
-              <option value="AUTO">Auto (Inferred)</option>
-              <option value="MANUAL">Manual Only</option>
-              <option value="CONFIRM">Confirm</option>
+              <option value="AUTO">AUTO (Inference)</option>
+              <option value="MANUAL">MANUAL (User)</option>
+              <option value="CONFIRM">CONFIRM</option>
             </Select>
           </Field>
         </div>
 
-        {repositories.length > 0 && (
-          <Field label="Linked Repository" htmlFor="task-repo">
-            <Select
-              id="task-repo"
-              value={repositoryId}
-              onChange={(e) => setRepositoryId(e.target.value)}
-            >
-              <option value="">No repository linked</option>
-              {repositories.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.name} ({r.currentBranch})
-                </option>
-              ))}
-            </Select>
-          </Field>
-        )}
+        {/* Repository */}
+        <Field label="Linked Repository">
+          <Select
+            value={repositoryId}
+            onChange={(e) => setRepositoryId(e.target.value)}
+            className="w-full font-mono text-[11px]"
+          >
+            <option value="">No repository linked</option>
+            {repositories.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.name} ({r.currentBranch})
+              </option>
+            ))}
+          </Select>
+        </Field>
+
+        {/* Git Branch */}
+        <Field label="Git Branch">
+          <TextInput
+            value={branch}
+            onChange={(e) => setBranch(e.target.value)}
+            placeholder="feature/branch-name"
+            className="w-full font-mono text-[11px]"
+          />
+        </Field>
+
+        {/* Labels */}
+        <Field label="Labels (comma-separated)">
+          <TextInput
+            value={labels}
+            onChange={(e) => setLabels(e.target.value)}
+            placeholder="frontend, auth, mcp"
+            className="w-full text-[11px]"
+          />
+        </Field>
+
+        {/* Description */}
+        <Field label="Description & Acceptance Criteria">
+          <TextArea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Describe what needs to be implemented and acceptance criteria..."
+            rows={5}
+            className="w-full text-[12px] leading-relaxed"
+          />
+        </Field>
 
         <Button variant="primary" onClick={handleSave} disabled={!canSave} className="w-full">
           {saving ? 'Saving…' : saved ? 'Saved' : 'Save changes'}
         </Button>
 
-        {/* Status */}
+        {/* Status Transition Control */}
         <section className="space-y-2.5 border-t border-hairline pt-4">
           <div className="flex items-center justify-between">
             <span className="label">Status</span>
@@ -255,6 +276,7 @@ export function TaskDetail() {
             {nextStatuses(task.status).map((toStatus) => (
               <button
                 key={toStatus}
+                type="button"
                 onClick={() => void moveTask(task.id, toStatus)}
                 className={cx(
                   'rounded-md border border-hairline px-2.5 py-1.5 text-[11px] font-medium text-body',
@@ -264,15 +286,53 @@ export function TaskDetail() {
                 Move to {toStatus}
               </button>
             ))}
-            {nextStatuses(task.status).length === 0 && (
+            {task.status === 'DONE' && (
+              <button
+                type="button"
+                onClick={() => void moveTask(task.id, 'BACKLOG')}
+                className="flex items-center gap-1 rounded-md border border-hairline bg-surface-elevated px-2.5 py-1.5 text-[11px] font-medium text-amber-300 hover:bg-surface-card"
+              >
+                <RefreshIcon size="xs" />
+                <span>Reopen Task (Backlog)</span>
+              </button>
+            )}
+            {nextStatuses(task.status).length === 0 && task.status !== 'DONE' && (
               <p className="text-[12px] text-ash">This task is in a terminal state.</p>
             )}
           </div>
         </section>
 
+        {/* Evidence & Inferences */}
+        {evidenceList.length > 0 && (
+          <section className="space-y-2.5 border-t border-hairline pt-4">
+            <span className="label">Inference Evidence ({evidenceList.length})</span>
+            <div className="space-y-2">
+              {evidenceList.map((ev) => (
+                <div key={ev.id} className="rounded-md border border-line bg-surface-elevated p-2.5 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] text-sky-400 font-semibold">{ev.ruleId}</span>
+                    <span className="font-mono text-[10px] text-ash">{Math.round(ev.confidence * 100)}% conf</span>
+                  </div>
+                  <p className="mt-1 text-[11px] text-snow">{ev.summary}</p>
+                  {ev.items.length > 0 && (
+                    <div className="mt-2 space-y-1 border-t border-line/40 pt-1.5">
+                      {ev.items.map((item, idx) => (
+                        <div key={idx} className="font-mono text-[10px] text-ash">
+                          • [{item.type}] {item.description}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* History */}
         <section className="space-y-2.5 border-t border-hairline pt-4">
           <button
+            type="button"
             onClick={() => setHistoryOpen((open) => !open)}
             aria-expanded={historyOpen}
             className="focus-ring flex w-full items-center justify-between"

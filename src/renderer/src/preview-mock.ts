@@ -314,31 +314,58 @@ export const previewApi: RendererApi = {
       return ok({ deleted: true })
     },
     async transitions(input) {
-      return ok(transitions.filter((t) => t.taskId === input.taskId).sort((a, b) => a.createdAt - b.createdAt))
+      return ok(transitions.filter((t) => t.taskId === input.taskId))
+    },
+    async evidence(input) {
+      return ok([
+        {
+          id: uuid(901),
+          transitionId: uuid(201),
+          taskId: input.taskId,
+          ruleId: 'RULE_TESTS_PASSED',
+          confidence: 0.95,
+          summary: 'All vitest unit suites passed with 0 errors',
+          items: [
+            {
+              type: 'test',
+              description: '10 test suites passed (56/56 tests)',
+              confidence: 0.95
+            },
+            {
+              type: 'git',
+              description: 'Commit created: feat(mcp): add probe tool',
+              confidence: 0.9
+            }
+          ],
+          createdAt: Date.now() - 5 * 60_000
+        }
+      ])
     }
   },
   board: {
     async get(input) {
+      const project = projects.find((p) => p.id === input.projectId)
+      if (!project) return fail('NOT_FOUND', 'Project not found')
       return ok(boardFor(input.projectId))
     }
   },
   repositories: {
-    async list() {
-      return ok([...repositories])
+    async list(input) {
+      return ok(repositories.filter((r) => r.projectId === input.projectId))
     },
     async listAll() {
       return ok([...repositories])
     },
     async create(input) {
       const created: RepositoryDto = {
-        id: crypto.randomUUID(),
+        id: uuid(Date.now()),
         projectId: input.projectId,
-        name: input.name || 'new-repo',
+        name: input.name || input.path.split(/[\\/]/).filter(Boolean).pop() || 'repo',
         path: input.path,
         defaultBranch: 'main',
         currentBranch: 'main',
-        headCommit: '1234567',
-        worktrees: [{ path: input.path, branch: 'main', head: '1234567', isBare: false }],
+        headCommit: null,
+        worktrees: [],
         lastScannedAt: Date.now(),
         createdAt: Date.now(),
         updatedAt: Date.now()
@@ -352,10 +379,10 @@ export const previewApi: RendererApi = {
       return ok({ deleted: true })
     },
     async scan(input) {
-      const r = repositories.find((x) => x.id === input.id)
-      if (!r) return fail('NOT_FOUND', 'Repo not found')
-      r.lastScannedAt = Date.now()
-      return ok(r)
+      const repo = repositories.find((r) => r.id === input.id)
+      if (!repo) return fail('NOT_FOUND', 'Repository not found')
+      repo.lastScannedAt = Date.now()
+      return ok(repo)
     },
     async pickDirectory() {
       return ok('/Users/developer/code/sample-project')
@@ -383,18 +410,64 @@ export const previewApi: RendererApi = {
         serverRunning: true,
         socketPath: 'stdio:kanban-mcp',
         harnesses: [
-          { harness: 'antigravity', name: 'Google Antigravity CLI', configPath: '~/.gemini/config/mcp_config.json', detected: true, configured: true },
-          { harness: 'claude_code', name: 'Claude Code CLI', configPath: '~/.claude.json', detected: true, configured: false },
-          { harness: 'claude_desktop', name: 'Claude Desktop', configPath: '~/Library/Application Support/Claude/claude_desktop_config.json', detected: true, configured: false },
-          { harness: 'cursor', name: 'Cursor Editor', configPath: '~/.cursor/mcp.json', detected: true, configured: true },
-          { harness: 'windsurf', name: 'Windsurf Editor', configPath: '~/.codeium/windsurf/mcp_config.json', detected: false, configured: false }
+          { id: 'antigravity_cli', harness: 'antigravity', name: 'Google Antigravity CLI', configPath: '~/.gemini/config/mcp_config.json', category: 'antigravity', detected: true, configured: true },
+          { id: 'antigravity_desktop', harness: 'antigravity_desktop', name: 'Google Antigravity Desktop (2.0)', configPath: '~/.gemini/antigravity/mcp_config.json', category: 'antigravity', detected: true, configured: true },
+          { id: 'antigravity_ide', harness: 'antigravity_ide', name: 'Google Antigravity IDE', configPath: '~/.gemini/antigravity-ide/mcp_config.json', category: 'antigravity', detected: true, configured: false },
+          { id: 'claude_code', harness: 'claude_code', name: 'Claude Code CLI', configPath: '~/.claude.json', category: 'claude', detected: true, configured: false },
+          { id: 'claude_desktop', harness: 'claude_desktop', name: 'Claude Desktop', configPath: '~/Library/Application Support/Claude/claude_desktop_config.json', category: 'claude', detected: true, configured: false },
+          { id: 'cursor', harness: 'cursor', name: 'Cursor Editor', configPath: '~/.cursor/mcp.json', category: 'editor', detected: true, configured: true },
+          { id: 'windsurf', harness: 'windsurf', name: 'Windsurf Editor', configPath: '~/.codeium/windsurf/mcp_config.json', category: 'editor', detected: false, configured: false },
+          { id: 'vscode_roo', harness: 'vscode_roo', name: 'VS Code (Roo Code)', configPath: '~/.config/Code/User/.../mcp_settings.json', category: 'editor', detected: true, configured: false },
+          { id: 'vscode_cline', harness: 'vscode_cline', name: 'VS Code (Cline)', configPath: '~/.config/Code/User/.../cline_mcp_settings.json', category: 'editor', detected: true, configured: false }
         ],
-        recentToolCalls: []
+        recentToolCalls: [
+          { id: uuid(902), tool: 'kanban_list_tasks', source: 'mcp-server', payload: { projectId: uuid(1) }, timestamp: Date.now() - 60_000 }
+        ]
       }
       return ok(status)
     },
     async configureHarness(input) {
       return ok({ success: true, message: `Configured ${input.harness}` })
+    },
+    async unconfigureHarness(input) {
+      return ok({ success: true, message: `Disconnected ${input.harness}` })
+    },
+    async verifyHarness(_input) {
+      return ok({
+        success: true,
+        latencyMs: 14,
+        toolsDiscovered: 8,
+        tools: ['kanban_ping', 'kanban_list_projects', 'kanban_list_tasks', 'kanban_get_task', 'kanban_create_task', 'kanban_move_task', 'kanban_report_activity', 'kanban_get_workspace_context'],
+        testedAt: Date.now(),
+        serverInfo: { name: 'ai-harness-project-manager', version: '1.0.0' },
+        diagnostics: [
+          { step: 'config', status: 'ok', message: `Valid JSON config detected with server command: 'node'` },
+          { step: 'runtime', status: 'ok', message: `Entry script exists on disk.` },
+          { step: 'handshake', status: 'ok', message: `Handshake successful with 'ai-harness-project-manager' v1.0.0` },
+          { step: 'tools', status: 'ok', message: `Discovered 8 MCP tools.` },
+          { step: 'database', status: 'ok', message: `SQLite database online & responsive (14ms latency).` }
+        ]
+      })
+    },
+    async verifyAll() {
+      return ok({
+        antigravity_cli: {
+          success: true,
+          latencyMs: 12,
+          toolsDiscovered: 8,
+          testedAt: Date.now(),
+          diagnostics: [
+            { step: 'config', status: 'ok', message: 'Valid config' },
+            { step: 'handshake', status: 'ok', message: 'Handshake OK' }
+          ]
+        }
+      })
+    },
+    async addCustomHarness(input) {
+      return ok({ success: true, entry: { id: `custom_${Date.now()}`, harness: 'custom', name: input.name, path: input.configPath, category: 'custom', isCustom: true } })
+    },
+    async removeCustomHarness() {
+      return ok({ success: true })
     }
   },
   diagnostics: {

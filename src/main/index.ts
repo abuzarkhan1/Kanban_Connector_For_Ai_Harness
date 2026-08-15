@@ -109,6 +109,7 @@ async function bootstrap(): Promise<void> {
     repositories: repositoryService,
     sessions: sessionService,
     events: eventService,
+    evidence: evidenceRepo,
     engine,
     mcpManager,
     mcpCliPath,

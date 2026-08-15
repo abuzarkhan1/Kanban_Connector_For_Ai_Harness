@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import type { BoardColumnDto, TaskDto } from '@ipc'
-import type { ColumnId, InternalStatus } from '@domain/state-machine/status'
+import { defaultStatusForColumn, type ColumnId, type InternalStatus } from '@domain/state-machine/status'
 import type { Priority } from '@domain/value-objects/priority'
 import { useBoardStore } from '../stores/useBoardStore'
 import { useLocalStorage } from '../lib/useLocalStorage'
@@ -67,7 +67,11 @@ export function Column({ column, query }: { column: BoardColumnDto; query: strin
     e.preventDefault()
     const trimmed = title.trim()
     if (!trimmed || !selectedProjectId) return
-    void createTask({ projectId: selectedProjectId, title: trimmed })
+    void createTask({
+      projectId: selectedProjectId,
+      title: trimmed,
+      status: defaultStatusForColumn(column.id)
+    })
     setTitle('')
   }
 

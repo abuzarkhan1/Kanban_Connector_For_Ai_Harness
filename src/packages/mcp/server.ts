@@ -32,9 +32,49 @@ export function createKanbanMcpServer(context: McpServerContext): McpServer {
   // TOOLS
   // -------------------------------------------------------------------------
 
+  // 0. kanban_ping (Live connection probe & health check)
+  server.tool(
+    'kanban_ping',
+    'Verify MCP stdio bridge health, latency, database accessibility, and server status',
+    {},
+    async () => {
+      const projectCount = projects.list().length
+      events.record({
+        source: 'mcp-server',
+        category: 'mcp',
+        type: 'MCP_TOOL_CALLED',
+        taskId: null,
+        payload: { tool: 'kanban_ping', projectCount }
+      })
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              status: 'ok',
+              server: 'ai-harness-project-manager',
+              version: '1.0.0',
+              timestamp: Date.now(),
+              db: 'connected',
+              activeProjects: projectCount
+            })
+          }
+        ]
+      }
+    }
+  )
+
   // 1. kanban_list_projects
   server.tool('kanban_list_projects', 'List all available Kanban projects and their IDs', {}, async () => {
     const list = projects.list()
+    events.record({
+      source: 'mcp-server',
+      category: 'mcp',
+      type: 'MCP_TOOL_CALLED',
+      taskId: null,
+      payload: { tool: 'kanban_list_projects', count: list.length }
+    })
     return {
       content: [
         {
@@ -58,6 +98,16 @@ export function createKanbanMcpServer(context: McpServerContext): McpServer {
       if (status) {
         taskList = taskList.filter((t) => t.status === status)
       }
+
+      events.record({
+        source: 'mcp-server',
+        category: 'mcp',
+        type: 'MCP_TOOL_CALLED',
+        taskId: null,
+        projectId,
+        payload: { tool: 'kanban_list_tasks', projectId, status, count: taskList.length }
+      })
+
       return {
         content: [
           {
@@ -80,6 +130,16 @@ export function createKanbanMcpServer(context: McpServerContext): McpServer {
       const task = tasks.get(taskId)
       const transitions = tasks.transitionsFor(taskId)
       const evidenceList = evidence.listByTask(taskId)
+
+      events.record({
+        source: 'mcp-server',
+        category: 'mcp',
+        type: 'MCP_TOOL_CALLED',
+        taskId,
+        projectId: task.projectId,
+        payload: { tool: 'kanban_get_task', taskId }
+      })
+
       return {
         content: [
           {
@@ -112,6 +172,16 @@ export function createKanbanMcpServer(context: McpServerContext): McpServer {
         labels: args.labels,
         branch: args.branch
       })
+
+      events.record({
+        source: 'mcp-server',
+        category: 'mcp',
+        type: 'MCP_TOOL_CALLED',
+        taskId: created.id,
+        projectId: args.projectId,
+        payload: { tool: 'kanban_create_task', taskId: created.id, title: args.title }
+      })
+
       return {
         content: [
           {
@@ -258,8 +328,18 @@ export function createKanbanMcpServer(context: McpServerContext): McpServer {
       const project = projects.get(matchedRepo.projectId)
       const projectTasks = tasks.listByProject(matchedRepo.projectId)
       const matchingTasks = projectTasks.filter(
-        (t) => t.repositoryId === matchedRepo.id || (t.branch && t.branch === matchedRepo.currentBranch)
+        (t) => t.status === 'READY' || t.status === 'IMPLEMENTING' || t.status === 'ASSIGNED'
       )
+
+      events.record({
+        source: 'mcp-server',
+        category: 'mcp',
+        type: 'MCP_TOOL_CALLED',
+        taskId: null,
+        projectId: project.id,
+        repositoryId: matchedRepo.id,
+        payload: { tool: 'kanban_get_workspace_context', workingDirectory: args.workingDirectory }
+      })
 
       return {
         content: [
@@ -268,10 +348,9 @@ export function createKanbanMcpServer(context: McpServerContext): McpServer {
             text: JSON.stringify(
               {
                 matched: true,
-                project,
-                repository: matchedRepo,
-                matchingTasks,
-                allProjectTasks: projectTasks
+                project: { id: project.id, name: project.name },
+                repository: { id: matchedRepo.id, name: matchedRepo.name, branch: matchedRepo.currentBranch },
+                suggestedTasks: matchingTasks
               },
               null,
               2
@@ -286,13 +365,13 @@ export function createKanbanMcpServer(context: McpServerContext): McpServer {
   // RESOURCES
   // -------------------------------------------------------------------------
 
+  // 1. Direct project metadata resource
   server.resource(
-    'project-resource',
+    'project',
     new ResourceTemplate('kanban://project/{projectId}', { list: undefined }),
     async (uri, { projectId }) => {
-      const pId = String(projectId)
-      const project = projects.get(pId)
-      const taskList = tasks.listByProject(pId)
+      const project = projects.get(String(projectId))
+      const taskList = tasks.listByProject(String(projectId))
       return {
         contents: [
           {
@@ -305,19 +384,24 @@ export function createKanbanMcpServer(context: McpServerContext): McpServer {
     }
   )
 
+  // 2. Full project board resource
   server.resource(
-    'active-tasks-resource',
-    'kanban://tasks/active',
-    async (uri) => {
-      const allProjects = projects.list()
-      const activeTasks = allProjects.flatMap((p) =>
-        tasks.listByProject(p.id).filter((t) => t.status !== 'DONE' && t.status !== 'BACKLOG')
-      )
+    'project_board',
+    new ResourceTemplate('kanban://projects/{projectId}/board', { list: undefined }),
+    async (uri, { projectId }) => {
+      const project = projects.get(String(projectId))
+      const taskList = tasks.listByProject(String(projectId))
+      const columns = {
+        TODO: taskList.filter((t) => t.status === 'BACKLOG' || t.status === 'READY' || t.status === 'ASSIGNED'),
+        IN_PROGRESS: taskList.filter((t) => t.status === 'AGENT_STARTED' || t.status === 'IMPLEMENTING' || t.status === 'TESTING' || t.status === 'BLOCKED'),
+        REVIEW: taskList.filter((t) => t.status === 'READY_FOR_REVIEW' || t.status === 'CHANGES_REQUESTED' || t.status === 'APPROVED'),
+        DONE: taskList.filter((t) => t.status === 'MERGED' || t.status === 'DONE')
+      }
       return {
         contents: [
           {
             uri: uri.href,
-            text: JSON.stringify({ activeTasks }, null, 2),
+            text: JSON.stringify({ project, columns }, null, 2),
             mimeType: 'application/json'
           }
         ]
@@ -325,17 +409,50 @@ export function createKanbanMcpServer(context: McpServerContext): McpServer {
     }
   )
 
+  // 3. Single task details and transition history
   server.resource(
-    'task-resource',
+    'task',
     new ResourceTemplate('kanban://tasks/{taskId}', { list: undefined }),
     async (uri, { taskId }) => {
-      const tId = String(taskId)
-      const task = tasks.get(tId)
+      const task = tasks.get(String(taskId))
+      const transitions = tasks.transitionsFor(String(taskId))
+      const evidenceList = evidence.listByTask(String(taskId))
       return {
         contents: [
           {
             uri: uri.href,
-            text: JSON.stringify(task, null, 2),
+            text: JSON.stringify({ task, transitions, evidence: evidenceList }, null, 2),
+            mimeType: 'application/json'
+          }
+        ]
+      }
+    }
+  )
+
+  // 4. Active tasks query resource
+  server.resource(
+    'active_tasks',
+    'kanban://tasks/active',
+    async (uri) => {
+      const allProjects = projects.list()
+      const activeTasks = allProjects.flatMap((p) =>
+        tasks
+          .listByProject(p.id)
+          .filter(
+            (t) =>
+              t.status === 'READY' ||
+              t.status === 'ASSIGNED' ||
+              t.status === 'AGENT_STARTED' ||
+              t.status === 'IMPLEMENTING' ||
+              t.status === 'TESTING' ||
+              t.status === 'READY_FOR_REVIEW'
+          )
+      )
+      return {
+        contents: [
+          {
+            uri: uri.href,
+            text: JSON.stringify(activeTasks, null, 2),
             mimeType: 'application/json'
           }
         ]
@@ -347,44 +464,25 @@ export function createKanbanMcpServer(context: McpServerContext): McpServer {
   // PROMPTS
   // -------------------------------------------------------------------------
 
+  // 1. Context prompt for working on a task
   server.prompt(
     'kanban_task_context',
-    'Get full task instructions, acceptance criteria, branch, and transition instructions for an AI agent',
+    'Load task requirements, acceptance criteria, linked git branch, and transition history',
     {
-      taskId: z.string().describe('The task UUID to frame context for')
+      taskId: z.string().describe('The task UUID to load')
     },
     async ({ taskId }) => {
       const task = tasks.get(taskId)
+      const transitions = tasks.transitionsFor(taskId)
       const project = projects.get(task.projectId)
-      const taskTransitions = tasks.transitionsFor(taskId)
 
       return {
-        description: `Context framing for task: ${task.title}`,
         messages: [
           {
             role: 'user',
             content: {
               type: 'text',
-              text: [
-                `You are working on task "${task.title}" in project "${project.name}".`,
-                `Current Status: ${task.status}`,
-                `Priority: ${task.priority}`,
-                task.description ? `Description:\n${task.description}` : '',
-                task.branch ? `Associated Git Branch: ${task.branch}` : '',
-                task.labels.length > 0 ? `Labels: ${task.labels.join(', ')}` : '',
-                '',
-                'Instructions:',
-                '1. As you begin implementation, report activity using `kanban_report_activity` with activityState: "modifying_files".',
-                '2. When running unit tests, report `kanban_report_activity` with activityState: "running_tests".',
-                '3. When finished, move the task to READY_FOR_REVIEW using `kanban_move_task`.',
-                '',
-                `Audit History (${taskTransitions.length} transitions):`,
-                ...taskTransitions.map(
-                  (t) => `- ${new Date(t.createdAt).toISOString()}: ${t.fromStatus} -> ${t.toStatus} (${t.actor})`
-                )
-              ]
-                .filter(Boolean)
-                .join('\n')
+              text: `You are working on task "${task.title}" in project "${project.name}".\n\nStatus: ${task.status}\nPriority: ${task.priority}\nLabels: ${task.labels.join(', ')}\nBranch: ${task.branch || 'none'}\n\nDescription:\n${task.description || 'No description provided.'}\n\nTransition History:\n${transitions.map((t) => `- ${new Date(t.createdAt).toISOString()}: ${t.fromStatus} -> ${t.toStatus} (${t.actor})`).join('\n')}\n\nPlease report your progress using kanban_report_activity and move tasks using kanban_move_task when milestones are completed.`
             }
           }
         ]
@@ -392,22 +490,25 @@ export function createKanbanMcpServer(context: McpServerContext): McpServer {
     }
   )
 
+  // 2. Start working on highest priority ready task prompt
   server.prompt(
     'kanban_start_task',
-    'Initialize development on a task: moves task to in-progress and sets up workspace instructions',
+    'Identify and start working on the highest priority task in READY status for a project',
     {
-      taskId: z.string().describe('The task UUID to start work on')
+      projectId: z.string().describe('The project UUID')
     },
-    async ({ taskId }) => {
-      const task = tasks.get(taskId)
+    async ({ projectId }) => {
+      const project = projects.get(projectId)
+      const taskList = tasks.listByProject(projectId)
+      const readyTasks = taskList.filter((t) => t.status === 'READY')
+
       return {
-        description: `Start working on task: ${task.title}`,
         messages: [
           {
             role: 'user',
             content: {
               type: 'text',
-              text: `Please begin work on task [${task.id}] "${task.title}". First examine the code, then implement changes and run verification tests.`
+              text: `Here are the READY tasks available in project "${project.name}":\n\n${readyTasks.map((t) => `- [${t.priority}] ${t.title} (ID: ${t.id})`).join('\n') || 'No tasks currently in READY status.'}\n\nSelect the highest priority task, move it to IMPLEMENTING via kanban_move_task, and begin implementation.`
             }
           }
         ]

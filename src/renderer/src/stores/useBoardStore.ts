@@ -9,6 +9,7 @@ import type {
   AgentDto,
   ObservedEventDto,
   McpStatusDto,
+  McpVerificationResultDto,
   DiagnosticsInfoDto
 } from '@ipc'
 import type { ColumnId, InternalStatus } from '@domain/state-machine/status'
@@ -34,6 +35,8 @@ interface BoardStoreState {
   agents: AgentDto[]
   events: ObservedEventDto[]
   mcpStatus: McpStatusDto | null
+  mcpVerifications: Record<string, McpVerificationResultDto>
+  verifyingHarness: string | null
   diagnostics: DiagnosticsInfoDto | null
   loading: boolean
   error: string | null
@@ -63,7 +66,12 @@ interface BoardStoreState {
   loadSessionsAndAgents: () => Promise<void>
   loadEvents: () => Promise<void>
   loadMcpStatus: () => Promise<void>
-  configureHarness: (harness: 'antigravity' | 'claude_code' | 'claude_desktop' | 'cursor' | 'windsurf') => Promise<{ success: boolean; message: string }>
+  configureHarness: (harnessId: string, customPath?: string) => Promise<{ success: boolean; message: string }>
+  unconfigureHarness: (harnessId: string) => Promise<{ success: boolean; message: string }>
+  verifyHarness: (harnessId: string) => Promise<McpVerificationResultDto>
+  verifyAllHarnesses: () => Promise<Record<string, McpVerificationResultDto>>
+  addCustomHarness: (name: string, configPath: string) => Promise<{ success: boolean; message: string }>
+  removeCustomHarness: (id: string) => Promise<void>
   loadDiagnostics: () => Promise<void>
 }
 
@@ -82,98 +90,113 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
   agents: [],
   events: [],
   mcpStatus: null,
+  mcpVerifications: {},
+  verifyingHarness: null,
   diagnostics: null,
   loading: false,
   error: null,
 
   setCurrentView: (view) => {
     set({ currentView: view })
+    // Lazy-load view data
     if (view === 'repositories') void get().loadRepositories()
     if (view === 'agents') void get().loadSessionsAndAgents()
     if (view === 'timeline') void get().loadEvents()
     if (view === 'mcp') void get().loadMcpStatus()
     if (view === 'diagnostics') void get().loadDiagnostics()
+    if (view === 'dashboard') {
+      void get().loadRepositories()
+      void get().loadSessionsAndAgents()
+      void get().loadEvents()
+      void get().refreshBoard()
+    }
   },
 
   loadProjects: async () => {
     set({ loading: true, error: null })
     try {
       const projects = unwrap(await api.projects.list())
-      set({ projects })
-      const current = get().selectedProjectId
-      if (current && !projects.some((p) => p.id === current)) {
-        set({ selectedProjectId: null, board: null, selectedTaskId: null })
-      } else if (!current && projects.length > 0) {
-        await get().selectProject(projects[0]?.id || null)
+      const selectedProjectId = get().selectedProjectId
+      const exists = selectedProjectId && projects.some((p) => p.id === selectedProjectId)
+      const nextSelected = exists ? selectedProjectId : (projects[0]?.id ?? null)
+
+      set({ projects, selectedProjectId: nextSelected, loading: false })
+      if (nextSelected) {
+        await get().refreshBoard()
+      } else {
+        set({ board: null })
       }
     } catch (err) {
-      set({ error: toError(err) })
-    } finally {
-      set({ loading: false })
+      set({ error: toError(err), loading: false })
     }
   },
 
   selectProject: async (projectId) => {
     set({ selectedProjectId: projectId, selectedTaskId: null, error: null })
-    if (!projectId) {
-      set({ board: null })
-      return
-    }
-    try {
-      const board = unwrap(await api.board.get({ projectId }))
-      set({ board })
+    if (projectId) {
+      await get().refreshBoard()
       void get().loadRepositories()
       void get().loadSessionsAndAgents()
-    } catch (err) {
-      set({ error: toError(err) })
+    } else {
+      set({ board: null })
     }
   },
 
   createProject: async (name) => {
+    set({ loading: true, error: null })
     try {
-      const created = unwrap(await api.projects.create({ name }))
-      await get().loadProjects()
-      await get().selectProject(created.id)
+      const project = unwrap(await api.projects.create({ name }))
+      const projects = [...get().projects, project]
+      set({ projects, selectedProjectId: project.id, loading: false })
+      await get().refreshBoard()
     } catch (err) {
-      set({ error: toError(err) })
+      set({ error: toError(err), loading: false })
     }
   },
 
   updateProject: async (projectId, name) => {
+    set({ loading: true, error: null })
     try {
-      unwrap(await api.projects.update({ id: projectId, name }))
-      await get().loadProjects()
-      await get().refreshBoard()
+      const updated = unwrap(await api.projects.update({ id: projectId, name }))
+      const projects = get().projects.map((p) => (p.id === projectId ? updated : p))
+      set({ projects, loading: false })
+      if (get().selectedProjectId === projectId && get().board) {
+        set({ board: { ...get().board!, projectName: updated.name } })
+      }
     } catch (err) {
-      set({ error: toError(err) })
+      set({ error: toError(err), loading: false })
     }
   },
 
   deleteProject: async (projectId) => {
+    set({ loading: true, error: null })
     try {
       unwrap(await api.projects.delete({ id: projectId }))
-      await get().loadProjects()
-      if (get().selectedProjectId === projectId) {
-        await get().selectProject(null)
-      } else {
+      const projects = get().projects.filter((p) => p.id !== projectId)
+      const nextSelected = projects[0]?.id ?? null
+      set({ projects, selectedProjectId: nextSelected, selectedTaskId: null, loading: false })
+      if (nextSelected) {
         await get().refreshBoard()
+      } else {
+        set({ board: null })
       }
     } catch (err) {
-      set({ error: toError(err) })
+      set({ error: toError(err), loading: false })
     }
   },
 
   createTask: async (input) => {
+    set({ error: null })
     try {
       unwrap(await api.tasks.create(input))
       await get().refreshBoard()
-      void get().loadEvents()
     } catch (err) {
       set({ error: toError(err) })
     }
   },
 
   updateTask: async (id, patch) => {
+    set({ error: null })
     try {
       unwrap(await api.tasks.update({ id, ...patch }))
       await get().refreshBoard()
@@ -183,62 +206,89 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
   },
 
   moveTask: async (id, toStatus) => {
+    set({ error: null })
     try {
       unwrap(await api.tasks.move({ id, toStatus }))
       await get().refreshBoard()
-      void get().loadEvents()
     } catch (err) {
       set({ error: toError(err) })
     }
   },
 
   moveTaskToColumn: async (id, columnId) => {
+    const prevBoard = get().board
+    if (prevBoard) {
+      const allTasks = prevBoard.columns.flatMap((c) => c.tasks)
+      const movingTask = allTasks.find((t) => t.id === id)
+      if (movingTask) {
+        const nextColumns = prevBoard.columns.map((col) => {
+          if (col.id === columnId) {
+            return { ...col, tasks: [...col.tasks.filter((t) => t.id !== id), movingTask] }
+          }
+          return { ...col, tasks: col.tasks.filter((t) => t.id !== id) }
+        })
+        set({ board: { ...prevBoard, columns: nextColumns } })
+      }
+    }
+
+    set({ error: null })
     try {
       unwrap(await api.tasks.moveToColumn({ id, columnId }))
       await get().refreshBoard()
-      void get().loadEvents()
     } catch (err) {
-      set({ error: toError(err) })
+      set({ board: prevBoard, error: toError(err) })
     }
   },
 
   deleteTask: async (id) => {
+    set({ error: null })
     try {
       unwrap(await api.tasks.delete({ id }))
-      set({ selectedTaskId: null })
+      if (get().selectedTaskId === id) {
+        set({ selectedTaskId: null })
+      }
       await get().refreshBoard()
     } catch (err) {
       set({ error: toError(err) })
     }
   },
 
-  selectTask: (id) => set({ selectedTaskId: id }),
+  selectTask: (id) => {
+    set({ selectedTaskId: id })
+  },
 
-  clearError: () => set({ error: null }),
+  clearError: () => {
+    set({ error: null })
+  },
 
   refreshBoard: async () => {
     const projectId = get().selectedProjectId
     if (!projectId) return
-    const board = unwrap(await api.board.get({ projectId }))
-    set({ board })
+    try {
+      const board = unwrap(await api.board.get({ projectId }))
+      set({ board })
+    } catch (err) {
+      set({ error: toError(err) })
+    }
   },
 
-  // Repositories Actions
+  // Repositories
   loadRepositories: async () => {
     const projectId = get().selectedProjectId
     try {
-      const repositories = projectId
+      const repos = projectId
         ? unwrap(await api.repositories.list({ projectId }))
         : unwrap(await api.repositories.listAll())
-      set({ repositories })
-    } catch (err) {
-      set({ error: toError(err) })
+      set({ repositories: repos })
+    } catch {
+      // Non-blocking
     }
   },
 
   addRepository: async (path, name) => {
     const projectId = get().selectedProjectId
     if (!projectId) return
+    set({ error: null })
     try {
       unwrap(await api.repositories.create({ projectId, path, name }))
       await get().loadRepositories()
@@ -248,6 +298,7 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
   },
 
   deleteRepository: async (id) => {
+    set({ error: null })
     try {
       unwrap(await api.repositories.delete({ id }))
       await get().loadRepositories()
@@ -257,6 +308,7 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
   },
 
   scanRepository: async (id) => {
+    set({ error: null })
     try {
       unwrap(await api.repositories.scan({ id }))
       await get().loadRepositories()
@@ -308,13 +360,80 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
     }
   },
 
-  configureHarness: async (harness) => {
+  configureHarness: async (harnessId, customPath) => {
     try {
-      const res = unwrap(await api.mcp.configureHarness({ harness }))
+      const res = unwrap(await api.mcp.configureHarness({ harness: harnessId, configPath: customPath }))
       await get().loadMcpStatus()
       return res
     } catch (err) {
       return { success: false, message: toError(err) }
+    }
+  },
+
+  unconfigureHarness: async (harnessId) => {
+    try {
+      const res = unwrap(await api.mcp.unconfigureHarness({ harness: harnessId }))
+      await get().loadMcpStatus()
+      return res
+    } catch (err) {
+      return { success: false, message: toError(err) }
+    }
+  },
+
+  verifyHarness: async (harnessId) => {
+    set({ verifyingHarness: harnessId })
+    try {
+      const res = unwrap(await api.mcp.verifyHarness({ harness: harnessId }))
+      const prev = get().mcpVerifications
+      set({
+        mcpVerifications: { ...prev, [harnessId]: res },
+        verifyingHarness: null
+      })
+      return res
+    } catch (err) {
+      const fallbackResult: McpVerificationResultDto = {
+        success: false,
+        testedAt: Date.now(),
+        diagnostics: [{ step: 'runtime', status: 'error', message: toError(err) }],
+        error: toError(err)
+      }
+      const prev = get().mcpVerifications
+      set({
+        mcpVerifications: { ...prev, [harnessId]: fallbackResult },
+        verifyingHarness: null
+      })
+      return fallbackResult
+    }
+  },
+
+  verifyAllHarnesses: async () => {
+    set({ verifyingHarness: 'all' })
+    try {
+      const results = unwrap(await api.mcp.verifyAll())
+      set({ mcpVerifications: results, verifyingHarness: null })
+      return results
+    } catch {
+      set({ verifyingHarness: null })
+      return {}
+    }
+  },
+
+  addCustomHarness: async (name, configPath) => {
+    try {
+      unwrap(await api.mcp.addCustomHarness({ name, configPath }))
+      await get().loadMcpStatus()
+      return { success: true, message: `Added custom harness: ${name}` }
+    } catch (err) {
+      return { success: false, message: toError(err) }
+    }
+  },
+
+  removeCustomHarness: async (id) => {
+    try {
+      unwrap(await api.mcp.removeCustomHarness({ id }))
+      await get().loadMcpStatus()
+    } catch {
+      // Non-blocking
     }
   },
 

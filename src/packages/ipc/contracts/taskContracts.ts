@@ -24,6 +24,7 @@ export const CreateTaskSchema = z.object({
   projectId: z.string().uuid(),
   title: z.string().trim().min(1).max(500),
   description: z.string().max(100_000).optional(),
+  status: z.enum(INTERNAL_STATUSES).optional(),
   priority: z.enum(PRIORITIES).optional(),
   labels: z.array(z.string().trim().min(1).max(50)).max(20).optional(),
   repositoryId: z.string().nullable().optional(),
