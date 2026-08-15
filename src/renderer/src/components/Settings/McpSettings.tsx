@@ -83,8 +83,11 @@ export const McpSettings: React.FC = () => {
     {
       mcpServers: {
         kanban: {
-          command: 'node',
-          args: ['/path/to/ai-harness-project-manager/bin/kanban-mcp.js']
+          command: '/Applications/AI Harness Project Manager.app/Contents/MacOS/AI Harness Project Manager',
+          args: ['/Applications/AI Harness Project Manager.app/Contents/Resources/app.asar/bin/kanban-mcp.js'],
+          env: {
+            ELECTRON_RUN_AS_NODE: '1'
+          }
         }
       }
     },

@@ -325,6 +325,51 @@ export class HarnessConfigManager {
     })
   }
 
+  /**
+   * Resolves the runtime configuration (command, args, env) for the MCP server.
+   * When packaged inside an Electron app or pointing to an asar bundle, executes via
+   * the app binary with ELECTRON_RUN_AS_NODE=1 so that asar archives and native modules
+   * (better-sqlite3) are loaded cleanly without requiring a separate Node.js installation.
+   */
+  resolveRuntimeConfig(cliPath: string): { command: string; args: string[]; env: Record<string, string> } {
+    const isAsar = cliPath.includes('.asar')
+    const pathEnv = this.resolveNodePathEnv()
+    const isMac = process.platform === 'darwin'
+
+    const isElectron = Boolean(
+      isAsar ||
+      (process.versions && (process.versions as Record<string, string>).electron) ||
+      (process.execPath && (process.execPath.includes('.app') || process.execPath.includes('AI Harness Project Manager')))
+    )
+
+    if (isElectron) {
+      let appExec = process.execPath
+      if (isMac && (!appExec || !existsSync(appExec) || appExec.toLowerCase().includes('node'))) {
+        const standardMacApp = '/Applications/AI Harness Project Manager.app/Contents/MacOS/AI Harness Project Manager'
+        if (existsSync(standardMacApp)) {
+          appExec = standardMacApp
+        }
+      }
+      return {
+        command: appExec || this.resolveNodeExecutable(),
+        args: [cliPath],
+        env: {
+          ELECTRON_RUN_AS_NODE: '1',
+          PATH: pathEnv
+        }
+      }
+    }
+
+    const nodeCommand = this.resolveNodeExecutable()
+    return {
+      command: nodeCommand,
+      args: [cliPath],
+      env: {
+        PATH: pathEnv
+      }
+    }
+  }
+
   configureHarness(harnessIdOrType: string, cliPath: string, customPath?: string): { success: boolean; message: string } {
     let loc = this.getLocations().find((l) => l.id === harnessIdOrType || l.harness === harnessIdOrType)
     if (!loc && customPath) {
@@ -359,16 +404,13 @@ export class HarnessConfigManager {
         config[serverKey] = {}
       }
 
-      const nodeCommand = this.resolveNodeExecutable()
-      const pathEnv = this.resolveNodePathEnv()
+      const runtime = this.resolveRuntimeConfig(cliPath)
 
       const servers = config[serverKey] as Record<string, unknown>
       servers['kanban'] = {
-        command: nodeCommand,
-        args: [cliPath],
-        env: {
-          PATH: pathEnv
-        }
+        command: runtime.command,
+        args: runtime.args,
+        env: runtime.env
       }
 
       writeFileSync(loc.path, JSON.stringify(config, null, 2), 'utf8')
@@ -468,7 +510,8 @@ export class HarnessConfigManager {
 
     // Step 2: Binary check
     const targetScript = args[0] || cliPath
-    if (existsSync(targetScript)) {
+    const scriptAccessible = existsSync(targetScript) || targetScript.includes('.asar')
+    if (scriptAccessible) {
       diagnostics.push({ step: 'runtime', status: 'ok', message: `Entry script exists at ${targetScript}` })
     } else {
       diagnostics.push({ step: 'runtime', status: 'warn', message: `Target script path ${targetScript} cannot be directly verified on disk.` })
@@ -483,11 +526,25 @@ export class HarnessConfigManager {
       let toolNames: string[] = []
       let serverInfo: { name: string; version: string } | undefined
 
+      const isElectronApp = Boolean(
+        serverEnv.ELECTRON_RUN_AS_NODE === '1' ||
+        command.includes('AI Harness Project Manager') ||
+        command.includes('.app') ||
+        (args[0] && args[0].includes('.asar'))
+      )
+
       const pathEnv = serverEnv.PATH || this.resolveNodePathEnv()
+      const probeEnv = {
+        ...process.env,
+        ...serverEnv,
+        PATH: pathEnv,
+        KANBAN_MCP_PROBE: 'true',
+        ...(isElectronApp ? { ELECTRON_RUN_AS_NODE: '1' } : {})
+      }
 
       const child = spawn(command, args, {
         stdio: ['pipe', 'pipe', 'pipe'],
-        env: { ...process.env, ...serverEnv, PATH: pathEnv, KANBAN_MCP_PROBE: 'true' }
+        env: probeEnv
       })
 
       const cleanup = (): void => {
