@@ -1,0 +1,242 @@
+import React, { useState } from 'react'
+import {
+  Server,
+  Bot,
+  Terminal,
+  GitBranch,
+  Copy,
+  CheckCircle2
+} from 'lucide-react'
+import { sounds } from '../lib/audio'
+
+interface NodeItem {
+  id: string
+  name: string
+  type: 'harness' | 'observer' | 'core'
+  description: string
+  samplePayload: Record<string, unknown>
+}
+
+export const McpTopologyExplorer: React.FC = () => {
+  const [selectedNodeId, setSelectedNodeId] = useState<string>('antigravity')
+  const [copied, setCopied] = useState(false)
+
+  const nodes: NodeItem[] = [
+    {
+      id: 'antigravity',
+      name: 'Google Antigravity',
+      type: 'harness',
+      description: 'Agentic AI coding assistant with autonomous multi-step subagent execution.',
+      samplePayload: {
+        jsonrpc: '2.0',
+        method: 'tools/call',
+        params: {
+          name: 'kanban_move_task',
+          arguments: {
+            taskId: 'TASK-102',
+            toStatus: 'IN_PROGRESS',
+            reason: 'Agent started feature implementation'
+          }
+        }
+      }
+    },
+    {
+      id: 'claude',
+      name: 'Claude Desktop',
+      type: 'harness',
+      description: 'Desktop AI client with native Model Context Protocol stdio connectors.',
+      samplePayload: {
+        jsonrpc: '2.0',
+        method: 'tools/call',
+        params: {
+          name: 'kanban_get_workspace_context',
+          arguments: {
+            includeGitStatus: true
+          }
+        }
+      }
+    },
+    {
+      id: 'cursor',
+      name: 'Cursor IDE / Composer',
+      type: 'harness',
+      description: 'AI code editor with background agentic multi-file edit capabilities.',
+      samplePayload: {
+        jsonrpc: '2.0',
+        method: 'tools/call',
+        params: {
+          name: 'kanban_list_tasks',
+          arguments: {
+            status: 'READY'
+          }
+        }
+      }
+    },
+    {
+      id: 'git-poller',
+      name: 'Git Observer (8s)',
+      type: 'observer',
+      description: 'Background polling loop detecting commits, branch switches, and dirty working trees.',
+      samplePayload: {
+        event: 'GIT_COMMIT_DETECTED',
+        branch: 'feature/toast-system',
+        hash: '8f9b2a',
+        filesChanged: 3,
+        insertions: 48,
+        deletions: 4
+      }
+    },
+    {
+      id: 'fs-watcher',
+      name: 'Filesystem Watcher',
+      type: 'observer',
+      description: 'Inotify / FSEvents monitor capturing test runs and build outputs in real-time.',
+      samplePayload: {
+        event: 'VITEST_RUN_FINISHED',
+        suite: 'inference.test.ts',
+        testsPassed: 58,
+        testsFailed: 0,
+        durationMs: 24.5
+      }
+    }
+  ]
+
+  const activeNode = nodes.find((n) => n.id === selectedNodeId) || nodes[0]
+
+  const copyPayload = () => {
+    sounds.playSuccess()
+    navigator.clipboard.writeText(JSON.stringify(activeNode.samplePayload, null, 2))
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleNodeClick = (id: string) => {
+    sounds.playClick()
+    setSelectedNodeId(id)
+  }
+
+  return (
+    <section id="mcp-playground" className="py-24 bg-[#05070a] relative border-t border-white/[0.06]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/10 text-xs font-mono text-cyan-300 mb-4 shadow-sm">
+            <Server className="size-3.5 text-cyan-400" />
+            <span>Universal Model Context Protocol</span>
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-white mb-4">
+            The "USB-C" for AI Coding Agents
+          </h2>
+          <p className="text-base sm:text-lg text-[#a0a5ad] leading-relaxed">
+            AI Harness PM connects seamlessly to any agentic environment over standard `stdio`. Click any node in the
+            topology graph to inspect live JSON-RPC payloads.
+          </p>
+        </div>
+
+        {/* Interactive Topology Graph & Inspector Split */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          {/* Topology Node Matrix (6 cols) */}
+          <div className="lg:col-span-6 space-y-4">
+            <div className="text-xs font-mono text-white/50 uppercase tracking-wider mb-2">
+              Select Connected Harness or Observer:
+            </div>
+
+            {nodes.map((node) => {
+              const isSelected = node.id === selectedNodeId
+              const isHarness = node.type === 'harness'
+              return (
+                <div
+                  key={node.id}
+                  onClick={() => handleNodeClick(node.id)}
+                  className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-4 ${
+                    isSelected
+                      ? 'border-cyan-500/50 bg-[#0e1622] shadow-[0_0_25px_-5px_rgba(6,182,212,0.25)]'
+                      : 'border-white/[0.08] bg-[#0c0f16] hover:border-white/20 hover:bg-[#111620]'
+                  }`}
+                >
+                  <div className="flex items-center gap-3.5">
+                    <div
+                      className={`size-10 rounded-lg grid place-items-center border ${
+                        isSelected
+                          ? 'border-cyan-400/40 bg-cyan-500/20 text-cyan-300'
+                          : 'border-white/10 bg-[#161a24] text-white/60'
+                      }`}
+                    >
+                      {isHarness ? <Bot className="size-5" /> : <GitBranch className="size-5" />}
+                    </div>
+                    <div>
+                      <div className="text-[14px] font-semibold text-white tracking-tight flex items-center gap-2">
+                        <span>{node.name}</span>
+                        {isSelected && (
+                          <span className="size-2 rounded-full bg-cyan-400 animate-pulse" />
+                        )}
+                      </div>
+                      <div className="text-[12px] text-[#a0a5ad] line-clamp-1">{node.description}</div>
+                    </div>
+                  </div>
+
+                  <span
+                    className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded border ${
+                      isHarness
+                        ? 'border-purple-500/30 bg-purple-500/10 text-purple-300'
+                        : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                    }`}
+                  >
+                    {node.type}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Real-time JSON-RPC Payload Inspector (6 cols) */}
+          <div className="lg:col-span-6 rounded-2xl border border-white/15 bg-[#0a0d14] shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className="p-4 border-b border-white/[0.08] bg-[#11151e] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Terminal className="size-4 text-cyan-400" />
+                <span className="font-mono text-[12px] text-white font-medium">
+                  {activeNode.name} :: JSON-RPC 2.0 Payload
+                </span>
+              </div>
+
+              <button
+                onClick={copyPayload}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-white/10 bg-[#161b26] hover:bg-[#1f2636] text-[11px] font-mono text-white/80 hover:text-white transition-colors cursor-pointer"
+              >
+                {copied ? (
+                  <>
+                    <CheckCircle2 className="size-3.5 text-emerald-400" />
+                    <span className="text-emerald-400">Copied</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="size-3.5" />
+                    <span>Copy JSON</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Code Output */}
+            <div className="p-5 font-mono text-[12px] text-[#c4c9d0] overflow-x-auto min-h-[300px] bg-[#05070a]">
+              <div className="text-white/40 text-[10px] mb-3 pb-1 border-b border-white/[0.06] flex items-center justify-between">
+                <span>TRANSPORT: STDIO · LATENCY: 0.2MS</span>
+                <span className="text-emerald-400">CONFIRMED</span>
+              </div>
+              <pre className="text-cyan-300">
+                <code>{JSON.stringify(activeNode.samplePayload, null, 2)}</code>
+              </pre>
+            </div>
+
+            {/* Explainer Box */}
+            <div className="p-4 border-t border-white/[0.08] bg-[#0e121a] flex items-center justify-between text-[12px] text-[#a0a5ad]">
+              <span>Zero cloud server setup required</span>
+              <span className="text-white font-mono text-[11px]">stdio transport</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Navbar } from './components/Navbar'
 import { Hero } from './components/Hero'
 import { InteractiveBoardDemo } from './components/InteractiveBoardDemo'
+import { McpTopologyExplorer } from './components/McpTopologyExplorer'
 import { InteractiveTerminalMcp } from './components/InteractiveTerminalMcp'
 import { MotionReelShowcase } from './components/MotionReelShowcase'
 import { ArchitectureDeepDive } from './components/ArchitectureDeepDive'
@@ -29,12 +30,13 @@ export function App() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#07080a] text-[#f0f3f6] selection:bg-white/20 selection:text-white flex flex-col justify-between">
+    <div className="min-h-screen bg-[#030407] text-[#f0f3f6] selection:bg-white/20 selection:text-white flex flex-col justify-between">
       <Navbar onOpenCommandPalette={() => setCommandPaletteOpen(true)} />
       
       <main className="flex-1">
         <Hero />
         <InteractiveBoardDemo />
+        <McpTopologyExplorer />
         <InteractiveTerminalMcp />
         <MotionReelShowcase />
         <ArchitectureDeepDive />
