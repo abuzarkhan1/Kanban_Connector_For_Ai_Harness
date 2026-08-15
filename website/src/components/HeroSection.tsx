@@ -5,7 +5,11 @@ import { ProgressiveBlur } from '@/components/ui/progressive-blur'
 import { Menu, X, Download, Terminal, CheckCircle2, Copy, GitBranch, Sparkles } from 'lucide-react'
 import confetti from 'canvas-confetti'
 
-export function HeroSection() {
+interface HeroSectionProps {
+  onNavigateDocs?: () => void
+}
+
+export function HeroSection({ onNavigateDocs }: HeroSectionProps) {
   const [copied, setCopied] = useState(false)
 
   const copyQuickstart = () => {
@@ -25,7 +29,7 @@ export function HeroSection() {
 
   return (
     <>
-      <HeroHeader />
+      <HeroHeader onNavigateDocs={onNavigateDocs} />
       <main className="overflow-x-hidden">
         {/* ========================================================================= */}
         {/* HERO SECTION WITH BALANCED 3D PERSPECTIVE PRODUCT SHOWCASE */}
@@ -70,7 +74,6 @@ export function HeroSection() {
                     )}
                   </Button>
                 </div>
-
               </div>
 
               {/* Right Column: Balanced Height Showcase with Proper Margin & Padding (6 cols) */}
@@ -265,11 +268,12 @@ const menuItems = [
   { name: 'Features', href: '#interactive-demo' },
   { name: 'Protocol', href: '#mcp-playground' },
   { name: 'Architecture', href: '#architecture' },
+  { name: 'Docs', action: 'docs' },
   { name: 'Comparison', href: '#comparison' },
   { name: 'Download', href: '#download' },
 ]
 
-const HeroHeader = () => {
+const HeroHeader = ({ onNavigateDocs }: { onNavigateDocs?: () => void }) => {
   const [menuState, setMenuState] = useState(false)
 
   return (
@@ -302,12 +306,21 @@ const HeroHeader = () => {
                 <ul className="flex gap-8 text-sm">
                   {menuItems.map((item, index) => (
                     <li key={index}>
-                      <a
-                        href={item.href}
-                        className="text-muted-foreground hover:text-foreground font-medium block duration-150"
-                      >
-                        <span>{item.name}</span>
-                      </a>
+                      {item.action === 'docs' ? (
+                        <button
+                          onClick={onNavigateDocs}
+                          className="text-muted-foreground hover:text-foreground font-medium block duration-150 cursor-pointer"
+                        >
+                          <span>{item.name}</span>
+                        </button>
+                      ) : (
+                        <a
+                          href={item.href}
+                          className="text-muted-foreground hover:text-foreground font-medium block duration-150"
+                        >
+                          <span>{item.name}</span>
+                        </a>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -344,13 +357,25 @@ const HeroHeader = () => {
               <ul className="space-y-4 text-base py-2">
                 {menuItems.map((item, index) => (
                   <li key={index}>
-                    <a
-                      href={item.href}
-                      onClick={() => setMenuState(false)}
-                      className="text-muted-foreground hover:text-foreground block duration-150 font-medium py-1"
-                    >
-                      <span>{item.name}</span>
-                    </a>
+                    {item.action === 'docs' ? (
+                      <button
+                        onClick={() => {
+                          setMenuState(false)
+                          onNavigateDocs?.()
+                        }}
+                        className="text-muted-foreground hover:text-foreground block duration-150 font-medium py-1 w-full text-left cursor-pointer"
+                      >
+                        <span>{item.name}</span>
+                      </button>
+                    ) : (
+                      <a
+                        href={item.href}
+                        onClick={() => setMenuState(false)}
+                        className="text-muted-foreground hover:text-foreground block duration-150 font-medium py-1"
+                      >
+                        <span>{item.name}</span>
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>
