@@ -81,8 +81,8 @@ export const ComparisonMatrix: React.FC = () => {
     <section id="comparison" className="py-24 bg-background relative border-b border-border/40">
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-border bg-muted/60 text-xs font-mono text-foreground mb-4">
-            <Trophy className="size-3.5 text-yellow-400" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-border bg-muted/40 text-xs font-mono text-muted-foreground mb-4">
+            <Trophy className="size-3.5 text-foreground" />
             <span>Competitive Benchmark</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground mb-4">
@@ -94,13 +94,13 @@ export const ComparisonMatrix: React.FC = () => {
           </p>
         </div>
 
-        {/* Matrix Table */}
-        <div className="rounded-3xl border border-border bg-card shadow-2xl overflow-x-auto">
+        {/* Matrix Table with Clean Monochromatic & Transparent Styling */}
+        <div className="rounded-3xl border border-border bg-card shadow-xl overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-border bg-muted/40 text-[13px] font-mono">
-                <th className="p-4 sm:p-5 text-foreground font-semibold min-w-[280px]">Feature Capability</th>
-                <th className="p-4 sm:p-5 text-emerald-400 font-semibold bg-emerald-500/[0.05] min-w-[170px]">
+              <tr className="border-b border-border bg-muted/30 text-[13px] font-mono">
+                <th className="p-4 sm:p-5 text-foreground font-medium min-w-[280px]">Feature Capability</th>
+                <th className="p-4 sm:p-5 text-foreground font-semibold bg-foreground/[0.04] min-w-[170px] border-x border-border/60">
                   AI Harness PM
                 </th>
                 <th className="p-4 sm:p-5 text-muted-foreground min-w-[110px]">Linear</th>
@@ -109,15 +109,15 @@ export const ComparisonMatrix: React.FC = () => {
                 <th className="p-4 sm:p-5 text-muted-foreground min-w-[110px]">Plane</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/60 text-[13px]">
+            <tbody className="divide-y divide-border/40 text-[13px]">
               {rows.map((row, idx) => (
-                <tr key={idx} className="hover:bg-muted/20 transition-colors">
+                <tr key={idx} className="hover:bg-muted/10 transition-colors">
                   <td className="p-4 sm:p-5 font-medium text-foreground">{row.feature}</td>
 
-                  {/* AI Harness PM */}
-                  <td className="p-4 sm:p-5 bg-emerald-500/[0.03]">
-                    <div className="flex items-center gap-1.5 text-emerald-400 font-semibold font-mono text-[12px]">
-                      <Check className="size-4 stroke-[3]" />
+                  {/* AI Harness PM (Clean white/transparent badge) */}
+                  <td className="p-4 sm:p-5 bg-foreground/[0.02] border-x border-border/40">
+                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-muted/60 text-foreground font-mono text-[11px] font-medium border border-border/60">
+                      <Check className="size-3.5 stroke-[2.5]" />
                       <span>Native</span>
                     </div>
                   </td>
@@ -125,36 +125,36 @@ export const ComparisonMatrix: React.FC = () => {
                   {/* Linear */}
                   <td className="p-4 sm:p-5">
                     {row.linear ? (
-                      <Check className="size-4 text-emerald-400" />
+                      <Check className="size-4 text-foreground" />
                     ) : (
-                      <X className="size-4 text-muted-foreground/40" />
+                      <X className="size-4 text-muted-foreground/30" />
                     )}
                   </td>
 
                   {/* Jira */}
                   <td className="p-4 sm:p-5">
                     {row.jira ? (
-                      <Check className="size-4 text-emerald-400" />
+                      <Check className="size-4 text-foreground" />
                     ) : (
-                      <X className="size-4 text-muted-foreground/40" />
+                      <X className="size-4 text-muted-foreground/30" />
                     )}
                   </td>
 
                   {/* GitHub Projects */}
                   <td className="p-4 sm:p-5">
                     {row.github ? (
-                      <Check className="size-4 text-emerald-400" />
+                      <Check className="size-4 text-foreground" />
                     ) : (
-                      <X className="size-4 text-muted-foreground/40" />
+                      <X className="size-4 text-muted-foreground/30" />
                     )}
                   </td>
 
                   {/* Plane */}
                   <td className="p-4 sm:p-5">
                     {row.plane ? (
-                      <Check className="size-4 text-emerald-400" />
+                      <Check className="size-4 text-foreground" />
                     ) : (
-                      <X className="size-4 text-muted-foreground/40" />
+                      <X className="size-4 text-muted-foreground/30" />
                     )}
                   </td>
                 </tr>

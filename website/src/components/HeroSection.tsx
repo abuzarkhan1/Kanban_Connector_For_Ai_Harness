@@ -2,146 +2,260 @@ import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { InfiniteSlider } from '@/components/ui/infinite-slider'
 import { ProgressiveBlur } from '@/components/ui/progressive-blur'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, Download, Terminal, CheckCircle2, Copy, GitBranch, ArrowRight } from 'lucide-react'
+import confetti from 'canvas-confetti'
 
 export function HeroSection() {
+  const [copied, setCopied] = useState(false)
+
+  const copyQuickstart = () => {
+    navigator.clipboard.writeText('npx -y kanban-mcp')
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleDownload = () => {
+    confetti({
+      particleCount: 80,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#ffffff', '#a1a1aa', '#71717a', '#e4e4e7']
+    })
+  }
+
   return (
     <>
       <HeroHeader />
       <main className="overflow-x-hidden">
-        <section>
-          <div className="pb-24 pt-12 md:pb-32 lg:pb-56 lg:pt-44">
-            <div className="relative mx-auto flex max-w-6xl flex-col px-6 lg:block">
-              <div className="mx-auto max-w-lg text-center lg:ml-0 lg:w-1/2 lg:text-left">
-                <h1 className="mt-8 max-w-2xl text-balance text-5xl font-medium md:text-6xl lg:mt-16 xl:text-7xl text-foreground">
+        {/* ========================================================================= */}
+        {/* HERO SECTION WITH RIGHT-SIDE 3D PERSPECTIVE PRODUCT SHOWCASE */}
+        {/* ========================================================================= */}
+        <section className="relative pt-12 pb-24 md:pb-32 lg:pb-44 lg:pt-36">
+          <div className="relative mx-auto max-w-6xl px-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+              {/* Left Column: Headline & Action CTAs (6 cols) */}
+              <div className="lg:col-span-6 text-center lg:text-left z-10">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-muted/40 text-xs font-mono text-muted-foreground mb-6">
+                  <span className="size-1.5 rounded-full bg-foreground animate-pulse" />
+                  <span>v0.1.0 Released · 100% Local-First</span>
+                </div>
+
+                <h1 className="text-balance text-5xl font-medium tracking-tight text-foreground md:text-6xl xl:text-7xl leading-[1.06]">
                   Ship 10x Faster with AI Harness PM
                 </h1>
-                <p className="mt-8 max-w-2xl text-pretty text-lg text-muted-foreground">
+
+                <p className="mt-6 text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
                   The local-first development control plane for Google Antigravity, Claude Desktop, and Cursor.
                   Zero cloud servers, 0ms SQLite latency, and deterministic Kanban state derivation without spending a single API token.
                 </p>
 
-                <div className="mt-12 flex flex-col items-center justify-center gap-2 sm:flex-row lg:justify-start">
+                <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
                   <Button
                     asChild
                     size="lg"
-                    className="px-5 text-base cursor-pointer"
+                    className="px-6 text-base font-medium cursor-pointer shadow-lg hover:shadow-xl"
                   >
-                    <a href="#download">
-                      <span className="text-nowrap">Start Building</span>
+                    <a href="#download" onClick={handleDownload} className="flex items-center gap-2">
+                      <Download className="size-4" />
+                      <span className="text-nowrap">Download Free</span>
                     </a>
                   </Button>
 
                   <Button
-                    asChild
                     size="lg"
-                    variant="ghost"
-                    className="px-5 text-base cursor-pointer"
+                    variant="outline"
+                    onClick={copyQuickstart}
+                    className="px-5 text-base font-mono cursor-pointer border-border hover:bg-muted/50 flex items-center gap-2 text-muted-foreground hover:text-foreground"
                   >
-                    <a href="#interactive-demo">
-                      <span className="text-nowrap">Explore Demo</span>
-                    </a>
+                    <Terminal className="size-4" />
+                    <span className="text-nowrap">npx kanban-mcp</span>
+                    {copied ? (
+                      <CheckCircle2 className="size-4 text-foreground" />
+                    ) : (
+                      <Copy className="size-3.5 opacity-50" />
+                    )}
                   </Button>
+                </div>
+
+                <div className="mt-8 flex items-center justify-center lg:justify-start gap-6 text-xs text-muted-foreground font-mono">
+                  <div className="flex items-center gap-1.5">
+                    <span>⚡ 0ms SQLite latency</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span>🔒 100% Private</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span>✨ Native MCP</span>
+                  </div>
                 </div>
               </div>
 
-              <img
-                className="pointer-events-none order-first ml-auto h-56 w-full object-cover invert sm:h-96 lg:absolute lg:inset-0 lg:-right-20 lg:-top-96 lg:order-last lg:h-max lg:w-2/3 lg:object-contain dark:mix-blend-lighten dark:invert-0"
-                src="https://ik.imagekit.io/lrigu76hy/tailark/abstract-bg.jpg?updatedAt=1745733473768"
-                alt="Abstract Object"
-                height="4000"
-                width="3000"
-              />
+              {/* Right Column: Sleek 3D-Tilted Desktop Window Showcase (6 cols) */}
+              <div className="lg:col-span-6 relative flex justify-center lg:justify-end">
+                <div className="w-full max-w-lg lg:max-w-none rounded-2xl border border-border bg-card shadow-[0_25px_70px_-15px_rgba(0,0,0,0.7)] overflow-hidden transition-all hover:border-border/80">
+                  {/* macOS Titlebar */}
+                  <div className="h-10 px-4 border-b border-border bg-muted/40 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="size-2.5 rounded-full bg-[#ff5f56]/80" />
+                      <span className="size-2.5 rounded-full bg-[#ffbd2e]/80" />
+                      <span className="size-2.5 rounded-full bg-[#27c93f]/80" />
+                      <span className="ml-2 font-mono text-[11px] text-muted-foreground font-medium truncate">
+                        AI Harness PM — /Users/abuzar/Desktop/kanban
+                      </span>
+                    </div>
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-muted text-muted-foreground font-mono text-[10px]">
+                      <span className="size-1.5 rounded-full bg-foreground animate-pulse" />
+                      <span>OBSERVER ACTIVE</span>
+                    </span>
+                  </div>
+
+                  {/* App Interior Grid */}
+                  <div className="grid grid-cols-12 bg-background/50 p-4 gap-3 text-left">
+                    {/* Left Mini Sidebar (4 cols) */}
+                    <div className="col-span-4 rounded-xl border border-border bg-card p-3 space-y-3 hidden sm:block">
+                      <div className="flex items-center gap-2 pb-2 border-b border-border">
+                        <img src="/logo.png" alt="Logo" className="size-5 rounded object-contain" />
+                        <span className="font-semibold text-xs text-foreground">AI Harness</span>
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="text-[9px] font-mono uppercase text-muted-foreground">Active Repo</div>
+                        <div className="text-[11px] font-mono text-foreground font-medium flex items-center gap-1">
+                          <GitBranch className="size-3 text-muted-foreground" />
+                          <span>main (clean)</span>
+                        </div>
+                      </div>
+
+                      <div className="p-2 rounded-lg bg-muted/50 border border-border text-[9px] font-mono text-muted-foreground space-y-1">
+                        <div className="flex justify-between">
+                          <span>Latency</span>
+                          <span className="text-foreground font-bold">0.2ms</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Token Cost</span>
+                          <span className="text-foreground font-bold">$0.00</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Kanban Board Columns (8 cols on sm, 12 on mobile) */}
+                    <div className="col-span-12 sm:col-span-8 grid grid-cols-2 gap-2.5">
+                      {/* In Progress Column */}
+                      <div className="rounded-xl border border-border bg-card p-2.5 space-y-2">
+                        <div className="flex justify-between items-center pb-1 border-b border-border text-[10px] font-mono text-muted-foreground font-semibold">
+                          <span>IN PROGRESS</span>
+                          <span>1</span>
+                        </div>
+
+                        <div className="p-2.5 rounded-lg border border-border bg-muted/30 shadow-xs space-y-1.5">
+                          <div className="flex justify-between text-[9px] font-mono text-muted-foreground">
+                            <span>TASK-102</span>
+                            <span className="px-1 rounded bg-muted text-foreground font-bold">HIGH</span>
+                          </div>
+                          <div className="text-[11px] font-medium text-foreground leading-snug">
+                            Richer Task Cards & Filter Engine
+                          </div>
+                          <div className="pt-1 border-t border-border/60 flex justify-between text-[8px] font-mono text-muted-foreground">
+                            <span>rule: RULE_GIT_COMMIT</span>
+                            <span className="text-foreground font-semibold">98% conf</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Done Column */}
+                      <div className="rounded-xl border border-border bg-card p-2.5 space-y-2">
+                        <div className="flex justify-between items-center pb-1 border-b border-border text-[10px] font-mono text-muted-foreground font-semibold">
+                          <span>DONE</span>
+                          <span>1</span>
+                        </div>
+
+                        <div className="p-2.5 rounded-lg border border-border bg-muted/20 opacity-80 space-y-1.5">
+                          <div className="flex justify-between text-[9px] font-mono text-muted-foreground">
+                            <span>TASK-101</span>
+                            <span className="px-1 rounded bg-muted text-foreground">DONE</span>
+                          </div>
+                          <div className="text-[11px] font-medium text-muted-foreground line-through leading-snug">
+                            Multi-Channel Toast System
+                          </div>
+                          <div className="pt-1 border-t border-border/60 text-[8px] font-mono text-foreground flex items-center gap-1">
+                            <span>✓ Vitest 58/58 passed</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Telemetry Live Banner */}
+                  <div className="p-3 border-t border-border bg-muted/20 flex items-center justify-between text-[11px] font-mono text-muted-foreground">
+                    <span className="truncate">GIT: commit 8f9b2a on branch feature/cards</span>
+                    <span className="text-foreground font-semibold shrink-0">STATE: AUTO</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Customer & Harness Brand Slider from design.md */}
-        <section className="bg-background pb-16 md:pb-32">
+        {/* ========================================================================= */}
+        {/* INFINITE BRAND LOGO MARQUEE WITH INLINE CRISP SVGS */}
+        {/* ========================================================================= */}
+        <section className="bg-background pb-16 md:pb-32 border-b border-border/40">
           <div className="group relative m-auto max-w-6xl px-6">
             <div className="flex flex-col items-center md:flex-row">
-              <div className="md:max-w-44 md:border-r border-border md:pr-6 mb-4 md:mb-0">
-                <p className="text-end text-sm text-muted-foreground">Powering the best teams</p>
+              <div className="md:max-w-44 md:border-r border-border md:pr-6 mb-4 md:mb-0 shrink-0">
+                <p className="text-center md:text-end text-sm text-muted-foreground font-medium">
+                  Compatible with top harnesses
+                </p>
               </div>
               <div className="relative py-6 md:w-[calc(100%-11rem)]">
-                <InfiniteSlider
-                  speedOnHover={20}
-                  speed={40}
-                  gap={112}
-                >
-                  <div className="flex">
-                    <img
-                      className="mx-auto h-5 w-fit dark:invert"
-                      src="https://html.tailus.io/blocks/customers/nvidia.svg"
-                      alt="Nvidia Logo"
-                      height="20"
-                      width="auto"
-                    />
+                <InfiniteSlider speedOnHover={20} speed={35} gap={72}>
+                  {/* Google Antigravity */}
+                  <div className="flex items-center gap-2.5 opacity-60 hover:opacity-100 transition-opacity font-mono text-xs font-semibold text-foreground tracking-wider">
+                    <svg viewBox="0 0 24 24" className="size-5 fill-current">
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <span>ANTIGRAVITY</span>
                   </div>
 
-                  <div className="flex">
-                    <img
-                      className="mx-auto h-4 w-fit dark:invert"
-                      src="https://html.tailus.io/blocks/customers/column.svg"
-                      alt="Column Logo"
-                      height="16"
-                      width="auto"
-                    />
-                  </div>
-                  <div className="flex">
-                    <img
-                      className="mx-auto h-4 w-fit dark:invert"
-                      src="https://html.tailus.io/blocks/customers/github.svg"
-                      alt="GitHub Logo"
-                      height="16"
-                      width="auto"
-                    />
-                  </div>
-                  <div className="flex">
-                    <img
-                      className="mx-auto h-5 w-fit dark:invert"
-                      src="https://html.tailus.io/blocks/customers/nike.svg"
-                      alt="Nike Logo"
-                      height="20"
-                      width="auto"
-                    />
-                  </div>
-                  <div className="flex">
-                    <img
-                      className="mx-auto h-5 w-fit dark:invert"
-                      src="https://html.tailus.io/blocks/customers/lemonsqueezy.svg"
-                      alt="Lemon Squeezy Logo"
-                      height="20"
-                      width="auto"
-                    />
-                  </div>
-                  <div className="flex">
-                    <img
-                      className="mx-auto h-4 w-fit dark:invert"
-                      src="https://html.tailus.io/blocks/customers/laravel.svg"
-                      alt="Laravel Logo"
-                      height="16"
-                      width="auto"
-                    />
-                  </div>
-                  <div className="flex">
-                    <img
-                      className="mx-auto h-7 w-fit dark:invert"
-                      src="https://html.tailus.io/blocks/customers/lilly.svg"
-                      alt="Lilly Logo"
-                      height="28"
-                      width="auto"
-                    />
+                  {/* Claude Desktop / Anthropic */}
+                  <div className="flex items-center gap-2.5 opacity-60 hover:opacity-100 transition-opacity font-mono text-xs font-semibold text-foreground tracking-wider">
+                    <svg viewBox="0 0 24 24" className="size-5 fill-current">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14h2v2h-2zm0-10h2v8h-2z" />
+                    </svg>
+                    <span>CLAUDE DESKTOP</span>
                   </div>
 
-                  <div className="flex">
-                    <img
-                      className="mx-auto h-6 w-fit dark:invert"
-                      src="https://html.tailus.io/blocks/customers/openai.svg"
-                      alt="OpenAI Logo"
-                      height="24"
-                      width="auto"
-                    />
+                  {/* Cursor IDE */}
+                  <div className="flex items-center gap-2.5 opacity-60 hover:opacity-100 transition-opacity font-mono text-xs font-semibold text-foreground tracking-wider">
+                    <svg viewBox="0 0 24 24" className="size-5 fill-current">
+                      <path d="M4 4l16 8-8 2-2 8z" />
+                    </svg>
+                    <span>CURSOR IDE</span>
+                  </div>
+
+                  {/* GitHub */}
+                  <div className="flex items-center gap-2.5 opacity-60 hover:opacity-100 transition-opacity font-mono text-xs font-semibold text-foreground tracking-wider">
+                    <svg viewBox="0 0 24 24" className="size-5 fill-current">
+                      <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+                    </svg>
+                    <span>GITHUB</span>
+                  </div>
+
+                  {/* OpenAI */}
+                  <div className="flex items-center gap-2.5 opacity-60 hover:opacity-100 transition-opacity font-mono text-xs font-semibold text-foreground tracking-wider">
+                    <svg viewBox="0 0 24 24" className="size-5 fill-current">
+                      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <span>OPENAI</span>
+                  </div>
+
+                  {/* Windsurf */}
+                  <div className="flex items-center gap-2.5 opacity-60 hover:opacity-100 transition-opacity font-mono text-xs font-semibold text-foreground tracking-wider">
+                    <svg viewBox="0 0 24 24" className="size-5 fill-current">
+                      <path d="M2 12h20M7 7l5 5-5 5M13 7l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
+                    </svg>
+                    <span>WINDSURF</span>
                   </div>
                 </InfiniteSlider>
 

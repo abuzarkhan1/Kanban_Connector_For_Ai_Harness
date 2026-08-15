@@ -11,8 +11,8 @@ export const ArchitectureDeepDive: React.FC = () => {
     <section id="architecture" className="py-24 bg-background relative border-b border-border/40">
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-border bg-muted/60 text-xs font-mono text-foreground mb-4">
-            <Workflow className="size-3.5 text-cyan-400" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-border bg-muted/40 text-xs font-mono text-muted-foreground mb-4">
+            <Workflow className="size-3.5 text-foreground" />
             <span>Deterministic Architecture</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground mb-4">
@@ -27,7 +27,7 @@ export const ArchitectureDeepDive: React.FC = () => {
         {/* Multi-Layer Flow Architecture Diagram */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-14">
           {/* Layer 1: Observers */}
-          <div className="rounded-3xl border border-border bg-card p-5 flex flex-col justify-between shadow-sm">
+          <div className="rounded-3xl border border-border bg-card p-5 flex flex-col justify-between shadow-xs">
             <div>
               <div className="flex items-center gap-2 text-muted-foreground font-mono text-[11px] mb-3">
                 <span>LAYER 01</span>
@@ -41,22 +41,22 @@ export const ArchitectureDeepDive: React.FC = () => {
             </div>
             <ul className="space-y-2 font-mono text-[11px] text-foreground/80 border-t border-border pt-3">
               <li className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-cyan-400" />
+                <span className="size-1.5 rounded-full bg-foreground/60" />
                 <span>Git 8s Polling Loop</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-cyan-400" />
+                <span className="size-1.5 rounded-full bg-foreground/60" />
                 <span>Filesystem Watcher</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-cyan-400" />
+                <span className="size-1.5 rounded-full bg-foreground/60" />
                 <span>Vitest / Jest Process</span>
               </li>
             </ul>
           </div>
 
           {/* Layer 2: Event Normalization */}
-          <div className="rounded-3xl border border-border bg-card p-5 flex flex-col justify-between shadow-sm">
+          <div className="rounded-3xl border border-border bg-card p-5 flex flex-col justify-between shadow-xs">
             <div>
               <div className="flex items-center gap-2 text-muted-foreground font-mono text-[11px] mb-3">
                 <span>LAYER 02</span>
@@ -70,22 +70,22 @@ export const ArchitectureDeepDive: React.FC = () => {
             </div>
             <ul className="space-y-2 font-mono text-[11px] text-foreground/80 border-t border-border pt-3">
               <li className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-purple-400" />
+                <span className="size-1.5 rounded-full bg-foreground/60" />
                 <span>COMMIT_CREATED</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-purple-400" />
+                <span className="size-1.5 rounded-full bg-foreground/60" />
                 <span>BRANCH_CHANGED</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-purple-400" />
+                <span className="size-1.5 rounded-full bg-foreground/60" />
                 <span>TEST_RUN_PASSED</span>
               </li>
             </ul>
           </div>
 
           {/* Layer 3: Deterministic Inference */}
-          <div className="rounded-3xl border border-border bg-card p-5 flex flex-col justify-between shadow-sm">
+          <div className="rounded-3xl border border-border bg-card p-5 flex flex-col justify-between shadow-xs">
             <div>
               <div className="flex items-center gap-2 text-muted-foreground font-mono text-[11px] mb-3">
                 <span>LAYER 03</span>
@@ -99,22 +99,22 @@ export const ArchitectureDeepDive: React.FC = () => {
             </div>
             <ul className="space-y-2 font-mono text-[11px] text-foreground/80 border-t border-border pt-3">
               <li className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-yellow-400" />
+                <span className="size-1.5 rounded-full bg-foreground/60" />
                 <span>Confidence ≥ 0.90</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-yellow-400" />
+                <span className="size-1.5 rounded-full bg-foreground/60" />
                 <span>Atomic Transitions</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-yellow-400" />
+                <span className="size-1.5 rounded-full bg-foreground/60" />
                 <span>Full Evidence Audit Log</span>
               </li>
             </ul>
           </div>
 
           {/* Layer 4: SQLite & Desktop UI */}
-          <div className="rounded-3xl border border-border bg-card p-5 flex flex-col justify-between shadow-sm">
+          <div className="rounded-3xl border border-border bg-card p-5 flex flex-col justify-between shadow-xs">
             <div>
               <div className="flex items-center gap-2 text-muted-foreground font-mono text-[11px] mb-3">
                 <span>LAYER 04</span>
@@ -128,15 +128,15 @@ export const ArchitectureDeepDive: React.FC = () => {
             </div>
             <ul className="space-y-2 font-mono text-[11px] text-foreground/80 border-t border-border pt-3">
               <li className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-emerald-400" />
+                <span className="size-1.5 rounded-full bg-foreground/60" />
                 <span>0.2ms Query Latency</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-emerald-400" />
+                <span className="size-1.5 rounded-full bg-foreground/60" />
                 <span>Transactional Backups</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-emerald-400" />
+                <span className="size-1.5 rounded-full bg-foreground/60" />
                 <span>Concurrent CLI Access</span>
               </li>
             </ul>
@@ -145,7 +145,7 @@ export const ArchitectureDeepDive: React.FC = () => {
 
         {/* Feature Highlights Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 rounded-3xl border border-border bg-card shadow-sm">
+          <div className="p-6 rounded-3xl border border-border bg-card shadow-xs">
             <ShieldCheck className="size-6 text-foreground mb-3" />
             <h4 className="text-base font-semibold text-foreground mb-2">Zero AI API Token Costs</h4>
             <p className="text-[13px] text-muted-foreground leading-relaxed">
@@ -154,7 +154,7 @@ export const ArchitectureDeepDive: React.FC = () => {
             </p>
           </div>
 
-          <div className="p-6 rounded-3xl border border-border bg-card shadow-sm">
+          <div className="p-6 rounded-3xl border border-border bg-card shadow-xs">
             <Monitor className="size-6 text-foreground mb-3" />
             <h4 className="text-base font-semibold text-foreground mb-2">Desktop Native Productivity</h4>
             <p className="text-[13px] text-muted-foreground leading-relaxed">
@@ -163,7 +163,7 @@ export const ArchitectureDeepDive: React.FC = () => {
             </p>
           </div>
 
-          <div className="p-6 rounded-3xl border border-border bg-card shadow-sm">
+          <div className="p-6 rounded-3xl border border-border bg-card shadow-xs">
             <HardDrive className="size-6 text-foreground mb-3" />
             <h4 className="text-base font-semibold text-foreground mb-2">Zero Cloud Vendor Lock-In</h4>
             <p className="text-[13px] text-muted-foreground leading-relaxed">

@@ -170,13 +170,13 @@ export const InteractiveBoardDemo: React.FC = () => {
   const getPriorityBadge = (p: SimulatedTask['priority']) => {
     switch (p) {
       case 'URGENT':
-        return 'bg-red-500/10 text-red-400 border-red-500/20'
+        return 'bg-muted text-foreground border-border font-bold'
       case 'HIGH':
-        return 'bg-orange-500/10 text-orange-400 border-orange-500/20'
-      case 'MEDIUM':
         return 'bg-muted text-foreground border-border'
+      case 'MEDIUM':
+        return 'bg-muted/60 text-muted-foreground border-border'
       case 'LOW':
-        return 'bg-muted text-muted-foreground border-border'
+        return 'bg-muted/40 text-muted-foreground border-border'
     }
   }
 
@@ -185,8 +185,8 @@ export const InteractiveBoardDemo: React.FC = () => {
       <div className="max-w-6xl mx-auto px-6">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-muted/60 text-xs font-mono text-foreground mb-4">
-            <Activity className="size-3.5 text-emerald-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-muted/40 text-xs font-mono text-muted-foreground mb-4">
+            <Activity className="size-3.5 text-foreground" />
             <span>Interactive Simulator</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground mb-4">
@@ -203,9 +203,9 @@ export const InteractiveBoardDemo: React.FC = () => {
           {/* Top Control Bar */}
           <div className="p-4 border-b border-border bg-muted/30 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <span className="size-3 rounded-full bg-red-500/40 border border-red-500/80" />
-              <span className="size-3 rounded-full bg-yellow-500/40 border border-yellow-500/80" />
-              <span className="size-3 rounded-full bg-green-500/40 border border-green-500/80" />
+              <span className="size-3 rounded-full bg-[#ff5f56]/80" />
+              <span className="size-3 rounded-full bg-[#ffbd2e]/80" />
+              <span className="size-3 rounded-full bg-[#27c93f]/80" />
               <span className="ml-2 font-mono text-[12px] text-muted-foreground font-medium hidden sm:inline">
                 ai-harness-pm :: project/Ai Harness (Local SQLite)
               </span>
@@ -217,9 +217,9 @@ export const InteractiveBoardDemo: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={simulateAgentCommit}
-                className="font-mono text-xs cursor-pointer border-border"
+                className="font-mono text-xs cursor-pointer border-border hover:bg-muted"
               >
-                <GitCommit className="size-3.5 text-cyan-400 mr-1.5" />
+                <GitCommit className="size-3.5 mr-1.5 opacity-70" />
                 <span>Simulate Git Commit</span>
               </Button>
 
@@ -227,9 +227,9 @@ export const InteractiveBoardDemo: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={simulateTestPass}
-                className="font-mono text-xs cursor-pointer border-border"
+                className="font-mono text-xs cursor-pointer border-border hover:bg-muted"
               >
-                <CheckCircle className="size-3.5 text-emerald-400 mr-1.5" />
+                <CheckCircle className="size-3.5 mr-1.5 opacity-70" />
                 <span>Simulate Tests Pass</span>
               </Button>
 
@@ -273,7 +273,7 @@ export const InteractiveBoardDemo: React.FC = () => {
                       />
                       <button
                         type="submit"
-                        className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
                       >
                         <Plus className="size-3.5" />
                       </button>
@@ -292,7 +292,7 @@ export const InteractiveBoardDemo: React.FC = () => {
                           onClick={() => setSelectedTask(task)}
                           className={`p-3 rounded-xl border transition-all cursor-pointer ${
                             isSelected
-                              ? 'border-primary bg-muted/60 shadow-md'
+                              ? 'border-foreground/40 bg-muted/60 shadow-md'
                               : 'border-border bg-card hover:border-border/80'
                           }`}
                         >
@@ -324,7 +324,7 @@ export const InteractiveBoardDemo: React.FC = () => {
           {/* Telemetry Stream & State Transition Live Feed */}
           <div className="p-4 border-t border-border bg-muted/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-center gap-2 text-[12px] font-mono text-foreground">
-              <Terminal className="size-4 text-emerald-400" />
+              <Terminal className="size-4 text-foreground opacity-80" />
               <span>Real-Time Inference Telemetry Stream</span>
             </div>
 
@@ -332,8 +332,8 @@ export const InteractiveBoardDemo: React.FC = () => {
               {events.slice(0, 2).map((ev) => (
                 <div key={ev.id} className="flex items-start gap-2">
                   <span className="opacity-50">[{ev.timestamp}]</span>
-                  <span className="text-emerald-400 font-semibold">{ev.ruleId}</span>
-                  <span className="text-foreground truncate flex-1">{ev.summary}</span>
+                  <span className="text-foreground font-semibold">{ev.ruleId}</span>
+                  <span className="text-foreground/90 truncate flex-1">{ev.summary}</span>
                 </div>
               ))}
             </div>

@@ -121,8 +121,8 @@ export const McpTopologyExplorer: React.FC = () => {
       <div className="max-w-6xl mx-auto px-6">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-border bg-muted/60 text-xs font-mono text-foreground mb-4">
-            <Server className="size-3.5 text-cyan-400" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-border bg-muted/40 text-xs font-mono text-muted-foreground mb-4">
+            <Server className="size-3.5 text-foreground" />
             <span>Universal Model Context Protocol</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground mb-4">
@@ -151,15 +151,15 @@ export const McpTopologyExplorer: React.FC = () => {
                   onClick={() => handleNodeClick(node.id)}
                   className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-4 ${
                     isSelected
-                      ? 'border-primary bg-muted/60 shadow-md'
-                      : 'border-border bg-card hover:border-border/80 hover:bg-muted/30'
+                      ? 'border-foreground/40 bg-muted/60 shadow-md'
+                      : 'border-border bg-card hover:border-border/80 hover:bg-muted/20'
                   }`}
                 >
                   <div className="flex items-center gap-3.5">
                     <div
                       className={`size-10 rounded-xl grid place-items-center border ${
                         isSelected
-                          ? 'border-primary bg-primary text-primary-foreground'
+                          ? 'border-foreground/20 bg-foreground text-background'
                           : 'border-border bg-muted text-muted-foreground'
                       }`}
                     >
@@ -169,20 +169,14 @@ export const McpTopologyExplorer: React.FC = () => {
                       <div className="text-[14px] font-medium text-foreground tracking-tight flex items-center gap-2">
                         <span>{node.name}</span>
                         {isSelected && (
-                          <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="size-1.5 rounded-full bg-foreground animate-pulse" />
                         )}
                       </div>
                       <div className="text-[12px] text-muted-foreground line-clamp-1">{node.description}</div>
                     </div>
                   </div>
 
-                  <span
-                    className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded border ${
-                      isHarness
-                        ? 'border-purple-500/30 bg-purple-500/10 text-purple-400'
-                        : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
-                    }`}
-                  >
+                  <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded border border-border/80 bg-muted/40 text-muted-foreground">
                     {node.type}
                   </span>
                 </div>
@@ -195,7 +189,7 @@ export const McpTopologyExplorer: React.FC = () => {
             {/* Header */}
             <div className="p-4 border-b border-border bg-muted/30 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Terminal className="size-4 text-cyan-400" />
+                <Terminal className="size-4 text-foreground opacity-80" />
                 <span className="font-mono text-[12px] text-foreground font-medium">
                   {activeNode.name} :: JSON-RPC 2.0
                 </span>
@@ -205,16 +199,16 @@ export const McpTopologyExplorer: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={copyPayload}
-                className="font-mono text-xs cursor-pointer border-border"
+                className="font-mono text-xs cursor-pointer border-border hover:bg-muted"
               >
                 {copied ? (
                   <>
-                    <CheckCircle2 className="size-3.5 text-emerald-400 mr-1.5" />
+                    <CheckCircle2 className="size-3.5 text-foreground mr-1.5" />
                     <span>Copied</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="size-3.5 text-muted-foreground mr-1.5" />
+                    <Copy className="size-3.5 opacity-60 mr-1.5" />
                     <span>Copy JSON</span>
                   </>
                 )}
@@ -225,7 +219,7 @@ export const McpTopologyExplorer: React.FC = () => {
             <div className="p-5 font-mono text-[12px] text-muted-foreground overflow-x-auto min-h-[280px] bg-background/50">
               <div className="text-muted-foreground text-[10px] mb-3 pb-1 border-b border-border/40 flex items-center justify-between">
                 <span>TRANSPORT: STDIO · LATENCY: 0.2MS</span>
-                <span className="text-emerald-400">CONFIRMED</span>
+                <span className="text-foreground font-medium">CONFIRMED</span>
               </div>
               <pre className="text-foreground">
                 <code>{JSON.stringify(activeNode.samplePayload, null, 2)}</code>

@@ -22,8 +22,8 @@ export const TokenRoiCalculator: React.FC = () => {
     <section id="roi" className="py-24 bg-background relative border-b border-border/40">
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-border bg-muted/60 text-xs font-mono text-foreground mb-4">
-            <Calculator className="size-3.5 text-emerald-400" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-border bg-muted/40 text-xs font-mono text-muted-foreground mb-4">
+            <Calculator className="size-3.5 text-foreground" />
             <span>Interactive Token ROI Calculator</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground mb-4">
@@ -45,7 +45,7 @@ export const TokenRoiCalculator: React.FC = () => {
                   <label htmlFor="tasks-slider" className="text-sm font-semibold text-foreground tracking-tight">
                     Daily AI Agent Tasks / Sprints
                   </label>
-                  <span className="font-mono text-xl font-bold text-emerald-400">
+                  <span className="font-mono text-xl font-bold text-foreground">
                     {dailyTasks} tasks / day
                   </span>
                 </div>
@@ -57,7 +57,7 @@ export const TokenRoiCalculator: React.FC = () => {
                   step="5"
                   value={dailyTasks}
                   onChange={handleSliderChange}
-                  className="w-full accent-primary h-2 bg-muted rounded-lg cursor-pointer border border-border"
+                  className="w-full accent-foreground h-2 bg-muted rounded-lg cursor-pointer border border-border"
                 />
                 <div className="flex justify-between text-[11px] font-mono text-muted-foreground mt-2">
                   <span>5 (Solo Dev)</span>
@@ -76,29 +76,29 @@ export const TokenRoiCalculator: React.FC = () => {
                 </div>
                 <div className="p-4 rounded-2xl border border-border bg-muted/30">
                   <div className="text-[11px] font-mono text-muted-foreground">Cloud Tokens Avoided</div>
-                  <div className="text-lg font-bold text-cyan-400 font-mono mt-1">
+                  <div className="text-lg font-bold text-foreground font-mono mt-1">
                     {(monthlyTokens / 1_000_000).toFixed(1)}M tokens
                   </div>
                 </div>
               </div>
 
               <div className="p-4 rounded-2xl border border-border bg-muted/20 text-[12px] text-muted-foreground flex items-start gap-3">
-                <Cpu className="size-4 text-emerald-400 shrink-0 mt-0.5" />
+                <Cpu className="size-4 text-foreground shrink-0 mt-0.5" />
                 <p>
                   Deterministic inference runs on your local CPU with <strong>0 tokens sent</strong> to OpenAI,
-                  Anthropic, or Google. Your data stays 100% private.
+                  Anthropic, or Google. Your code and sprint data remain 100% private.
                 </p>
               </div>
             </div>
 
             {/* Right Comparison Column (6 cols) */}
-            <div className="lg:col-span-6 rounded-2xl border border-border bg-muted/40 p-6 sm:p-8 flex flex-col justify-between space-y-6">
+            <div className="lg:col-span-6 rounded-2xl border border-border bg-muted/30 p-6 sm:p-8 flex flex-col justify-between space-y-6">
               <div className="space-y-4">
                 {/* Cloud Tool Price */}
                 <div className="flex items-center justify-between pb-4 border-b border-border">
                   <div>
                     <span className="text-[13px] text-muted-foreground block">Cloud LLM Prompt-Based PMs</span>
-                    <span className="text-xs text-destructive font-mono">Token billing + cloud server tier</span>
+                    <span className="text-xs text-muted-foreground/80 font-mono">Token billing + cloud server tier</span>
                   </div>
                   <div className="text-right">
                     <span className="text-xl font-mono line-through text-muted-foreground">
@@ -111,19 +111,19 @@ export const TokenRoiCalculator: React.FC = () => {
                 <div className="flex items-center justify-between pb-4 border-b border-border">
                   <div>
                     <span className="text-[14px] font-semibold text-foreground block">AI Harness Project Manager</span>
-                    <span className="text-xs text-emerald-400 font-mono">100% Local-First Engine</span>
+                    <span className="text-xs text-muted-foreground font-mono">100% Local-First Engine</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-2xl font-mono font-bold text-emerald-400">$0.00</span>
+                    <span className="text-2xl font-mono font-bold text-foreground">$0.00</span>
                     <span className="text-xs text-muted-foreground block font-mono">Forever Free & OSS</span>
                   </div>
                 </div>
               </div>
 
-              {/* Net Annual Savings Card */}
-              <div className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between">
+              {/* Net Annual Savings Card in clean monochromatic style */}
+              <div className="p-5 rounded-2xl bg-foreground/[0.04] border border-border flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] font-mono uppercase tracking-wider text-emerald-400 font-semibold block">
+                  <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground font-semibold block">
                     Estimated Annual Savings
                   </span>
                   <span className="text-2xl sm:text-3xl font-bold font-mono text-foreground">
@@ -131,7 +131,7 @@ export const TokenRoiCalculator: React.FC = () => {
                   </span>
                   <span className="text-xs text-muted-foreground block">/ year saved in API tokens</span>
                 </div>
-                <div className="size-12 rounded-xl bg-emerald-400 text-primary-foreground grid place-items-center font-bold">
+                <div className="size-12 rounded-xl bg-foreground text-background grid place-items-center font-bold shadow-md">
                   <TrendingUp className="size-6" />
                 </div>
               </div>

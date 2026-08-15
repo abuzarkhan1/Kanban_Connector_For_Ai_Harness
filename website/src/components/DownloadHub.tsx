@@ -14,7 +14,7 @@ export const DownloadHub: React.FC = () => {
       particleCount: 100,
       spread: 70,
       origin: { y: 0.8 },
-      colors: ['#ffffff', '#00ffcc', '#a0a5ad']
+      colors: ['#ffffff', '#a1a1aa', '#71717a']
     })
   }
 
@@ -36,8 +36,8 @@ export const DownloadHub: React.FC = () => {
     <section id="download" className="py-24 bg-background relative border-b border-border/40">
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-border bg-muted/60 text-xs font-mono text-foreground mb-4">
-            <Download className="size-3.5 text-emerald-400" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-border bg-muted/40 text-xs font-mono text-muted-foreground mb-4">
+            <Download className="size-3.5 text-foreground" />
             <span>Ready for Production</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground mb-4">
@@ -52,13 +52,13 @@ export const DownloadHub: React.FC = () => {
         {/* 3 Multi-Platform Download Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {/* macOS */}
-          <div className="rounded-3xl border border-border bg-card p-6 flex flex-col justify-between shadow-sm">
+          <div className="rounded-3xl border border-border bg-card p-6 flex flex-col justify-between shadow-xs">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <span className="p-2.5 rounded-2xl bg-muted text-foreground">
                   <Apple className="size-6" />
                 </span>
-                <span className="font-mono text-[11px] text-emerald-400 font-semibold px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
+                <span className="font-mono text-[11px] text-foreground font-medium px-2 py-0.5 rounded bg-muted border border-border">
                   Recommended
                 </span>
               </div>
@@ -72,7 +72,7 @@ export const DownloadHub: React.FC = () => {
               <Button
                 asChild
                 size="lg"
-                className="w-full font-semibold cursor-pointer shadow-md"
+                className="w-full font-medium cursor-pointer shadow-sm"
               >
                 <a
                   href="https://github.com/abuzarkhan1/Kanban_Connector_For_Ai_Harness/releases"
@@ -92,13 +92,13 @@ export const DownloadHub: React.FC = () => {
               >
                 <Terminal className="size-3.5" />
                 <span>brew install ...</span>
-                {copiedMac ? <CheckCircle2 className="size-3.5 text-emerald-400" /> : <Copy className="size-3 opacity-50" />}
+                {copiedMac ? <CheckCircle2 className="size-3.5 text-foreground" /> : <Copy className="size-3 opacity-50" />}
               </button>
             </div>
           </div>
 
           {/* Windows */}
-          <div className="rounded-3xl border border-border bg-card p-6 flex flex-col justify-between shadow-sm">
+          <div className="rounded-3xl border border-border bg-card p-6 flex flex-col justify-between shadow-xs">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <span className="p-2.5 rounded-2xl bg-muted text-foreground">
@@ -119,7 +119,7 @@ export const DownloadHub: React.FC = () => {
                 asChild
                 variant="outline"
                 size="lg"
-                className="w-full font-semibold cursor-pointer border-border"
+                className="w-full font-medium cursor-pointer border-border hover:bg-muted"
               >
                 <a
                   href="https://github.com/abuzarkhan1/Kanban_Connector_For_Ai_Harness/releases"
@@ -140,13 +140,13 @@ export const DownloadHub: React.FC = () => {
           </div>
 
           {/* Linux & NPM CLI */}
-          <div className="rounded-3xl border border-border bg-card p-6 flex flex-col justify-between shadow-sm">
+          <div className="rounded-3xl border border-border bg-card p-6 flex flex-col justify-between shadow-xs">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <span className="p-2.5 rounded-2xl bg-muted text-foreground">
                   <Terminal className="size-6" />
                 </span>
-                <span className="font-mono text-[11px] text-cyan-400 px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20">
+                <span className="font-mono text-[11px] text-muted-foreground px-2 py-0.5 rounded bg-muted border border-border">
                   CLI & AppImage
                 </span>
               </div>
@@ -161,7 +161,7 @@ export const DownloadHub: React.FC = () => {
                 asChild
                 variant="outline"
                 size="lg"
-                className="w-full font-semibold cursor-pointer border-border"
+                className="w-full font-medium cursor-pointer border-border hover:bg-muted"
               >
                 <a
                   href="https://github.com/abuzarkhan1/Kanban_Connector_For_Ai_Harness/releases"
@@ -181,7 +181,7 @@ export const DownloadHub: React.FC = () => {
               >
                 <Terminal className="size-3.5" />
                 <span>npx -y kanban-mcp</span>
-                {copiedNpx ? <CheckCircle2 className="size-3.5 text-emerald-400" /> : <Copy className="size-3 opacity-50" />}
+                {copiedNpx ? <CheckCircle2 className="size-3.5 text-foreground" /> : <Copy className="size-3 opacity-50" />}
               </button>
             </div>
           </div>
@@ -190,7 +190,7 @@ export const DownloadHub: React.FC = () => {
         {/* Security & Verification Banner */}
         <div className="rounded-3xl border border-border bg-card p-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
           <div className="flex items-center gap-3">
-            <ShieldCheck className="size-5 text-emerald-400 shrink-0" />
+            <ShieldCheck className="size-5 text-foreground shrink-0" />
             <div className="text-[13px] text-muted-foreground">
               <span className="font-semibold text-foreground">100% Open Source & Verified:</span> All builds are
               signed, virus-scanned, and published transparently on GitHub.
