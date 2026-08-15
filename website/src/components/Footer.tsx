@@ -7,24 +7,24 @@ export const Footer: React.FC = () => {
   }
 
   return (
-    <footer className="relative bg-background border-t border-border overflow-hidden pt-20 pb-12">
+    <footer className="relative bg-background border-t border-border overflow-hidden pt-16 pb-10">
       <div className="max-w-6xl mx-auto px-6 sm:px-8 relative z-10">
-        {/* Top Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-16 border-b border-border/40">
+        {/* Top Navigation Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-border/60">
           {/* Brand Col (5 cols) */}
-          <div className="md:col-span-5 space-y-4">
+          <div className="md:col-span-5 space-y-3.5">
             <div className="flex items-center gap-3">
               <img
                 src="/logo.png"
                 alt="AI Harness Project Manager Logo"
-                className="size-8 rounded-lg object-contain border border-border/40 shadow-xs"
+                className="size-8 rounded-lg object-contain border border-border/60 shadow-xs"
               />
               <span className="font-semibold text-foreground tracking-tight text-base">
                 AI Harness
               </span>
             </div>
             <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
-              The local-first development control plane for autonomous coding agents. Open source under MIT.
+              The local development control plane for autonomous AI coding agents. Open source under MIT.
             </p>
           </div>
 
@@ -97,10 +97,10 @@ export const Footer: React.FC = () => {
               </ul>
             </div>
 
-            <div className="flex items-center justify-start md:justify-end">
+            <div className="flex items-center justify-start md:justify-end pt-4 md:pt-0">
               <button
                 onClick={scrollToTop}
-                className="size-9 rounded-xl border border-border bg-muted/40 hover:bg-muted text-foreground grid place-items-center transition-all hover:scale-105 cursor-pointer shadow-xs"
+                className="size-9 rounded-xl border border-border bg-muted/50 hover:bg-muted text-foreground grid place-items-center transition-all hover:scale-105 cursor-pointer shadow-xs"
                 title="Back to top"
               >
                 <ArrowUp className="size-4" />
@@ -110,12 +110,12 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* ========================================================================= */}
-        {/* GIANT ARCHITECTURAL TYPOGRAPHY FOOTER STATEMENT */}
+        {/* GIANT HIGH-CONTRAST BOLD ARCHITECTURAL BRAND NAME */}
         {/* ========================================================================= */}
-        <div className="py-12 sm:py-16 text-center select-none pointer-events-none">
-          <div className="text-[12vw] sm:text-[13vw] font-bold tracking-tighter leading-none text-transparent bg-clip-text bg-gradient-to-b from-foreground/[0.18] via-foreground/[0.05] to-transparent uppercase font-sans">
+        <div className="py-8 sm:py-12 text-center select-none">
+          <h2 className="text-[13vw] sm:text-[14.5vw] font-black tracking-tighter leading-none text-foreground/90 uppercase font-sans m-0 p-0 block">
             AI HARNESS
-          </div>
+          </h2>
         </div>
 
         {/* Bottom Bar */}
