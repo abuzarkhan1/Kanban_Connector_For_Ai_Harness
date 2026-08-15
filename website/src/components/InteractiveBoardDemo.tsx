@@ -1,12 +1,5 @@
 import React, { useState } from 'react'
-import {
-  GitCommit,
-  CheckCircle,
-  RotateCcw,
-  Plus,
-  Terminal
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Plus } from 'lucide-react'
 
 interface SimulatedTask {
   id: string
@@ -16,15 +9,6 @@ interface SimulatedTask {
   branch: string
   labels: string[]
   updatedAgo: string
-}
-
-interface SimulatedEvent {
-  id: string
-  timestamp: string
-  actor: string
-  ruleId: string
-  confidence: number
-  summary: string
 }
 
 const INITIAL_TASKS: SimulatedTask[] = [
@@ -66,28 +50,8 @@ const INITIAL_TASKS: SimulatedTask[] = [
   }
 ]
 
-const INITIAL_EVENTS: SimulatedEvent[] = [
-  {
-    id: 'ev-1',
-    timestamp: '14:35:12',
-    actor: 'INFERENCE_ENGINE',
-    ruleId: 'RULE_GIT_COMMIT',
-    confidence: 0.98,
-    summary: 'Observed commit 8f9b2a on branch feature/rich-cards-filters. Transitioned TASK-102 to REVIEW.'
-  },
-  {
-    id: 'ev-2',
-    timestamp: '14:32:45',
-    actor: 'MCP_CLIENT (Antigravity)',
-    ruleId: 'MCP_AGENT_START',
-    confidence: 1.0,
-    summary: 'Agent claimed task TASK-103. Transitioned from READY to IN_PROGRESS.'
-  }
-]
-
 export const InteractiveBoardDemo: React.FC = () => {
   const [tasks, setTasks] = useState<SimulatedTask[]>(INITIAL_TASKS)
-  const [events, setEvents] = useState<SimulatedEvent[]>(INITIAL_EVENTS)
   const [newTitle, setNewTitle] = useState('')
   const [selectedTask, setSelectedTask] = useState<SimulatedTask | null>(tasks[1] || null)
 
@@ -97,42 +61,6 @@ export const InteractiveBoardDemo: React.FC = () => {
     { id: 'REVIEW', label: 'In Review', count: tasks.filter((t) => t.status === 'REVIEW').length },
     { id: 'DONE', label: 'Done', count: tasks.filter((t) => t.status === 'DONE').length }
   ] as const
-
-  const moveTask = (taskId: string, newStatus: SimulatedTask['status'], reason: string, ruleId: string) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, status: newStatus, updatedAgo: 'Just now' } : t))
-    )
-
-    const newEv: SimulatedEvent = {
-      id: `ev-${Date.now()}`,
-      timestamp: new Date().toLocaleTimeString(),
-      actor: 'INFERENCE_ENGINE',
-      ruleId,
-      confidence: 0.96,
-      summary: `Automated transition for ${taskId} -> ${newStatus}. (${reason})`
-    }
-
-    setEvents((prev) => [newEv, ...prev.slice(0, 5)])
-  }
-
-  const simulateAgentCommit = () => {
-    const inProg = tasks.find((t) => t.status === 'IN_PROGRESS')
-    if (inProg) {
-      moveTask(inProg.id, 'REVIEW', 'Git commit detected with passing linter', 'RULE_GIT_COMMIT')
-    } else {
-      const todo = tasks.find((t) => t.status === 'TODO')
-      if (todo) {
-        moveTask(todo.id, 'IN_PROGRESS', 'Agent branch creation detected', 'RULE_BRANCH_CREATE')
-      }
-    }
-  }
-
-  const simulateTestPass = () => {
-    const review = tasks.find((t) => t.status === 'REVIEW')
-    if (review) {
-      moveTask(review.id, 'DONE', 'Vitest 58/58 passed & Smoke Test confirmed', 'RULE_TEST_RUN_PASSED')
-    }
-  }
 
   const handleCreateTask = (e: React.FormEvent) => {
     e.preventDefault()
@@ -148,22 +76,6 @@ export const InteractiveBoardDemo: React.FC = () => {
     }
     setTasks((prev) => [newTask, ...prev])
     setNewTitle('')
-
-    const newEv: SimulatedEvent = {
-      id: `ev-${Date.now()}`,
-      timestamp: new Date().toLocaleTimeString(),
-      actor: 'USER / MCP',
-      ruleId: 'TASK_CREATE',
-      confidence: 1.0,
-      summary: `Created ${newTask.id}: "${newTask.title}" in BACKLOG.`
-    }
-    setEvents((prev) => [newEv, ...prev])
-  }
-
-  const resetDemo = () => {
-    setTasks(INITIAL_TASKS)
-    setEvents(INITIAL_EVENTS)
-    setSelectedTask(INITIAL_TASKS[1] || null)
   }
 
   const getPriorityBadge = (p: SimulatedTask['priority']) => {
@@ -191,48 +103,12 @@ export const InteractiveBoardDemo: React.FC = () => {
 
         {/* Live Simulator Outer Shell */}
         <div className="rounded-3xl border border-border bg-card shadow-2xl overflow-hidden">
-          {/* Top Control Bar */}
-          <div className="p-4 border-b border-border bg-muted/30 flex flex-wrap items-center justify-between gap-4">
+          {/* Clean macOS Top Bar */}
+          <div className="h-10 px-4 border-b border-border bg-muted/30 flex items-center">
             <div className="flex items-center gap-2">
               <span className="size-3 rounded-full bg-[#ff5f56]/80" />
               <span className="size-3 rounded-full bg-[#ffbd2e]/80" />
               <span className="size-3 rounded-full bg-[#27c93f]/80" />
-              <span className="ml-2 font-mono text-[12px] text-muted-foreground font-medium hidden sm:inline">
-                ai-harness-pm :: project/Ai Harness (Local SQLite)
-              </span>
-            </div>
-
-            {/* Quick Action Simulator Buttons */}
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={simulateAgentCommit}
-                className="font-mono text-xs cursor-pointer border-border hover:bg-muted"
-              >
-                <GitCommit className="size-3.5 mr-1.5 opacity-70" />
-                <span>Simulate Git Commit</span>
-              </Button>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={simulateTestPass}
-                className="font-mono text-xs cursor-pointer border-border hover:bg-muted"
-              >
-                <CheckCircle className="size-3.5 mr-1.5 opacity-70" />
-                <span>Simulate Tests Pass</span>
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={resetDemo}
-                className="size-8 cursor-pointer text-muted-foreground hover:text-foreground"
-                title="Reset simulation"
-              >
-                <RotateCcw className="size-3.5" />
-              </Button>
             </div>
           </div>
 
@@ -310,24 +186,6 @@ export const InteractiveBoardDemo: React.FC = () => {
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* Telemetry Stream & State Transition Live Feed */}
-          <div className="p-4 border-t border-border bg-muted/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="flex items-center gap-2 text-[12px] font-mono text-foreground">
-              <Terminal className="size-4 text-foreground opacity-80" />
-              <span>Real-Time Inference Telemetry Stream</span>
-            </div>
-
-            <div className="flex-1 max-w-2xl w-full bg-background rounded-xl border border-border p-3 font-mono text-[11px] text-muted-foreground space-y-1">
-              {events.slice(0, 2).map((ev) => (
-                <div key={ev.id} className="flex items-start gap-2">
-                  <span className="opacity-50">[{ev.timestamp}]</span>
-                  <span className="text-foreground font-semibold">{ev.ruleId}</span>
-                  <span className="text-foreground/90 truncate flex-1">{ev.summary}</span>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>

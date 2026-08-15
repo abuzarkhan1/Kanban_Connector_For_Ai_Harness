@@ -21,9 +21,6 @@ export const Footer: React.FC = () => {
               <span className="font-medium text-foreground tracking-tight text-sm block">
                 AI Harness Project Manager
               </span>
-              <span className="text-[11px] text-muted-foreground block">
-                Local-First Development Control Plane
-              </span>
             </div>
           </div>
 
