@@ -71,17 +71,6 @@ export function HeroSection() {
                   </Button>
                 </div>
 
-                <div className="mt-8 flex items-center justify-center lg:justify-start gap-6 text-xs text-muted-foreground font-mono">
-                  <div className="flex items-center gap-1.5">
-                    <span>⚡ 0ms SQLite latency</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span>🔒 100% Private</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span>✨ Native MCP</span>
-                  </div>
-                </div>
               </div>
 
               {/* Right Column: Balanced Height Showcase with Proper Margin & Padding (6 cols) */}
