@@ -114,7 +114,7 @@ export const CommandPalette: React.FC<{ isOpen: boolean; onClose: () => void }> 
       icon: Download,
       shortcut: 'D',
       action: () => {
-        window.open('https://github.com/abuzarkhan1/Kanban_Connector_For_Ai_Harness/releases', '_blank')
+        window.open('https://github.com/abuzarkhan1/Kanban_Connector_For_Ai_Harness/releases/download/V1/AI.Harness.Project.Manager-0.1.0-arm64.dmg', '_blank')
         sounds.playSuccess()
         onClose()
       }

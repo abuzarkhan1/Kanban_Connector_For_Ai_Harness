@@ -57,7 +57,7 @@ export const DownloadHub: React.FC = () => {
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-1.5">macOS</h3>
               <p className="text-[13px] text-muted-foreground mb-6">
-                Universal binary for Apple Silicon (M1/M2/M3/M4) & Intel Macs. Requires macOS 12+.
+                Native binary for Apple Silicon (M1/M2/M3/M4) &amp; Intel via Rosetta. Requires macOS 12+.
               </p>
             </div>
 
@@ -68,14 +68,13 @@ export const DownloadHub: React.FC = () => {
                 className="w-full font-medium cursor-pointer shadow-sm"
               >
                 <a
-                  href="https://github.com/abuzarkhan1/Kanban_Connector_For_Ai_Harness/releases"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="https://github.com/abuzarkhan1/Kanban_Connector_For_Ai_Harness/releases/download/V1/AI.Harness.Project.Manager-0.1.0-arm64.dmg"
+                  download
                   onClick={triggerConfetti}
                   className="flex items-center justify-center gap-2"
                 >
                   <Download className="size-4" />
-                  <span>Download DMG (Universal)</span>
+                  <span>Download DMG (Apple Silicon)</span>
                 </a>
               </Button>
 
@@ -190,12 +189,12 @@ export const DownloadHub: React.FC = () => {
             </div>
           </div>
           <a
-            href="https://github.com/abuzarkhan1/Kanban_Connector_For_Ai_Harness/releases"
+            href="https://github.com/abuzarkhan1/Kanban_Connector_For_Ai_Harness/releases/tag/V1"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[12px] font-mono text-muted-foreground hover:text-foreground underline underline-offset-4"
           >
-            View SHA-256 Checksums
+            View V1 SHA-256 Checksums
           </a>
         </div>
       </div>

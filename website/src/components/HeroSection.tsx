@@ -53,9 +53,14 @@ export function HeroSection({ onNavigateDocs }: HeroSectionProps) {
                     size="lg"
                     className="px-6 text-base font-medium cursor-pointer shadow-lg hover:shadow-xl"
                   >
-                    <a href="#download" onClick={handleDownload} className="flex items-center gap-2">
+                    <a
+                      href="https://github.com/abuzarkhan1/Kanban_Connector_For_Ai_Harness/releases/download/V1/AI.Harness.Project.Manager-0.1.0-arm64.dmg"
+                      download
+                      onClick={handleDownload}
+                      className="flex items-center gap-2"
+                    >
                       <Download className="size-4" />
-                      <span className="text-nowrap">Download Free</span>
+                      <span className="text-nowrap">Download for macOS (.dmg)</span>
                     </a>
                   </Button>
 
@@ -334,8 +339,11 @@ const HeroHeader = ({ onNavigateDocs }: { onNavigateDocs?: () => void }) => {
                 size="sm"
                 className="px-4 cursor-pointer font-medium"
               >
-                <a href="#download">
-                  <span>Download Free</span>
+                <a
+                  href="https://github.com/abuzarkhan1/Kanban_Connector_For_Ai_Harness/releases/download/V1/AI.Harness.Project.Manager-0.1.0-arm64.dmg"
+                  download
+                >
+                  <span>Download (.dmg)</span>
                 </a>
               </Button>
             </div>
