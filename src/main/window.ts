@@ -46,6 +46,13 @@ function saveWindowState(window: BrowserWindow): void {
 export function createMainWindow(): BrowserWindow {
   const state = loadWindowState()
 
+  const iconPath = join(__dirname, '../../resources/icon.png')
+  const iconExists = existsSync(iconPath)
+
+  if (process.platform === 'darwin' && app.dock && iconExists) {
+    app.dock.setIcon(iconPath)
+  }
+
   const window = new BrowserWindow({
     x: state.x,
     y: state.y,
@@ -54,6 +61,7 @@ export function createMainWindow(): BrowserWindow {
     minWidth: 960,
     minHeight: 600,
     title: 'AI Harness Project Manager',
+    icon: iconExists ? iconPath : undefined,
     show: false,
     backgroundColor: '#07080a',
     webPreferences: {
