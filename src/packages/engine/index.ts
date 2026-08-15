@@ -1,0 +1,7 @@
+export { ObservationEngine } from './observationEngine'
+export { GitService, type GitInspectionResult } from './git/gitService'
+export { FilesystemWatcher } from './watchers/filesystemWatcher'
+export { ProcessWatcher, type DiscoveredProcess } from './watchers/processWatcher'
+export { AdapterRegistry, type HarnessAdapter, type HarnessCapabilities } from './adapters'
+export { Correlator, type CorrelationResult } from './correlation/correlator'
+export { InferenceEngine, type InferenceRuleResult } from './inference/inferenceEngine'

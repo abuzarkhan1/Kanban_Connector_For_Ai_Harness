@@ -1,0 +1,248 @@
+@import 'tailwindcss';
+
+/*
+ * Design system — monochrome, developer-tool chrome.
+ *
+ * Research basis (Aug 2026):
+ * - Raycast design analysis (VoltAgent/awesome-design-md): dark canvas, hairline
+ *   1px borders instead of shadows, a 4-step surface ladder for depth, Inter with
+ *   font-feature "calt", "kern", "liga", "ss03", white pill as the only primary action.
+ * - Onething Design "10 Best Practices for Dark Mode UI": avoid pure black/white,
+ *   keep WCAG contrast on secondary/placeholder text, visible focus states,
+ *   respect prefers-reduced-motion, build depth with layered surfaces.
+ * - 4pt / 8pt spacing grid for consistent rhythm.
+ *
+ * The palette is intentionally achromatic: black, white and the greys in
+ * between. Meaning is carried by the surface ladder, typographic weight,
+ * shape/glyphs and text — never by hue.
+ */
+
+@theme {
+  /* ---- Typography ---- */
+  --font-sans:
+    'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono:
+    'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SF Mono',
+    'Cascadia Mono', 'Segoe UI Mono', Menlo, Consolas, monospace;
+
+  /* ---- Surfaces (ladder: canvas → surface → surface-elevated → surface-card) ---- */
+  --color-canvas: #07080a;
+  --color-surface: #0d0d0d;
+  --color-surface-elevated: #101111;
+  --color-surface-card: #131313;
+
+  /* ---- Hairlines (edges; depth comes from the surface ladder, not shadows) ---- */
+  --color-hairline: #242728;
+  --color-hairline-soft: rgb(255 255 255 / 0.08);
+  --color-hairline-strong: rgb(255 255 255 / 0.16);
+
+  /* ---- Text ladder ---- */
+  --color-ink: #f4f4f6; /* primary text */
+  --color-snow: #f4f4f6; /* alias */
+  --color-body: #cdcdcd; /* default text */
+  --color-mute: #9c9c9d; /* secondary text / metadata */
+  --color-ash: #6a6b6c; /* tertiary text / placeholders */
+  --color-stone: #434345; /* lowest emphasis / disabled */
+  --color-line: #242728; /* structural border alias */
+
+  /* ---- Action ---- */
+  --color-primary: #ffffff; /* the single primary action */
+  --color-primary-pressed: #e8e8e8;
+  --color-on-primary: #0a0a0a;
+
+  /* ---- Radii (6 / 8 / 10 / 16) ---- */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 1rem;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    font-feature-settings: 'calt', 'kern', 'liga', 'ss03';
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  ::selection {
+    background-color: var(--color-ink);
+    color: var(--color-canvas);
+  }
+
+  /* Compact, unobtrusive scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-stone) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-hairline);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-stone);
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* Native select dropdowns inherit the dark chrome */
+  select option {
+    background-color: var(--color-surface-elevated);
+    color: var(--color-ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+}
+
+@layer components {
+  /* Keyboard focus — always visible, never color-only */
+  .focus-ring:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+
+  /* Micro label (mono, uppercase) */
+  .label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-mute);
+  }
+
+  /* Form control base */
+  .control {
+    width: 100%;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-hairline);
+    background-color: var(--color-surface-elevated);
+    color: var(--color-ink);
+    transition:
+      border-color 150ms ease,
+      background-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+  .control::placeholder {
+    color: var(--color-ash);
+  }
+  .control:hover:not(:disabled) {
+    border-color: var(--color-stone);
+  }
+  .control:focus-visible {
+    outline: none;
+    border-color: rgb(255 255 255 / 0.65);
+    box-shadow: 0 0 0 2px rgb(255 255 255 / 0.15);
+  }
+  .control:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Select with a chevron instead of the native arrow */
+  .select-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239c9c9d' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 2rem;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease,
+      color 150ms ease,
+      opacity 150ms ease;
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .btn-sm {
+    height: 30px;
+    padding: 0 10px;
+  }
+  .btn-md {
+    height: 36px;
+    padding: 0 14px;
+  }
+  .btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--color-primary-pressed);
+  }
+  .btn-secondary {
+    border: 1px solid var(--color-hairline);
+    background-color: transparent;
+    color: var(--color-ink);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    border-color: var(--color-stone);
+    background-color: var(--color-surface-elevated);
+  }
+  .btn-ghost {
+    background-color: transparent;
+    color: var(--color-body);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background-color: var(--color-surface-elevated);
+    color: var(--color-ink);
+  }
+  .btn-danger {
+    border: 1px solid var(--color-hairline);
+    background-color: transparent;
+    color: var(--color-ash);
+  }
+  .btn-danger:hover:not(:disabled) {
+    border-color: rgb(255 255 255 / 0.5);
+    background-color: var(--color-surface-elevated);
+    color: var(--color-ink);
+  }
+}

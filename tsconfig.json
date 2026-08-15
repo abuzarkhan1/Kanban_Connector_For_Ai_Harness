@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "paths": {
+      "@domain": ["./src/packages/domain/index.ts"],
+      "@domain/*": ["./src/packages/domain/*"],
+      "@application": ["./src/packages/application/index.ts"],
+      "@application/*": ["./src/packages/application/*"],
+      "@persistence": ["./src/packages/persistence/index.ts"],
+      "@persistence/*": ["./src/packages/persistence/*"],
+      "@ipc": ["./src/packages/ipc/index.ts"],
+      "@ipc/*": ["./src/packages/ipc/*"],
+      "@engine": ["./src/packages/engine/index.ts"],
+      "@engine/*": ["./src/packages/engine/*"],
+      "@mcp": ["./src/packages/mcp/index.ts"],
+      "@mcp/*": ["./src/packages/mcp/*"],
+      "@shared": ["./src/packages/shared/index.ts"],
+      "@shared/*": ["./src/packages/shared/*"]
+    }
+  }
+}
