@@ -118,15 +118,11 @@ export const McpTopologyExplorer: React.FC = () => {
   return (
     <section id="mcp-playground" className="py-24 bg-background relative border-b border-border/40">
       <div className="max-w-6xl mx-auto px-6">
-        {/* Header (No top tag pill) */}
+        {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground mb-4">
+          <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground">
             The "USB-C" for AI Coding Agents
           </h2>
-          <p className="text-base text-muted-foreground leading-relaxed">
-            AI Harness PM connects seamlessly to any agentic environment over standard `stdio`. Click any node in the
-            topology to inspect live JSON-RPC payloads.
-          </p>
         </div>
 
         {/* Interactive Topology Graph & Inspector Split */}

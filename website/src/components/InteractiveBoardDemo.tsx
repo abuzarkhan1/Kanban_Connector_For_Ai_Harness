@@ -182,15 +182,11 @@ export const InteractiveBoardDemo: React.FC = () => {
   return (
     <section id="interactive-demo" className="py-24 bg-background relative border-b border-border/40">
       <div className="max-w-6xl mx-auto px-6">
-        {/* Section Header (No top tag pill) */}
+        {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
-          <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground mb-4">
+          <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground">
             Experience Deterministic State Derivation
           </h2>
-          <p className="text-base text-muted-foreground leading-relaxed">
-            Test how Git observations and MCP commands automatically transition task states across Kanban columns
-            with zero user friction. Click simulation buttons below:
-          </p>
         </div>
 
         {/* Live Simulator Outer Shell */}

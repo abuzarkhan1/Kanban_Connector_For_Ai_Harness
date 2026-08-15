@@ -27,13 +27,8 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Status & Back to Top */}
+          {/* Back to Top */}
           <div className="flex items-center gap-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-muted/40 text-foreground font-mono text-[11px]">
-              <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Engine Status: Active (0ms)</span>
-            </div>
-
             <button
               onClick={scrollToTop}
               className="size-8 rounded-lg border border-border bg-muted/30 hover:bg-muted text-foreground grid place-items-center transition-colors cursor-pointer"

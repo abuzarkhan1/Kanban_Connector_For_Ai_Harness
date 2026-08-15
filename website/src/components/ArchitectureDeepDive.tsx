@@ -10,13 +10,9 @@ export const ArchitectureDeepDive: React.FC = () => {
     <section id="architecture" className="py-24 bg-background relative border-b border-border/40">
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground mb-4">
+          <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground">
             Under the Hood: Zero AI Cost, Pure Evidence
           </h2>
-          <p className="text-base text-muted-foreground leading-relaxed">
-            Instead of spending millions of tokens on LLM prompts to update task status, AI Harness Project Manager
-            uses a deterministic state machine powered by multi-channel file and Git observers.
-          </p>
         </div>
 
         {/* Multi-Layer Flow Architecture Diagram */}

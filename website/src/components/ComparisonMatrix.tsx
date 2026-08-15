@@ -80,15 +80,11 @@ export const ComparisonMatrix: React.FC = () => {
   return (
     <section id="comparison" className="py-24 bg-background relative border-b border-border/40">
       <div className="max-w-6xl mx-auto px-6">
-        {/* Header (No top tag pill) */}
+        {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground mb-4">
+          <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground">
             Built for Modern AI-Assisted Workflows
           </h2>
-          <p className="text-base text-muted-foreground leading-relaxed">
-            Traditional project management tools were built for manual human ticket updates. AI Harness Project
-            Manager is purpose-built to observe and orchestrate autonomous AI agents.
-          </p>
         </div>
 
         {/* Matrix Table with Clean Monochromatic & Transparent Styling */}

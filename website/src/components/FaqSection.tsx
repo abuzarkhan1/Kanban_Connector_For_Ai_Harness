@@ -34,14 +34,11 @@ export const FaqSection: React.FC = () => {
   return (
     <section id="faq" className="py-24 bg-background relative border-b border-border/40">
       <div className="max-w-4xl mx-auto px-6">
-        {/* Header (No top tag pill) */}
+        {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground mb-4">
+          <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground">
             Everything You Need to Know
           </h2>
-          <p className="text-base text-muted-foreground leading-relaxed">
-            Common questions about architecture, privacy, Model Context Protocol, and local persistence.
-          </p>
         </div>
 
         {/* Accordion List */}
