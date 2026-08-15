@@ -3,7 +3,6 @@ import { HeroSection } from './components/HeroSection'
 import { InteractiveBoardDemo } from './components/InteractiveBoardDemo'
 import { McpTopologyExplorer } from './components/McpTopologyExplorer'
 import { ArchitectureDeepDive } from './components/ArchitectureDeepDive'
-import { TokenRoiCalculator } from './components/TokenRoiCalculator'
 import { ComparisonMatrix } from './components/ComparisonMatrix'
 import { DownloadHub } from './components/DownloadHub'
 import { FaqSection } from './components/FaqSection'
@@ -40,9 +39,6 @@ export function App() {
 
         {/* Deterministic Architecture Deep Dive */}
         <ArchitectureDeepDive />
-
-        {/* Token ROI Calculator */}
-        <TokenRoiCalculator />
 
         {/* Competitive Benchmark Comparison */}
         <ComparisonMatrix />
