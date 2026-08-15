@@ -28,13 +28,13 @@ export function HeroSection() {
       <HeroHeader />
       <main className="overflow-x-hidden">
         {/* ========================================================================= */}
-        {/* HERO SECTION WITH EXPANDED 3D PERSPECTIVE PRODUCT SHOWCASE */}
+        {/* HERO SECTION WITH BALANCED 3D PERSPECTIVE PRODUCT SHOWCASE */}
         {/* ========================================================================= */}
-        <section className="relative pt-12 pb-24 md:pb-32 lg:pb-44 lg:pt-36">
-          <div className="relative mx-auto max-w-6xl px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-              {/* Left Column: Headline & Action CTAs (5 cols on large screens) */}
-              <div className="lg:col-span-5 text-center lg:text-left z-10">
+        <section className="relative pt-12 pb-20 md:pb-28 lg:pb-36 lg:pt-32">
+          <div className="relative mx-auto max-w-6xl px-6 sm:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-10 items-center">
+              {/* Left Column: Headline & Action CTAs (6 cols) */}
+              <div className="lg:col-span-6 text-center lg:text-left z-10">
                 <h1 className="text-balance text-5xl font-medium tracking-tight text-foreground md:text-6xl xl:text-7xl leading-[1.06]">
                   Ship 10x Faster with AI Harness PM
                 </h1>
@@ -85,38 +85,38 @@ export function HeroSection() {
                 </div>
               </div>
 
-              {/* Right Column: Expanded High-Profile Desktop Window Showcase (7 cols) */}
-              <div className="lg:col-span-7 relative flex justify-center lg:justify-end">
-                <div className="w-full rounded-2xl border border-border bg-card shadow-[0_30px_90px_-20px_rgba(0,0,0,0.8)] overflow-hidden transition-all hover:border-border/80">
+              {/* Right Column: Balanced Height Showcase with Proper Margin & Padding (6 cols) */}
+              <div className="lg:col-span-6 relative flex justify-center lg:justify-end lg:pr-2">
+                <div className="w-full max-w-lg lg:max-w-none rounded-2xl border border-border bg-card shadow-[0_25px_70px_-15px_rgba(0,0,0,0.7)] overflow-hidden transition-all hover:border-border/80">
                   {/* Clean macOS Titlebar with only Traffic Dots */}
-                  <div className="h-10 px-4 border-b border-border bg-muted/30 flex items-center">
+                  <div className="h-9 px-4 border-b border-border bg-muted/30 flex items-center">
                     <div className="flex items-center gap-2">
-                      <span className="size-3 rounded-full bg-[#ff5f56]/80" />
-                      <span className="size-3 rounded-full bg-[#ffbd2e]/80" />
-                      <span className="size-3 rounded-full bg-[#27c93f]/80" />
+                      <span className="size-2.5 rounded-full bg-[#ff5f56]/80" />
+                      <span className="size-2.5 rounded-full bg-[#ffbd2e]/80" />
+                      <span className="size-2.5 rounded-full bg-[#27c93f]/80" />
                     </div>
                   </div>
 
-                  {/* App Interior Grid (Expanded Height & 3 Columns) */}
-                  <div className="grid grid-cols-12 bg-background/50 p-5 gap-4 text-left min-h-[440px] sm:min-h-[480px]">
-                    {/* Left Mini Sidebar (3 cols on sm) */}
-                    <div className="col-span-3 rounded-xl border border-border bg-card p-3.5 space-y-4 hidden sm:flex flex-col justify-between">
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-2.5 pb-2.5 border-b border-border">
-                          <img src="/logo.png" alt="Logo" className="size-6 rounded-md object-contain" />
+                  {/* App Interior Grid (Balanced Compact Height) */}
+                  <div className="grid grid-cols-12 bg-background/50 p-4 gap-3 text-left">
+                    {/* Left Mini Sidebar (4 cols on sm) */}
+                    <div className="col-span-4 rounded-xl border border-border bg-card p-3 space-y-3 hidden sm:flex flex-col justify-between">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 pb-2 border-b border-border">
+                          <img src="/logo.png" alt="Logo" className="size-5 rounded object-contain" />
                           <span className="font-medium text-xs text-foreground tracking-tight">AI Harness</span>
                         </div>
 
-                        <div className="space-y-1.5">
-                          <div className="text-[10px] font-mono uppercase text-muted-foreground">Active Repo</div>
+                        <div className="space-y-1">
+                          <div className="text-[9px] font-mono uppercase text-muted-foreground">Active Repo</div>
                           <div className="text-[11px] font-mono text-foreground font-medium flex items-center gap-1.5">
                             <GitBranch className="size-3 text-muted-foreground shrink-0" />
                             <span className="truncate">main (clean)</span>
                           </div>
                         </div>
 
-                        <div className="space-y-1.5">
-                          <div className="text-[10px] font-mono uppercase text-muted-foreground">MCP Harness</div>
+                        <div className="space-y-1">
+                          <div className="text-[9px] font-mono uppercase text-muted-foreground">Harness</div>
                           <div className="text-[11px] font-mono text-foreground font-medium flex items-center gap-1.5">
                             <Sparkles className="size-3 text-muted-foreground shrink-0" />
                             <span className="truncate">Antigravity</span>
@@ -124,7 +124,7 @@ export function HeroSection() {
                         </div>
                       </div>
 
-                      <div className="p-2.5 rounded-lg bg-muted/40 border border-border text-[10px] font-mono text-muted-foreground space-y-1.5">
+                      <div className="p-2 rounded-lg bg-muted/40 border border-border text-[9px] font-mono text-muted-foreground space-y-1">
                         <div className="flex justify-between">
                           <span>Latency</span>
                           <span className="text-foreground font-medium">0.2ms</span>
@@ -136,45 +136,25 @@ export function HeroSection() {
                       </div>
                     </div>
 
-                    {/* 3 Kanban Columns (9 cols on sm, 12 on mobile) */}
-                    <div className="col-span-12 sm:col-span-9 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {/* TODO Column */}
-                      <div className="rounded-xl border border-border bg-card p-3 space-y-2.5 flex flex-col justify-between">
-                        <div>
-                          <div className="flex justify-between items-center pb-1.5 border-b border-border text-[10px] font-mono text-muted-foreground font-medium uppercase tracking-wider">
-                            <span>TO DO</span>
-                            <span>1</span>
-                          </div>
-
-                          <div className="mt-2.5 p-3 rounded-lg border border-border bg-muted/20 space-y-2">
-                            <div className="flex justify-between text-[9px] font-mono text-muted-foreground">
-                              <span>TASK-104</span>
-                              <span className="px-1.5 py-0.2 rounded bg-muted text-foreground">TODO</span>
-                            </div>
-                            <div className="text-[11px] font-medium text-foreground leading-snug">
-                              Transactional Database Snapshots
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
+                    {/* 2 Focused Kanban Columns (8 cols on sm, 12 on mobile) */}
+                    <div className="col-span-12 sm:col-span-8 grid grid-cols-2 gap-2.5">
                       {/* IN PROGRESS Column */}
-                      <div className="rounded-xl border border-border bg-card p-3 space-y-2.5 flex flex-col justify-between">
+                      <div className="rounded-xl border border-border bg-card p-2.5 space-y-2 flex flex-col justify-between">
                         <div>
-                          <div className="flex justify-between items-center pb-1.5 border-b border-border text-[10px] font-mono text-muted-foreground font-medium uppercase tracking-wider">
+                          <div className="flex justify-between items-center pb-1 border-b border-border text-[10px] font-mono text-muted-foreground font-medium uppercase tracking-wider">
                             <span>IN PROGRESS</span>
                             <span>1</span>
                           </div>
 
-                          <div className="mt-2.5 p-3 rounded-lg border border-border bg-muted/40 shadow-xs space-y-2">
+                          <div className="mt-2 p-2.5 rounded-lg border border-border bg-muted/40 shadow-xs space-y-1.5">
                             <div className="flex justify-between text-[9px] font-mono text-muted-foreground">
                               <span>TASK-102</span>
-                              <span className="px-1.5 py-0.2 rounded bg-muted text-foreground font-medium">HIGH</span>
+                              <span className="px-1 py-0.2 rounded bg-muted text-foreground font-medium">HIGH</span>
                             </div>
                             <div className="text-[11px] font-medium text-foreground leading-snug">
-                              Richer Task Cards & Filtering
+                              Richer Task Cards & Filters
                             </div>
-                            <div className="pt-1.5 border-t border-border/60 flex justify-between text-[8px] font-mono text-muted-foreground">
+                            <div className="pt-1 border-t border-border/60 flex justify-between text-[8px] font-mono text-muted-foreground">
                               <span>rule: GIT_COMMIT</span>
                               <span className="text-foreground font-medium">98%</span>
                             </div>
@@ -183,22 +163,22 @@ export function HeroSection() {
                       </div>
 
                       {/* DONE Column */}
-                      <div className="rounded-xl border border-border bg-card p-3 space-y-2.5 flex flex-col justify-between">
+                      <div className="rounded-xl border border-border bg-card p-2.5 space-y-2 flex flex-col justify-between">
                         <div>
-                          <div className="flex justify-between items-center pb-1.5 border-b border-border text-[10px] font-mono text-muted-foreground font-medium uppercase tracking-wider">
+                          <div className="flex justify-between items-center pb-1 border-b border-border text-[10px] font-mono text-muted-foreground font-medium uppercase tracking-wider">
                             <span>DONE</span>
                             <span>1</span>
                           </div>
 
-                          <div className="mt-2.5 p-3 rounded-lg border border-border bg-muted/20 opacity-85 space-y-2">
+                          <div className="mt-2 p-2.5 rounded-lg border border-border bg-muted/20 opacity-85 space-y-1.5">
                             <div className="flex justify-between text-[9px] font-mono text-muted-foreground">
                               <span>TASK-101</span>
-                              <span className="px-1.5 py-0.2 rounded bg-muted text-foreground">DONE</span>
+                              <span className="px-1 py-0.2 rounded bg-muted text-foreground">DONE</span>
                             </div>
                             <div className="text-[11px] font-medium text-muted-foreground line-through leading-snug">
                               Toast Notification Engine
                             </div>
-                            <div className="pt-1.5 border-t border-border/60 text-[8px] font-mono text-foreground flex items-center gap-1">
+                            <div className="pt-1 border-t border-border/60 text-[8px] font-mono text-foreground flex items-center gap-1">
                               <span>✓ 58/58 passed</span>
                             </div>
                           </div>
@@ -216,7 +196,7 @@ export function HeroSection() {
         {/* INFINITE BRAND LOGO MARQUEE WITH INLINE CRISP SVGS */}
         {/* ========================================================================= */}
         <section className="bg-background pb-16 md:pb-32 border-b border-border/40">
-          <div className="group relative m-auto max-w-6xl px-6">
+          <div className="group relative m-auto max-w-6xl px-6 sm:px-8">
             <div className="flex flex-col items-center md:flex-row">
               <div className="md:max-w-44 md:border-r border-border md:pr-6 mb-4 md:mb-0 shrink-0">
                 <p className="text-center md:text-end text-sm text-muted-foreground font-medium">
@@ -313,7 +293,7 @@ const HeroHeader = () => {
         data-state={menuState && 'active'}
         className="group bg-background/50 fixed top-0 left-0 z-30 w-full border-b border-border/60 backdrop-blur-3xl"
       >
-        <div className="mx-auto max-w-6xl px-6 transition-all duration-300">
+        <div className="mx-auto max-w-6xl px-6 sm:px-8 transition-all duration-300">
           <div className="relative flex items-center justify-between py-3 lg:py-4">
             {/* Left: User's Project Logo & Name */}
             <div className="flex items-center gap-8">
