@@ -12,8 +12,7 @@ import { sounds } from '../lib/audio'
 interface NodeItem {
   id: string
   name: string
-  type: 'harness' | 'observer' | 'core'
-  description: string
+  type: 'harness' | 'observer'
   samplePayload: Record<string, unknown>
 }
 
@@ -26,7 +25,6 @@ export const McpTopologyExplorer: React.FC = () => {
       id: 'antigravity',
       name: 'Google Antigravity',
       type: 'harness',
-      description: 'Agentic AI coding assistant with autonomous multi-step subagent execution.',
       samplePayload: {
         jsonrpc: '2.0',
         method: 'tools/call',
@@ -44,7 +42,6 @@ export const McpTopologyExplorer: React.FC = () => {
       id: 'claude',
       name: 'Claude Desktop',
       type: 'harness',
-      description: 'Desktop AI client with native Model Context Protocol stdio connectors.',
       samplePayload: {
         jsonrpc: '2.0',
         method: 'tools/call',
@@ -58,9 +55,8 @@ export const McpTopologyExplorer: React.FC = () => {
     },
     {
       id: 'cursor',
-      name: 'Cursor IDE / Composer',
+      name: 'Cursor IDE',
       type: 'harness',
-      description: 'AI code editor with background agentic multi-file edit capabilities.',
       samplePayload: {
         jsonrpc: '2.0',
         method: 'tools/call',
@@ -74,9 +70,8 @@ export const McpTopologyExplorer: React.FC = () => {
     },
     {
       id: 'git-poller',
-      name: 'Git Observer (8s)',
+      name: 'Git Observer',
       type: 'observer',
-      description: 'Background polling loop detecting commits, branch switches, and dirty working trees.',
       samplePayload: {
         event: 'GIT_COMMIT_DETECTED',
         branch: 'feature/toast-system',
@@ -90,7 +85,6 @@ export const McpTopologyExplorer: React.FC = () => {
       id: 'fs-watcher',
       name: 'Filesystem Watcher',
       type: 'observer',
-      description: 'Inotify / FSEvents monitor capturing test runs and build outputs in real-time.',
       samplePayload: {
         event: 'VITEST_RUN_FINISHED',
         suite: 'inference.test.ts',
@@ -127,12 +121,8 @@ export const McpTopologyExplorer: React.FC = () => {
 
         {/* Interactive Topology Graph & Inspector Split */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          {/* Topology Node Matrix (6 cols) */}
-          <div className="lg:col-span-6 space-y-3">
-            <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">
-              Select Connected Harness or Observer:
-            </div>
-
+          {/* Topology Node Matrix (5 cols) */}
+          <div className="lg:col-span-5 space-y-2.5">
             {nodes.map((node) => {
               const isSelected = node.id === selectedNodeId
               const isHarness = node.type === 'harness'
@@ -140,43 +130,37 @@ export const McpTopologyExplorer: React.FC = () => {
                 <div
                   key={node.id}
                   onClick={() => handleNodeClick(node.id)}
-                  className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-4 ${
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3.5 ${
                     isSelected
                       ? 'border-foreground/40 bg-muted/60 shadow-md'
                       : 'border-border bg-card hover:border-border/80 hover:bg-muted/20'
                   }`}
                 >
-                  <div className="flex items-center gap-3.5">
+                  <div className="flex items-center gap-3">
                     <div
-                      className={`size-10 rounded-xl grid place-items-center border ${
+                      className={`size-9 rounded-xl grid place-items-center border ${
                         isSelected
                           ? 'border-foreground/20 bg-foreground text-background'
                           : 'border-border bg-muted text-muted-foreground'
                       }`}
                     >
-                      {isHarness ? <Bot className="size-5" /> : <GitBranch className="size-5" />}
+                      {isHarness ? <Bot className="size-4" /> : <GitBranch className="size-4" />}
                     </div>
-                    <div>
-                      <div className="text-[14px] font-medium text-foreground tracking-tight flex items-center gap-2">
-                        <span>{node.name}</span>
-                        {isSelected && (
-                          <span className="size-1.5 rounded-full bg-foreground animate-pulse" />
-                        )}
-                      </div>
-                      <div className="text-[12px] text-muted-foreground line-clamp-1">{node.description}</div>
+                    <div className="text-[14px] font-medium text-foreground tracking-tight">
+                      {node.name}
                     </div>
                   </div>
 
-                  <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded border border-border/80 bg-muted/40 text-muted-foreground">
-                    {node.type}
-                  </span>
+                  {isSelected && (
+                    <span className="size-1.5 rounded-full bg-foreground animate-pulse mr-1" />
+                  )}
                 </div>
               )
             })}
           </div>
 
-          {/* Real-time JSON-RPC Payload Inspector (6 cols) */}
-          <div className="lg:col-span-6 rounded-3xl border border-border bg-card shadow-2xl overflow-hidden">
+          {/* Real-time JSON-RPC Payload Inspector (7 cols) */}
+          <div className="lg:col-span-7 rounded-3xl border border-border bg-card shadow-2xl overflow-hidden">
             {/* Header */}
             <div className="p-4 border-b border-border bg-muted/30 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -207,7 +191,7 @@ export const McpTopologyExplorer: React.FC = () => {
             </div>
 
             {/* Code Output */}
-            <div className="p-5 font-mono text-[12px] text-muted-foreground overflow-x-auto min-h-[280px] bg-background/50">
+            <div className="p-5 font-mono text-[12px] text-muted-foreground overflow-x-auto min-h-[260px] bg-background/50">
               <div className="text-muted-foreground text-[10px] mb-3 pb-1 border-b border-border/40 flex items-center justify-between">
                 <span>TRANSPORT: STDIO · LATENCY: 0.2MS</span>
                 <span className="text-foreground font-medium">CONFIRMED</span>
