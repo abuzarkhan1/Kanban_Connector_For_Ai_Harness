@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { InfiniteSlider } from '@/components/ui/infinite-slider'
 import { ProgressiveBlur } from '@/components/ui/progressive-blur'
-import { Menu, X, Download, Terminal, CheckCircle2, Copy, GitBranch } from 'lucide-react'
+import { Menu, X, Download, Terminal, CheckCircle2, Copy, GitBranch, Sparkles } from 'lucide-react'
 import confetti from 'canvas-confetti'
 
 export function HeroSection() {
@@ -28,13 +28,13 @@ export function HeroSection() {
       <HeroHeader />
       <main className="overflow-x-hidden">
         {/* ========================================================================= */}
-        {/* HERO SECTION WITH RIGHT-SIDE 3D PERSPECTIVE PRODUCT SHOWCASE */}
+        {/* HERO SECTION WITH EXPANDED 3D PERSPECTIVE PRODUCT SHOWCASE */}
         {/* ========================================================================= */}
         <section className="relative pt-12 pb-24 md:pb-32 lg:pb-44 lg:pt-36">
           <div className="relative mx-auto max-w-6xl px-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-              {/* Left Column: Headline & Action CTAs (6 cols) */}
-              <div className="lg:col-span-6 text-center lg:text-left z-10">
+              {/* Left Column: Headline & Action CTAs (5 cols on large screens) */}
+              <div className="lg:col-span-5 text-center lg:text-left z-10">
                 <h1 className="text-balance text-5xl font-medium tracking-tight text-foreground md:text-6xl xl:text-7xl leading-[1.06]">
                   Ship 10x Faster with AI Harness PM
                 </h1>
@@ -85,105 +85,126 @@ export function HeroSection() {
                 </div>
               </div>
 
-              {/* Right Column: Sleek Desktop Window Showcase (6 cols) */}
-              <div className="lg:col-span-6 relative flex justify-center lg:justify-end">
-                <div className="w-full max-w-lg lg:max-w-none rounded-2xl border border-border bg-card shadow-[0_25px_70px_-15px_rgba(0,0,0,0.7)] overflow-hidden transition-all hover:border-border/80">
-                  {/* macOS Titlebar */}
-                  <div className="h-10 px-4 border-b border-border bg-muted/40 flex items-center justify-between">
+              {/* Right Column: Expanded High-Profile Desktop Window Showcase (7 cols) */}
+              <div className="lg:col-span-7 relative flex justify-center lg:justify-end">
+                <div className="w-full rounded-2xl border border-border bg-card shadow-[0_30px_90px_-20px_rgba(0,0,0,0.8)] overflow-hidden transition-all hover:border-border/80">
+                  {/* Clean macOS Titlebar with only Traffic Dots */}
+                  <div className="h-10 px-4 border-b border-border bg-muted/30 flex items-center">
                     <div className="flex items-center gap-2">
-                      <span className="size-2.5 rounded-full bg-[#ff5f56]/80" />
-                      <span className="size-2.5 rounded-full bg-[#ffbd2e]/80" />
-                      <span className="size-2.5 rounded-full bg-[#27c93f]/80" />
-                      <span className="ml-2 font-mono text-[11px] text-muted-foreground font-medium truncate">
-                        AI Harness PM — /Users/abuzar/Desktop/kanban
-                      </span>
+                      <span className="size-3 rounded-full bg-[#ff5f56]/80" />
+                      <span className="size-3 rounded-full bg-[#ffbd2e]/80" />
+                      <span className="size-3 rounded-full bg-[#27c93f]/80" />
                     </div>
-                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-muted text-muted-foreground font-mono text-[10px]">
-                      <span className="size-1.5 rounded-full bg-foreground animate-pulse" />
-                      <span>OBSERVER ACTIVE</span>
-                    </span>
                   </div>
 
-                  {/* App Interior Grid */}
-                  <div className="grid grid-cols-12 bg-background/50 p-4 gap-3 text-left">
-                    {/* Left Mini Sidebar (4 cols) */}
-                    <div className="col-span-4 rounded-xl border border-border bg-card p-3 space-y-3 hidden sm:block">
-                      <div className="flex items-center gap-2 pb-2 border-b border-border">
-                        <img src="/logo.png" alt="Logo" className="size-5 rounded object-contain" />
-                        <span className="font-semibold text-xs text-foreground">AI Harness</span>
-                      </div>
+                  {/* App Interior Grid (Expanded Height & 3 Columns) */}
+                  <div className="grid grid-cols-12 bg-background/50 p-5 gap-4 text-left min-h-[440px] sm:min-h-[480px]">
+                    {/* Left Mini Sidebar (3 cols on sm) */}
+                    <div className="col-span-3 rounded-xl border border-border bg-card p-3.5 space-y-4 hidden sm:flex flex-col justify-between">
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2.5 pb-2.5 border-b border-border">
+                          <img src="/logo.png" alt="Logo" className="size-6 rounded-md object-contain" />
+                          <span className="font-medium text-xs text-foreground tracking-tight">AI Harness</span>
+                        </div>
 
-                      <div className="space-y-1">
-                        <div className="text-[9px] font-mono uppercase text-muted-foreground">Active Repo</div>
-                        <div className="text-[11px] font-mono text-foreground font-medium flex items-center gap-1">
-                          <GitBranch className="size-3 text-muted-foreground" />
-                          <span>main (clean)</span>
+                        <div className="space-y-1.5">
+                          <div className="text-[10px] font-mono uppercase text-muted-foreground">Active Repo</div>
+                          <div className="text-[11px] font-mono text-foreground font-medium flex items-center gap-1.5">
+                            <GitBranch className="size-3 text-muted-foreground shrink-0" />
+                            <span className="truncate">main (clean)</span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <div className="text-[10px] font-mono uppercase text-muted-foreground">MCP Harness</div>
+                          <div className="text-[11px] font-mono text-foreground font-medium flex items-center gap-1.5">
+                            <Sparkles className="size-3 text-muted-foreground shrink-0" />
+                            <span className="truncate">Antigravity</span>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="p-2 rounded-lg bg-muted/50 border border-border text-[9px] font-mono text-muted-foreground space-y-1">
+                      <div className="p-2.5 rounded-lg bg-muted/40 border border-border text-[10px] font-mono text-muted-foreground space-y-1.5">
                         <div className="flex justify-between">
                           <span>Latency</span>
-                          <span className="text-foreground font-bold">0.2ms</span>
+                          <span className="text-foreground font-medium">0.2ms</span>
                         </div>
                         <div className="flex justify-between">
                           <span>Token Cost</span>
-                          <span className="text-foreground font-bold">$0.00</span>
+                          <span className="text-foreground font-medium">$0.00</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Kanban Board Columns (8 cols on sm, 12 on mobile) */}
-                    <div className="col-span-12 sm:col-span-8 grid grid-cols-2 gap-2.5">
-                      {/* In Progress Column */}
-                      <div className="rounded-xl border border-border bg-card p-2.5 space-y-2">
-                        <div className="flex justify-between items-center pb-1 border-b border-border text-[10px] font-mono text-muted-foreground font-semibold">
-                          <span>IN PROGRESS</span>
-                          <span>1</span>
-                        </div>
+                    {/* 3 Kanban Columns (9 cols on sm, 12 on mobile) */}
+                    <div className="col-span-12 sm:col-span-9 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {/* TODO Column */}
+                      <div className="rounded-xl border border-border bg-card p-3 space-y-2.5 flex flex-col justify-between">
+                        <div>
+                          <div className="flex justify-between items-center pb-1.5 border-b border-border text-[10px] font-mono text-muted-foreground font-medium uppercase tracking-wider">
+                            <span>TO DO</span>
+                            <span>1</span>
+                          </div>
 
-                        <div className="p-2.5 rounded-lg border border-border bg-muted/30 shadow-xs space-y-1.5">
-                          <div className="flex justify-between text-[9px] font-mono text-muted-foreground">
-                            <span>TASK-102</span>
-                            <span className="px-1 rounded bg-muted text-foreground font-bold">HIGH</span>
-                          </div>
-                          <div className="text-[11px] font-medium text-foreground leading-snug">
-                            Richer Task Cards & Filter Engine
-                          </div>
-                          <div className="pt-1 border-t border-border/60 flex justify-between text-[8px] font-mono text-muted-foreground">
-                            <span>rule: RULE_GIT_COMMIT</span>
-                            <span className="text-foreground font-semibold">98% conf</span>
+                          <div className="mt-2.5 p-3 rounded-lg border border-border bg-muted/20 space-y-2">
+                            <div className="flex justify-between text-[9px] font-mono text-muted-foreground">
+                              <span>TASK-104</span>
+                              <span className="px-1.5 py-0.2 rounded bg-muted text-foreground">TODO</span>
+                            </div>
+                            <div className="text-[11px] font-medium text-foreground leading-snug">
+                              Transactional Database Snapshots
+                            </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* Done Column */}
-                      <div className="rounded-xl border border-border bg-card p-2.5 space-y-2">
-                        <div className="flex justify-between items-center pb-1 border-b border-border text-[10px] font-mono text-muted-foreground font-semibold">
-                          <span>DONE</span>
-                          <span>1</span>
-                        </div>
+                      {/* IN PROGRESS Column */}
+                      <div className="rounded-xl border border-border bg-card p-3 space-y-2.5 flex flex-col justify-between">
+                        <div>
+                          <div className="flex justify-between items-center pb-1.5 border-b border-border text-[10px] font-mono text-muted-foreground font-medium uppercase tracking-wider">
+                            <span>IN PROGRESS</span>
+                            <span>1</span>
+                          </div>
 
-                        <div className="p-2.5 rounded-lg border border-border bg-muted/20 opacity-80 space-y-1.5">
-                          <div className="flex justify-between text-[9px] font-mono text-muted-foreground">
-                            <span>TASK-101</span>
-                            <span className="px-1 rounded bg-muted text-foreground">DONE</span>
+                          <div className="mt-2.5 p-3 rounded-lg border border-border bg-muted/40 shadow-xs space-y-2">
+                            <div className="flex justify-between text-[9px] font-mono text-muted-foreground">
+                              <span>TASK-102</span>
+                              <span className="px-1.5 py-0.2 rounded bg-muted text-foreground font-medium">HIGH</span>
+                            </div>
+                            <div className="text-[11px] font-medium text-foreground leading-snug">
+                              Richer Task Cards & Filtering
+                            </div>
+                            <div className="pt-1.5 border-t border-border/60 flex justify-between text-[8px] font-mono text-muted-foreground">
+                              <span>rule: GIT_COMMIT</span>
+                              <span className="text-foreground font-medium">98%</span>
+                            </div>
                           </div>
-                          <div className="text-[11px] font-medium text-muted-foreground line-through leading-snug">
-                            Multi-Channel Toast System
+                        </div>
+                      </div>
+
+                      {/* DONE Column */}
+                      <div className="rounded-xl border border-border bg-card p-3 space-y-2.5 flex flex-col justify-between">
+                        <div>
+                          <div className="flex justify-between items-center pb-1.5 border-b border-border text-[10px] font-mono text-muted-foreground font-medium uppercase tracking-wider">
+                            <span>DONE</span>
+                            <span>1</span>
                           </div>
-                          <div className="pt-1 border-t border-border/60 text-[8px] font-mono text-foreground flex items-center gap-1">
-                            <span>✓ Vitest 58/58 passed</span>
+
+                          <div className="mt-2.5 p-3 rounded-lg border border-border bg-muted/20 opacity-85 space-y-2">
+                            <div className="flex justify-between text-[9px] font-mono text-muted-foreground">
+                              <span>TASK-101</span>
+                              <span className="px-1.5 py-0.2 rounded bg-muted text-foreground">DONE</span>
+                            </div>
+                            <div className="text-[11px] font-medium text-muted-foreground line-through leading-snug">
+                              Toast Notification Engine
+                            </div>
+                            <div className="pt-1.5 border-t border-border/60 text-[8px] font-mono text-foreground flex items-center gap-1">
+                              <span>✓ 58/58 passed</span>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Telemetry Live Banner */}
-                  <div className="p-3 border-t border-border bg-muted/20 flex items-center justify-between text-[11px] font-mono text-muted-foreground">
-                    <span className="truncate">GIT: commit 8f9b2a on branch feature/cards</span>
-                    <span className="text-foreground font-semibold shrink-0">STATE: AUTO</span>
                   </div>
                 </div>
               </div>
