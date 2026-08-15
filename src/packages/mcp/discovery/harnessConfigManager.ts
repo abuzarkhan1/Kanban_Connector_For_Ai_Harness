@@ -1,7 +1,7 @@
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { homedir } from 'node:os'
-import { spawn } from 'node:child_process'
+import { spawn, execSync } from 'node:child_process'
 import type {
   McpHarnessStatusDto,
   McpVerificationResultDto,
@@ -27,6 +27,115 @@ export class HarnessConfigManager {
 
   private getHome(): string {
     return homedir()
+  }
+
+  /**
+   * Resolves the absolute path to the Node.js executable.
+   * This is critical for macOS and Linux GUI desktop applications (like Antigravity Desktop,
+   * Antigravity IDE, Claude Desktop, Cursor) which launch with minimal non-login $PATH environments
+   * that do not include version manager shims (NVM, FNM, Volta, ASDF, Homebrew).
+   */
+  resolveNodeExecutable(): string {
+    const home = this.getHome()
+    const isWindows = process.platform === 'win32'
+
+    // 1. Check if process.execPath is a direct node executable (and not Electron binary)
+    if (process.execPath && !process.execPath.toLowerCase().includes('electron')) {
+      const base = process.execPath.split(/[\\/]/).pop() || ''
+      if (base.startsWith('node')) {
+        return process.execPath
+      }
+    }
+
+    // 2. Search NVM directory (very common on macOS and Linux)
+    const nvmDir = join(home, '.nvm', 'versions', 'node')
+    if (existsSync(nvmDir)) {
+      try {
+        const versions = readdirSync(nvmDir)
+          .filter((v) => !v.startsWith('.'))
+          .sort((a, b) => b.localeCompare(a, undefined, { numeric: true, sensitivity: 'base' }))
+        for (const ver of versions) {
+          const bin = join(nvmDir, ver, 'bin', isWindows ? 'node.exe' : 'node')
+          if (existsSync(bin)) {
+            return bin
+          }
+        }
+      } catch {
+        // Continue fallback search
+      }
+    }
+
+    // 3. Search FNM, Volta, ASDF
+    const fnmBin = join(home, '.fnm', 'current', 'bin', isWindows ? 'node.exe' : 'node')
+    if (existsSync(fnmBin)) return fnmBin
+    const fnmAlt = join(home, '.local', 'share', 'fnm', 'current', 'bin', isWindows ? 'node.exe' : 'node')
+    if (existsSync(fnmAlt)) return fnmAlt
+
+    const voltaBin = join(home, '.volta', 'bin', isWindows ? 'node.exe' : 'node')
+    if (existsSync(voltaBin)) return voltaBin
+
+    const asdfBin = join(home, '.asdf', 'shims', isWindows ? 'node.exe' : 'node')
+    if (existsSync(asdfBin)) return asdfBin
+
+    // 4. Search Homebrew and standard Unix paths
+    const standardUnix = [
+      '/opt/homebrew/bin/node',
+      '/usr/local/bin/node',
+      '/usr/bin/node',
+      join(home, '.cargo', 'bin', 'node'),
+      join(home, 'bin', 'node')
+    ]
+    for (const p of standardUnix) {
+      if (existsSync(p)) return p
+    }
+
+    // 5. Search Windows standard paths
+    if (isWindows) {
+      const winPaths = [
+        'C:\\Program Files\\nodejs\\node.exe',
+        'C:\\Program Files (x86)\\nodejs\\node.exe',
+        join(process.env.APPDATA || '', 'npm', 'node.exe'),
+        join(process.env.LOCALAPPDATA || '', 'Programs', 'node', 'node.exe')
+      ]
+      for (const p of winPaths) {
+        if (existsSync(p)) return p
+      }
+    }
+
+    // 6. Try `which node` / `where node`
+    try {
+      const cmd = isWindows ? 'where node' : 'which node'
+      const out = execSync(cmd, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim().split('\n')[0].trim()
+      if (out && existsSync(out)) {
+        return out
+      }
+    } catch {
+      // Fallback to bare command
+    }
+
+    return 'node'
+  }
+
+  /**
+   * Builds an enhanced PATH string containing all standard and version-managed bin directories.
+   */
+  resolveNodePathEnv(): string {
+    const nodeBin = this.resolveNodeExecutable()
+    const isWindows = process.platform === 'win32'
+    const sep = isWindows ? ';' : ':'
+    const binDir = dirname(nodeBin)
+    const extraPaths = [
+      binDir,
+      '/opt/homebrew/bin',
+      '/usr/local/bin',
+      '/usr/bin',
+      '/bin',
+      '/usr/sbin',
+      '/sbin'
+    ]
+    const currentPath = process.env.PATH || ''
+    const merged = Array.from(new Set([...extraPaths, ...currentPath.split(sep)])).filter(Boolean)
+    return merged.join(sep)
   }
 
   getCustomLocations(): HarnessConfigLocation[] {
@@ -118,14 +227,14 @@ export class HarnessConfigManager {
       },
       {
         id: 'antigravity_desktop',
-        harness: 'antigravity_desktop',
+        harness: 'antigravity',
         name: 'Google Antigravity Desktop (2.0)',
         path: agyDesktopPath,
         category: 'antigravity'
       },
       {
         id: 'antigravity_ide',
-        harness: 'antigravity_ide',
+        harness: 'antigravity',
         name: 'Google Antigravity IDE',
         path: agyIdePath,
         category: 'antigravity'
@@ -134,15 +243,15 @@ export class HarnessConfigManager {
       // 2. Claude Suite
       {
         id: 'claude_code',
-        harness: 'claude_code',
+        harness: 'claude',
         name: 'Claude Code CLI',
         path: join(home, '.claude.json'),
         category: 'claude'
       },
       {
         id: 'claude_desktop',
-        harness: 'claude_desktop',
-        name: 'Claude Desktop',
+        harness: 'claude',
+        name: 'Claude Desktop App',
         path: claudeDesktopPath,
         category: 'claude'
       },
@@ -249,10 +358,16 @@ export class HarnessConfigManager {
         config[serverKey] = {}
       }
 
+      const nodeCommand = this.resolveNodeExecutable()
+      const pathEnv = this.resolveNodePathEnv()
+
       const servers = config[serverKey] as Record<string, unknown>
       servers['kanban'] = {
-        command: 'node',
-        args: [cliPath]
+        command: nodeCommand,
+        args: [cliPath],
+        env: {
+          PATH: pathEnv
+        }
       }
 
       writeFileSync(loc.path, JSON.stringify(config, null, 2), 'utf8')
@@ -313,14 +428,15 @@ export class HarnessConfigManager {
       return { success: false, testedAt, diagnostics, error: 'Configuration file missing.' }
     }
 
-    let command = 'node'
+    let command = this.resolveNodeExecutable()
     let args = [cliPath]
+    let serverEnv: Record<string, string> = {}
 
     try {
       const raw = readFileSync(loc.path, 'utf8').replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '')
       const parsed = JSON.parse(raw) as {
-        mcpServers?: Record<string, { command?: string; args?: string[] }>
-        mcp_servers?: Record<string, { command?: string; args?: string[] }>
+        mcpServers?: Record<string, { command?: string; args?: string[]; env?: Record<string, string> }>
+        mcp_servers?: Record<string, { command?: string; args?: string[]; env?: Record<string, string> }>
       }
       const srv = parsed.mcpServers?.['kanban'] || parsed.mcpServers?.['ai-harness-pm'] || parsed.mcp_servers?.['kanban']
       if (!srv) {
@@ -329,7 +445,21 @@ export class HarnessConfigManager {
       }
       if (srv.command) command = srv.command
       if (Array.isArray(srv.args)) args = srv.args
-      diagnostics.push({ step: 'config', status: 'ok', message: `Valid JSON config detected with server command: '${command}'` })
+      if (srv.env) serverEnv = srv.env
+
+      // Check if command is relative node and needs resolution
+      if (command === 'node' || !existsSync(command)) {
+        const resolved = this.resolveNodeExecutable()
+        if (resolved !== 'node') {
+          command = resolved
+        }
+      }
+
+      diagnostics.push({
+        step: 'config',
+        status: 'ok',
+        message: `Valid JSON config detected with command: '${command}'`
+      })
     } catch (err) {
       diagnostics.push({ step: 'config', status: 'error', message: `Invalid JSON syntax in config: ${String(err)}` })
       return { success: false, testedAt, diagnostics, error: 'JSON parsing failure.' }
@@ -352,9 +482,11 @@ export class HarnessConfigManager {
       let toolNames: string[] = []
       let serverInfo: { name: string; version: string } | undefined
 
+      const pathEnv = serverEnv.PATH || this.resolveNodePathEnv()
+
       const child = spawn(command, args, {
         stdio: ['pipe', 'pipe', 'pipe'],
-        env: { ...process.env, KANBAN_MCP_PROBE: 'true' }
+        env: { ...process.env, ...serverEnv, PATH: pathEnv, KANBAN_MCP_PROBE: 'true' }
       })
 
       const cleanup = (): void => {
@@ -387,7 +519,7 @@ export class HarnessConfigManager {
           resolved = true
           clearTimeout(timer)
           cleanup()
-          diagnostics.push({ step: 'runtime', status: 'error', message: `Failed to spawn process: ${err.message}` })
+          diagnostics.push({ step: 'runtime', status: 'error', message: `Failed to spawn process (${command}): ${err.message}` })
           resolve({
             success: false,
             testedAt,
