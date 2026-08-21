@@ -1,12 +1,19 @@
 import { useState, useEffect } from 'react'
-import { HeroSection } from './components/HeroSection'
-import { InteractiveBoardDemo } from './components/InteractiveBoardDemo'
-import { McpTopologyExplorer } from './components/McpTopologyExplorer'
-import { ArchitectureDeepDive } from './components/ArchitectureDeepDive'
-import { ComparisonMatrix } from './components/ComparisonMatrix'
-import { DownloadHub } from './components/DownloadHub'
-import { FaqSection } from './components/FaqSection'
-import { Footer } from './components/Footer'
+import { OriginHero } from './components/origin/OriginHero'
+import {
+  SimplifySection,
+  TrackSection,
+  AskSection,
+} from './components/origin/FeatureSections'
+import {
+  ConnectSection,
+  InferSection,
+  LocalSection,
+  TestimonialsSection,
+  UpdatesSection,
+  DownloadHero,
+} from './components/origin/MoreSections'
+import { OriginFooter } from './components/origin/OriginFooter'
 import { CommandPalette } from './components/CommandPalette'
 import { DocumentationPage } from './pages/DocumentationPage'
 import { TermsPage } from './pages/TermsPage'
@@ -20,7 +27,6 @@ export function App() {
   const [currentPage, setCurrentPage] = useState<PageType>('home')
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
 
-  // Listen to hash changes (e.g. #/docs, #/terms, #/privacy, #/compliance)
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash
@@ -62,52 +68,34 @@ export function App() {
     window.location.hash = page === 'home' ? '/' : `#/${page}`
   }
 
-  // Render Sub-pages
   if (currentPage === 'docs') {
     return <DocumentationPage onNavigateHome={() => navigateTo('home')} />
   }
-
   if (currentPage === 'terms') {
     return <TermsPage onNavigateHome={() => navigateTo('home')} />
   }
-
   if (currentPage === 'privacy') {
     return <PrivacyPolicyPage onNavigateHome={() => navigateTo('home')} />
   }
-
   if (currentPage === 'compliance') {
     return <CompliancePage onNavigateHome={() => navigateTo('home')} />
   }
 
-  // Render Main Landing Page
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-foreground selection:text-background flex flex-col justify-between">
-      {/* Hero Section & Navigation directly from design.md */}
-      <HeroSection onNavigateDocs={() => navigateTo('docs')} />
-      
+    <div className="flex min-h-screen flex-col bg-obsidian text-ash">
+      <OriginHero onNavigateDocs={() => navigateTo('docs')} />
       <main className="flex-1">
-        {/* Interactive Kanban Simulator */}
-        <InteractiveBoardDemo />
-
-        {/* Universal Model Context Protocol Explorer */}
-        <McpTopologyExplorer />
-
-        {/* Deterministic Architecture Deep Dive */}
-        <ArchitectureDeepDive />
-
-        {/* Competitive Benchmark Comparison */}
-        <ComparisonMatrix />
-
-        {/* Multi-Platform Download Center */}
-        <DownloadHub />
-
-        {/* FAQ Accordion */}
-        <FaqSection />
+        <SimplifySection />
+        <TrackSection />
+        <AskSection />
+        <ConnectSection />
+        <InferSection />
+        <LocalSection />
+        <TestimonialsSection />
+        <UpdatesSection />
+        <DownloadHero />
       </main>
-
-      <Footer onNavigatePage={(page) => navigateTo(page)} />
-
-      {/* Global Command Palette */}
+      <OriginFooter onNavigatePage={(page) => navigateTo(page)} />
       <CommandPalette
         isOpen={commandPaletteOpen}
         onClose={() => setCommandPaletteOpen(false)}

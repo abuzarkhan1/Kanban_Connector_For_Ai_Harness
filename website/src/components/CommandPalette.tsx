@@ -3,72 +3,74 @@ import {
   Search,
   Download,
   Terminal,
-  Play,
+  Eye,
   Sparkles,
   Workflow,
   Copy,
-  ExternalLink
+  ExternalLink,
 } from 'lucide-react'
 import { sounds } from '../lib/audio'
-import confetti from 'canvas-confetti'
 
 interface CommandItem {
   id: string
   title: string
-  category: 'Navigation' | 'Simulate Agent' | 'Integrations & MCP' | 'Download'
+  category: 'Navigation' | 'Integrations & MCP' | 'Download'
   icon: React.ComponentType<{ className?: string }>
   shortcut?: string
   action: () => void
 }
 
-export const CommandPalette: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+export const CommandPalette: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
+  isOpen,
+  onClose,
+}) => {
   const [query, setQuery] = useState('')
   const [selectedIndex, setSelectedIndex] = useState(0)
 
   const items: CommandItem[] = [
     {
-      id: 'demo',
-      title: 'Jump to Interactive Live Kanban Simulator',
+      id: 'observe',
+      title: 'Jump to Observe Everything',
       category: 'Navigation',
-      icon: Play,
-      shortcut: 'G D',
+      icon: Eye,
+      shortcut: 'G O',
       action: () => {
-        document.getElementById('interactive-demo')?.scrollIntoView({ behavior: 'smooth' })
+        document.getElementById('observe')?.scrollIntoView({ behavior: 'smooth' })
         onClose()
-      }
+      },
     },
     {
-      id: 'mcp-terminal',
-      title: 'Open Interactive MCP Terminal & Playground',
+      id: 'ask',
+      title: 'Jump to Ask / MCP Protocol',
       category: 'Navigation',
       icon: Terminal,
       shortcut: 'G M',
       action: () => {
-        document.getElementById('mcp-playground')?.scrollIntoView({ behavior: 'smooth' })
+        document.getElementById('ask')?.scrollIntoView({ behavior: 'smooth' })
         onClose()
-      }
+      },
     },
     {
-      id: 'motion-reel',
-      title: 'Watch Autonomous Lifecycle Motion Reel',
-      category: 'Navigation',
-      icon: Sparkles,
-      shortcut: 'G R',
-      action: () => {
-        document.getElementById('motion-showcase')?.scrollIntoView({ behavior: 'smooth' })
-        onClose()
-      }
-    },
-    {
-      id: 'architecture',
-      title: 'Inspect 4-Layer Deterministic Inference Engine',
+      id: 'connect',
+      title: 'Jump to Connect Any Agent',
       category: 'Navigation',
       icon: Workflow,
-      shortcut: 'G A',
+      shortcut: 'G C',
       action: () => {
-        document.getElementById('architecture')?.scrollIntoView({ behavior: 'smooth' })
+        document.getElementById('connect')?.scrollIntoView({ behavior: 'smooth' })
         onClose()
-      }
+      },
+    },
+    {
+      id: 'infer',
+      title: 'Jump to Derive Next State',
+      category: 'Navigation',
+      icon: Sparkles,
+      shortcut: 'G I',
+      action: () => {
+        document.getElementById('infer')?.scrollIntoView({ behavior: 'smooth' })
+        onClose()
+      },
     },
     {
       id: 'copy-npx',
@@ -79,62 +81,38 @@ export const CommandPalette: React.FC<{ isOpen: boolean; onClose: () => void }> 
       action: () => {
         navigator.clipboard.writeText('npx -y kanban-mcp')
         sounds.playSuccess()
-        confetti({ particleCount: 50, spread: 50, origin: { y: 0.5 } })
         onClose()
-      }
+      },
     },
     {
-      id: 'copy-claude',
-      title: 'Copy Claude Desktop & Antigravity MCP Config',
-      category: 'Integrations & MCP',
-      icon: Copy,
-      shortcut: 'M',
-      action: () => {
-        const config = JSON.stringify(
-          {
-            mcpServers: {
-              kanban: {
-                command: 'npx',
-                args: ['-y', 'kanban-mcp']
-              }
-            }
-          },
-          null,
-          2
-        )
-        navigator.clipboard.writeText(config)
-        sounds.playSuccess()
-        onClose()
-      }
-    },
-    {
-      id: 'download-mac',
-      title: 'Download Desktop App for macOS (.dmg)',
+      id: 'download',
+      title: 'Open GitHub Releases',
       category: 'Download',
       icon: Download,
-      shortcut: 'D',
       action: () => {
-        window.open('https://github.com/abuzarkhan1/Kanban_Connector_For_Ai_Harness/releases/download/V1/AI.Harness.Project.Manager-0.1.0-arm64.dmg', '_blank')
-        sounds.playSuccess()
+        window.open(
+          'https://github.com/abuzarkhan1/Kanban_Connector_For_Ai_Harness/releases',
+          '_blank'
+        )
         onClose()
-      }
+      },
     },
     {
       id: 'github',
-      title: 'View Open Source Repository on GitHub',
-      category: 'Navigation',
+      title: 'View Repository on GitHub',
+      category: 'Download',
       icon: ExternalLink,
-      shortcut: 'G H',
       action: () => {
         window.open('https://github.com/abuzarkhan1/Kanban_Connector_For_Ai_Harness', '_blank')
         onClose()
-      }
-    }
+      },
+    },
   ]
 
-  const filtered = items.filter((item) =>
-    item.title.toLowerCase().includes(query.toLowerCase()) ||
-    item.category.toLowerCase().includes(query.toLowerCase())
+  const filtered = items.filter(
+    (item) =>
+      item.title.toLowerCase().includes(query.toLowerCase()) ||
+      item.category.toLowerCase().includes(query.toLowerCase())
   )
 
   useEffect(() => {
@@ -142,111 +120,81 @@ export const CommandPalette: React.FC<{ isOpen: boolean; onClose: () => void }> 
   }, [query])
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isOpen) return
-      if (e.key === 'Escape') {
-        onClose()
-      } else if (e.key === 'ArrowDown') {
+    if (!isOpen) return
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+      if (e.key === 'ArrowDown') {
         e.preventDefault()
-        sounds.playClick()
-        setSelectedIndex((prev) => (prev + 1) % (filtered.length || 1))
-      } else if (e.key === 'ArrowUp') {
+        setSelectedIndex((i) => Math.min(i + 1, filtered.length - 1))
+      }
+      if (e.key === 'ArrowUp') {
         e.preventDefault()
-        sounds.playClick()
-        setSelectedIndex((prev) => (prev - 1 + filtered.length) % (filtered.length || 1))
-      } else if (e.key === 'Enter') {
+        setSelectedIndex((i) => Math.max(i - 1, 0))
+      }
+      if (e.key === 'Enter' && filtered[selectedIndex]) {
         e.preventDefault()
-        const selected = filtered[selectedIndex]
-        if (selected) {
-          sounds.playThud()
-          selected.action()
-        }
+        filtered[selectedIndex].action()
       }
     }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
+
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
   }, [isOpen, filtered, selectedIndex, onClose])
 
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4 bg-black/70 backdrop-blur-md animate-fade-in">
+    <div
+      className="fixed inset-0 z-[200] flex items-start justify-center bg-black/70 px-4 pt-[15vh] backdrop-blur-sm"
+      onClick={onClose}
+    >
       <div
-        className="w-full max-w-2xl rounded-2xl border border-white/20 bg-[#0d0f12] shadow-2xl overflow-hidden animate-scale-up"
+        className="w-full max-w-xl overflow-hidden rounded-2xl border border-white/15 bg-graphite shadow-lg"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Search Input Bar */}
-        <div className="p-4 border-b border-white/[0.08] flex items-center gap-3 bg-[#14171c]">
-          <Search className="size-5 text-[#a0a5ad]" />
+        <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
+          <Search className="size-4 text-ash" />
           <input
-            type="text"
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Type a command or search action (e.g. 'mcp', 'demo', 'download')…"
-            className="flex-1 bg-transparent text-white placeholder-white/40 text-[15px] focus:outline-hidden font-sans"
+            placeholder="Search commands…"
+            className="w-full bg-transparent text-[16px] text-pure outline-none placeholder:text-ash"
           />
-          <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white/10 text-white/60 font-mono text-[10px] border border-white/10">
-            ESC to close
+          <kbd className="mono-label rounded border border-white/15 px-1.5 py-0.5 text-ash">
+            ESC
           </kbd>
         </div>
-
-        {/* Results List */}
-        <div className="max-h-96 overflow-y-auto p-2 space-y-1">
+        <div className="max-h-[360px] overflow-y-auto p-2">
           {filtered.length === 0 ? (
-            <div className="p-8 text-center text-[#a0a5ad] font-mono text-[13px]">
-              No commands found matching "{query}"
-            </div>
+            <p className="px-3 py-8 text-center text-sm text-ash">No matching commands</p>
           ) : (
-            filtered.map((item, idx) => {
-              const isSelected = selectedIndex === idx
+            filtered.map((item, index) => {
               const Icon = item.icon
+              const active = index === selectedIndex
               return (
-                <div
+                <button
                   key={item.id}
-                  onClick={() => {
-                    sounds.playThud()
-                    item.action()
-                  }}
-                  onMouseEnter={() => setSelectedIndex(idx)}
-                  className={`p-3 rounded-xl flex items-center justify-between gap-3 cursor-pointer transition-colors ${
-                    isSelected ? 'bg-white/10 text-white' : 'text-[#c4c9d0] hover:bg-white/[0.04]'
+                  type="button"
+                  onClick={item.action}
+                  onMouseEnter={() => setSelectedIndex(index)}
+                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-[background-color] duration-200 ease ${
+                    active ? 'bg-steel text-pure' : 'text-cloud hover:bg-steel/60'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`size-8 rounded-lg grid place-items-center border ${
-                        isSelected
-                          ? 'border-white/30 bg-white/10 text-white'
-                          : 'border-white/10 bg-[#14171c] text-[#a0a5ad]'
-                      }`}
-                    >
-                      <Icon className="size-4" />
-                    </div>
-                    <div>
-                      <div className="text-[13px] font-medium tracking-tight text-white">{item.title}</div>
-                      <div className="text-[11px] font-mono text-[#a0a5ad]">{item.category}</div>
-                    </div>
+                  <Icon className="size-4 shrink-0 text-ash" />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-[14px]">{item.title}</div>
+                    <div className="mono-label mt-0.5 text-ash">{item.category}</div>
                   </div>
-
-                  {item.shortcut && (
-                    <kbd className="font-mono text-[11px] px-2 py-0.5 rounded bg-white/5 border border-white/10 text-white/60">
-                      {item.shortcut}
-                    </kbd>
-                  )}
-                </div>
+                  {item.shortcut ? (
+                    <kbd className="mono-label text-fog">{item.shortcut}</kbd>
+                  ) : null}
+                </button>
               )
             })
           )}
-        </div>
-
-        {/* Bottom Helper Bar */}
-        <div className="p-3 border-t border-white/[0.08] bg-[#07080a] flex items-center justify-between text-[11px] font-mono text-[#a0a5ad]">
-          <div className="flex items-center gap-3">
-            <span>Navigation: ↑ ↓</span>
-            <span>Select: ↵</span>
-          </div>
-          <span>Bionic Omnibar v1.0</span>
         </div>
       </div>
     </div>

@@ -1,563 +1,483 @@
-You are given a task to integrate an existing React component in the codebase
+# Origin Financial — Style Reference
+> midnight gallery of quiet wealth. A hushed, near-black room where oversized serif whispers and a few luminous color panels make finance feel like curated art.
 
-The codebase should support:
-- shadcn project structure  
-- Tailwind CSS
-- Typescript
+**Theme:** dark
 
-If it doesn't, provide instructions on how to setup project via shadcn CLI, install Tailwind or Typescript.
+Origin presents personal finance as a nocturnal gallery: near-black canvases, whisper-weight serif display headlines at 80-96px (Lyon Display at weight 300), and chromatic feature cards that hover like illuminated color panels. Most surfaces stay quiet and monochromatic, with saturated color appearing only as full-bleed category tiles for spending, investing, and forecasting modules, and as data signals (chart lines, sparklines). Typography splits into three distinct voices: a high-contrast serif for emotive statements, a neo-grotesque sans for UI, and a monospace for uppercase technical labels and data, producing an editorial-meets-precision feel. White-on-black is the only primary action; the rest of the interface recedes into the dark.
 
-Determine the default path for components and styles. 
-If default path for components is not /components/ui, provide instructions on why it's important to create this folder
-Copy-paste this component to /components/ui folder:
-```tsx
-hero-section-4.tsx
-'use client'
-import React from 'react'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { InfiniteSlider } from '@/components/ui/infinite-slider'
-import { ProgressiveBlur } from '@/components/ui/progressive-blur'
-import { cn } from '@/lib/utils'
-import { Menu, X } from 'lucide-react'
+## Tokens — Colors
 
-export function HeroSection() {
-    return (
-        <>
-            <HeroHeader />
-            <main className="overflow-x-hidden">
-                <section>
-                    <div className="pb-24 pt-12 md:pb-32 lg:pb-56 lg:pt-44">
-                        <div className="relative mx-auto flex max-w-6xl flex-col px-6 lg:block">
-                            <div className="mx-auto max-w-lg text-center lg:ml-0 lg:w-1/2 lg:text-left">
-                                <h1 className="mt-8 max-w-2xl text-balance text-5xl font-medium md:text-6xl lg:mt-16 xl:text-7xl">Ship 10x Faster with NS</h1>
-                                <p className="mt-8 max-w-2xl text-pretty text-lg">Highly customizable components for building modern websites and applications that look and feel the way you mean it.</p>
+| Name | Value | Token | Role |
+|------|-------|-------|------|
+| Iris Gleam | `#847dff` | `--color-iris-gleam` | Primary chromatic accent for feature category cards — the signature violet that appears most often across module tiles |
+| Cyan Signal | `#00b3dd` | `--color-cyan-signal` | Data accent — chart lines, sparkline strokes, and forecasting indicators on dark surfaces |
+| Pale Iris | `#d1c9ff` | `--color-pale-iris` | Light variant of the brand violet for softer category panels and background washes |
+| Deep Iris | `#4b49aa` | `--color-deep-iris` | Dark variant of the brand violet for shaded category panels and hover states |
+| Orchid Bloom | `#dd90d8` | `--color-orchid-bloom` | Pink category card for lifestyle/spending modules — warm contrast against the cool palette |
+| Periwinkle | `#90b8f0` | `--color-periwinkle` | Soft blue category card for advisory or couples modules |
+| Obsidian | `#0f1011` | `--color-obsidian` | Page canvas — the dominant dark surface that everything floats on |
+| Abyss | `#090a0b` | `--color-abyss` | Slightly deeper than Obsidian for subtle stacked sections and shadow tone |
+| Graphite | `#2e2e2e` | `--color-graphite` | Mid-dark card surface for elevated modules and data panels |
+| Steel | `#3f4041` | `--color-steel` | Hover/pressed surface for interactive elements and secondary raised panels |
+| Silver | `#cacaca` | `--color-silver` | Light card surface for inverted panels, stat blocks, and testimonial cards |
+| Fog | `#6a6b6b` | `--color-fog` | Muted text and disabled-link color |
+| Ash | `#9f9fa0` | `--color-ash` | Body text, descriptions, and secondary links — never full white |
+| Cloud | `#f5f5f7` | `--color-cloud` | Heading text variant for softer white display where #ffffff feels too sterile |
+| Pure | `#ffffff` | `--color-pure` | Primary text, primary action fill, and nav icon strokes — the brightest element in the system |
+| Void | `#000000` | `--color-void` | Icon fills, button text on white fills, and input backgrounds |
 
-                                <div className="mt-12 flex flex-col items-center justify-center gap-2 sm:flex-row lg:justify-start">
-                                    <Button
-                                        asChild
-                                        size="lg"
-                                        className="px-5 text-base">
-                                        <Link href="#link">
-                                            <span className="text-nowrap">Start Building</span>
-                                        </Link>
-                                    </Button>
-                                    <Button
-                                        key={2}
-                                        asChild
-                                        size="lg"
-                                        variant="ghost"
-                                        className="px-5 text-base">
-                                        <Link href="#link">
-                                            <span className="text-nowrap">Request a demo</span>
-                                        </Link>
-                                    </Button>
-                                </div>
-                            </div>
-                            <img
-                                className="pointer-events-none order-first ml-auto h-56 w-full object-cover invert sm:h-96 lg:absolute lg:inset-0 lg:-right-20 lg:-top-96 lg:order-last lg:h-max lg:w-2/3 lg:object-contain dark:mix-blend-lighten dark:invert-0"
-                                src="https://ik.imagekit.io/lrigu76hy/tailark/abstract-bg.jpg?updatedAt=1745733473768"
-                                alt="Abstract Object"
-                                height="4000"
-                                width="3000"
-                            />
-                        </div>
-                    </div>
-                </section>
-                <section className="bg-background pb-16 md:pb-32">
-                    <div className="group relative m-auto max-w-6xl px-6">
-                        <div className="flex flex-col items-center md:flex-row">
-                            <div className="md:max-w-44 md:border-r md:pr-6">
-                                <p className="text-end text-sm">Powering the best teams</p>
-                            </div>
-                            <div className="relative py-6 md:w-[calc(100%-11rem)]">
-                                <InfiniteSlider
-                                    speedOnHover={20}
-                                    speed={40}
-                                    gap={112}>
-                                    <div className="flex">
-                                        <img
-                                            className="mx-auto h-5 w-fit dark:invert"
-                                            src="https://html.tailus.io/blocks/customers/nvidia.svg"
-                                            alt="Nvidia Logo"
-                                            height="20"
-                                            width="auto"
-                                        />
-                                    </div>
+## Tokens — Typography
 
-                                    <div className="flex">
-                                        <img
-                                            className="mx-auto h-4 w-fit dark:invert"
-                                            src="https://html.tailus.io/blocks/customers/column.svg"
-                                            alt="Column Logo"
-                                            height="16"
-                                            width="auto"
-                                        />
-                                    </div>
-                                    <div className="flex">
-                                        <img
-                                            className="mx-auto h-4 w-fit dark:invert"
-                                            src="https://html.tailus.io/blocks/customers/github.svg"
-                                            alt="GitHub Logo"
-                                            height="16"
-                                            width="auto"
-                                        />
-                                    </div>
-                                    <div className="flex">
-                                        <img
-                                            className="mx-auto h-5 w-fit dark:invert"
-                                            src="https://html.tailus.io/blocks/customers/nike.svg"
-                                            alt="Nike Logo"
-                                            height="20"
-                                            width="auto"
-                                        />
-                                    </div>
-                                    <div className="flex">
-                                        <img
-                                            className="mx-auto h-5 w-fit dark:invert"
-                                            src="https://html.tailus.io/blocks/customers/lemonsqueezy.svg"
-                                            alt="Lemon Squeezy Logo"
-                                            height="20"
-                                            width="auto"
-                                        />
-                                    </div>
-                                    <div className="flex">
-                                        <img
-                                            className="mx-auto h-4 w-fit dark:invert"
-                                            src="https://html.tailus.io/blocks/customers/laravel.svg"
-                                            alt="Laravel Logo"
-                                            height="16"
-                                            width="auto"
-                                        />
-                                    </div>
-                                    <div className="flex">
-                                        <img
-                                            className="mx-auto h-7 w-fit dark:invert"
-                                            src="https://html.tailus.io/blocks/customers/lilly.svg"
-                                            alt="Lilly Logo"
-                                            height="28"
-                                            width="auto"
-                                        />
-                                    </div>
+### Suisseintltrial — Suisseintltrial — detected in extracted data but not described by AI · `--font-suisseintltrial`
+- **Weights:** 400
+- **Sizes:** 11px, 14px, 16px
+- **Line height:** 1, 1.5, 1.67, 2.18
+- **Letter spacing:** 0.182
+- **Role:** Suisseintltrial — detected in extracted data but not described by AI
 
-                                    <div className="flex">
-                                        <img
-                                            className="mx-auto h-6 w-fit dark:invert"
-                                            src="https://html.tailus.io/blocks/customers/openai.svg"
-                                            alt="OpenAI Logo"
-                                            height="24"
-                                            width="auto"
-                                        />
-                                    </div>
-                                </InfiniteSlider>
+### Lyon Display — Display headlines and section titles — the signature voice. Used only at weight 300 (light) to create whisper-soft authority; the extreme size range (38-96px) with tight 0.9 line-height is a defining tension · `--font-lyon-display`
+- **Substitute:** DM Serif Display or Playfair Display (Google Fonts) at weight 400 with manual letter-spacing tightening
+- **Weights:** 300
+- **Sizes:** 38px, 80px, 96px
+- **Line height:** 0.9-1.0
+- **Letter spacing:** normal (0)
+- **Role:** Display headlines and section titles — the signature voice. Used only at weight 300 (light) to create whisper-soft authority; the extreme size range (38-96px) with tight 0.9 line-height is a defining tension
 
-                                <div className="bg-linear-to-r from-background absolute inset-y-0 left-0 w-20"></div>
-                                <div className="bg-linear-to-l from-background absolute inset-y-0 right-0 w-20"></div>
-                                <ProgressiveBlur
-                                    className="pointer-events-none absolute left-0 top-0 h-full w-20"
-                                    direction="left"
-                                    blurIntensity={1}
-                                />
-                                <ProgressiveBlur
-                                    className="pointer-events-none absolute right-0 top-0 h-full w-20"
-                                    direction="right"
-                                    blurIntensity={1}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </main>
-        </>
-    )
-}
+### Suisse Int'l — Body copy, card descriptions, link text, and input fields. Weight 300 appears in 18px card subheads for a subtle echo of the display voice; weight 400 is the workhorse UI text · `--font-suisse-intl`
+- **Substitute:** Inter or Geist Sans at matching weights
+- **Weights:** 300, 400
+- **Sizes:** 
+- **Line height:** 1.41-2.0
+- **Letter spacing:** normal (0)
+- **Role:** Body copy, card descriptions, link text, and input fields. Weight 300 appears in 18px card subheads for a subtle echo of the display voice; weight 400 is the workhorse UI text
 
-const menuItems = [
-    { name: 'Features', href: '#link' },
-    { name: 'Solution', href: '#link' },
-    { name: 'Pricing', href: '#link' },
-    { name: 'About', href: '#link' },
-]
+### Suisse Int'l Trial — Extended UI text at 16px (buttons, nav, links) and uppercase tracked labels at 11px. Shares lineage with Suisse Int'l · `--font-suisse-intl-trial`
+- **Substitute:** Inter or Geist Sans
+- **Weights:** 400
+- **Sizes:** 
+- **Line height:** 1.0-2.18
+- **Letter spacing:** 0.1820em on 11px uppercase (≈2px tracking) — the widest tracking in the system
+- **Role:** Extended UI text at 16px (buttons, nav, links) and uppercase tracked labels at 11px. Shares lineage with Suisse Int'l
 
-const HeroHeader = () => {
-    const [menuState, setMenuState] = React.useState(false)
-    return (
-        <header>
-            <nav
-                data-state={menuState && 'active'}
-                className="group bg-background/50 fixed z-20 w-full border-b backdrop-blur-3xl">
-                <div className="mx-auto max-w-6xl px-6 transition-all duration-300">
-                    <div className="relative flex flex-wrap items-center justify-between gap-6 py-3 lg:gap-0 lg:py-4">
-                        <div className="flex w-full items-center justify-between gap-12 lg:w-auto">
-                            <Link
-                                href="/"
-                                aria-label="home"
-                                className="flex items-center space-x-2">
-                                <Logo />
-                            </Link>
+### Roboto Mono — Monospaced labels, data readouts, badge text, and uppercase micro-copy (≤12px). Always set in uppercase. Weight 500 for 12px button labels; weight 400 for 10-11px annotations · `--font-roboto-mono`
+- **Substitute:** Roboto Mono (Google Fonts) — already free
+- **Weights:** 400, 500
+- **Sizes:** 10px, 11px, 12px, 16px
+- **Line height:** 1.35-2.0
+- **Letter spacing:** 0.0160em to 0.0210em for small uppercase (≈0.16-0.25px at 12px), normal for 16px
+- **Role:** Monospaced labels, data readouts, badge text, and uppercase micro-copy (≤12px). Always set in uppercase. Weight 500 for 12px button labels; weight 400 for 10-11px annotations
 
-                            <button
-                                onClick={() => setMenuState(!menuState)}
-                                aria-label={menuState == true ? 'Close Menu' : 'Open Menu'}
-                                className="relative z-20 -m-2.5 -mr-4 block cursor-pointer p-2.5 lg:hidden">
-                                <Menu className="group-data-[state=active]:rotate-180 group-data-[state=active]:scale-0 group-data-[state=active]:opacity-0 m-auto size-6 duration-200" />
-                                <X className="group-data-[state=active]:rotate-0 group-data-[state=active]:scale-100 group-data-[state=active]:opacity-100 absolute inset-0 m-auto size-6 -rotate-180 scale-0 opacity-0 duration-200" />
-                            </button>
+### Suisseintl — Suisseintl — detected in extracted data but not described by AI · `--font-suisseintl`
+- **Weights:** 300, 400
+- **Sizes:** 12px, 14px, 16px, 18px
+- **Line height:** 1, 1.41, 1.43, 1.5, 2
+- **Role:** Suisseintl — detected in extracted data but not described by AI
 
-                            <div className="hidden lg:block">
-                                <ul className="flex gap-8 text-sm">
-                                    {menuItems.map((item, index) => (
-                                        <li key={index}>
-                                            <Link
-                                                href={item.href}
-                                                className="text-muted-foreground hover:text-accent-foreground block duration-150">
-                                                <span>{item.name}</span>
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </div>
+### Type Scale
 
-                        <div className="bg-background group-data-[state=active]:block lg:group-data-[state=active]:flex mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 rounded-3xl border p-6 shadow-2xl shadow-zinc-300/20 md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none dark:shadow-none dark:lg:bg-transparent">
-                            <div className="lg:hidden">
-                                <ul className="space-y-6 text-base">
-                                    {menuItems.map((item, index) => (
-                                        <li key={index}>
-                                            <Link
-                                                href={item.href}
-                                                className="text-muted-foreground hover:text-accent-foreground block duration-150">
-                                                <span>{item.name}</span>
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                            <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
-                                <Button
-                                    asChild
-                                    variant="outline"
-                                    size="sm">
-                                    <Link href="#">
-                                        <span>Login</span>
-                                    </Link>
-                                </Button>
-                                <Button
-                                    asChild
-                                    size="sm">
-                                    <Link href="#">
-                                        <span>Sign Up</span>
-                                    </Link>
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-        </header>
-    )
-}
+| Role | Size | Line Height | Letter Spacing | Token |
+|------|------|-------------|----------------|-------|
+| mono-label | 12px | 2 | — | `--text-mono-label` |
+| body-sm | 14px | 1.67 | — | `--text-body-sm` |
+| body | 16px | 1.5 | — | `--text-body` |
+| subheading | 18px | 1.5 | — | `--text-subheading` |
+| heading-lg | 38px | 0.9 | — | `--text-heading-lg` |
+| display-sm | 80px | 1 | — | `--text-display-sm` |
+| display | 96px | 0.9 | — | `--text-display` |
 
-const Logo = ({ className }: { className?: string }) => {
-    return (
-        <svg
-            viewBox="0 0 78 18"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className={cn('h-5 w-auto', className)}>
-            <path
-                d="M3 0H5V18H3V0ZM13 0H15V18H13V0ZM18 3V5H0V3H18ZM0 15V13H18V15H0Z"
-                fill="url(#logo-gradient)"
-            />
-            <path
-                d="M27.06 7.054V12.239C27.06 12.5903 27.1393 12.8453 27.298 13.004C27.468 13.1513 27.7513 13.225 28.148 13.225H29.338V14.84H27.808C26.9353 14.84 26.2667 14.636 25.802 14.228C25.3373 13.82 25.105 13.157 25.105 12.239V7.054H24V5.473H25.105V3.144H27.06V5.473H29.338V7.054H27.06ZM30.4782 10.114C30.4782 9.17333 30.6709 8.34033 31.0562 7.615C31.4529 6.88967 31.9855 6.32867 32.6542 5.932C33.3342 5.524 34.0822 5.32 34.8982 5.32C35.6349 5.32 36.2752 5.46733 36.8192 5.762C37.3745 6.04533 37.8165 6.40233 38.1452 6.833V5.473H40.1002V14.84H38.1452V13.446C37.8165 13.888 37.3689 14.2563 36.8022 14.551C36.2355 14.8457 35.5895 14.993 34.8642 14.993C34.0595 14.993 33.3229 14.789 32.6542 14.381C31.9855 13.9617 31.4529 13.3837 31.0562 12.647C30.6709 11.899 30.4782 11.0547 30.4782 10.114ZM38.1452 10.148C38.1452 9.502 38.0092 8.941 37.7372 8.465C37.4765 7.989 37.1309 7.62633 36.7002 7.377C36.2695 7.12767 35.8049 7.003 35.3062 7.003C34.8075 7.003 34.3429 7.12767 33.9122 7.377C33.4815 7.615 33.1302 7.972 32.8582 8.448C32.5975 8.91267 32.4672 9.468 32.4672 10.114C32.4672 10.76 32.5975 11.3267 32.8582 11.814C33.1302 12.3013 33.4815 12.6753 33.9122 12.936C34.3542 13.1853 34.8189 13.31 35.3062 13.31C35.8049 13.31 36.2695 13.1853 36.7002 12.936C37.1309 12.6867 37.4765 12.324 37.7372 11.848C38.0092 11.3607 38.1452 10.794 38.1452 10.148ZM43.6317 4.232C43.2803 4.232 42.9857 4.113 42.7477 3.875C42.5097 3.637 42.3907 3.34233 42.3907 2.991C42.3907 2.63967 42.5097 2.345 42.7477 2.107C42.9857 1.869 43.2803 1.75 43.6317 1.75C43.9717 1.75 44.2607 1.869 44.4987 2.107C44.7367 2.345 44.8557 2.63967 44.8557 2.991C44.8557 3.34233 44.7367 3.637 44.4987 3.875C44.2607 4.113 43.9717 4.232 43.6317 4.232ZM44.5837 5.473V14.84H42.6457V5.473H44.5837ZM49.0661 2.26V14.84H47.1281V2.26H49.0661ZM50.9645 10.114C50.9645 9.17333 51.1572 8.34033 51.5425 7.615C51.9392 6.88967 52.4719 6.32867 53.1405 5.932C53.8205 5.524 54.5685 5.32 55.3845 5.32C56.1212 5.32 56.7615 5.46733 57.3055 5.762C57.8609 6.04533 58.3029 6.40233 58.6315 6.833V5.473H60.5865V14.84H58.6315V13.446C58.3029 13.888 57.8552 14.2563 57.2885 14.551C56.7219 14.8457 56.0759 14.993 55.3505 14.993C54.5459 14.993 53.8092 14.789 53.1405 14.381C52.4719 13.9617 51.9392 13.3837 51.5425 12.647C51.1572 11.899 50.9645 11.0547 50.9645 10.114ZM58.6315 10.148C58.6315 9.502 58.4955 8.941 58.2235 8.465C57.9629 7.989 57.6172 7.62633 57.1865 7.377C56.7559 7.12767 56.2912 7.003 55.7925 7.003C55.2939 7.003 54.8292 7.12767 54.3985 7.377C53.9679 7.615 53.6165 7.972 53.3445 8.448C53.0839 8.91267 52.9535 9.468 52.9535 10.114C52.9535 10.76 53.0839 11.3267 53.3445 11.814C53.6165 12.3013 53.9679 12.6753 54.3985 12.936C54.8405 13.1853 55.3052 13.31 55.7925 13.31C56.2912 13.31 56.7559 13.1853 57.1865 12.936C57.6172 12.6867 57.9629 12.324 58.2235 11.848C58.4955 11.3607 58.6315 10.794 58.6315 10.148ZM65.07 6.833C65.3533 6.357 65.7273 5.98867 66.192 5.728C66.668 5.456 67.229 5.32 67.875 5.32V7.326H67.382C66.6227 7.326 66.0447 7.51867 65.648 7.904C65.2627 8.28933 65.07 8.958 65.07 9.91V14.84H63.132V5.473H65.07V6.833ZM73.3624 10.165L77.6804 14.84H75.0624L71.5944 10.811V14.84H69.6564V2.26H71.5944V9.57L74.9944 5.473H77.6804L73.3624 10.165Z"
-                fill="currentColor"
-            />
-            <defs>
-                <linearGradient
-                    id="logo-gradient"
-                    x1="10"
-                    y1="0"
-                    x2="10"
-                    y2="20"
-                    gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#9B99FE" />
-                    <stop
-                        offset="1"
-                        stopColor="#2BC8B7"
-                    />
-                </linearGradient>
-            </defs>
-        </svg>
-    )
-}
+## Tokens — Spacing & Shapes
 
+**Base unit:** 4px
 
-demo.tsx
-import {HeroSection} from "@/components/blocks/hero-section-4"
+**Density:** comfortable
 
-export function Demo (){
-    return <HeroSection />
+### Spacing Scale
+
+| Name | Value | Token |
+|------|-------|-------|
+| 4 | 4px | `--spacing-4` |
+| 8 | 8px | `--spacing-8` |
+| 12 | 12px | `--spacing-12` |
+| 16 | 16px | `--spacing-16` |
+| 20 | 20px | `--spacing-20` |
+| 24 | 24px | `--spacing-24` |
+| 32 | 32px | `--spacing-32` |
+| 40 | 40px | `--spacing-40` |
+| 48 | 48px | `--spacing-48` |
+| 60 | 60px | `--spacing-60` |
+| 68 | 68px | `--spacing-68` |
+| 100 | 100px | `--spacing-100` |
+| 120 | 120px | `--spacing-120` |
+| 140 | 140px | `--spacing-140` |
+
+### Border Radius
+
+| Element | Value |
+|---------|-------|
+| cards | 16px |
+| inputs | 8px |
+| buttons | 8px |
+| navItems | 8px |
+| statBlocks | 16px |
+| pillButtons | 9999px |
+| featureCards | 30px |
+| categoryTiles | 30px |
+
+### Shadows
+
+| Name | Value | Token |
+|------|-------|-------|
+| lg | `rgba(0, 0, 0, 0.2) 0px 18px 20px 0px` | `--shadow-lg` |
+
+### Layout
+
+- **Page max-width:** 1200px
+- **Section gap:** 80px
+- **Card padding:** 32px
+- **Element gap:** 12px
+
+## Components
+
+### Primary CTA Button
+**Role:** High-contrast action trigger on dark backgrounds
+
+White fill (#ffffff), black text (#000000), 8px border-radius, 12px vertical / 18px horizontal padding, Suisse Int'l 16px weight 400. Always paired with a right-arrow icon (→). The brightest element on screen — uses the highest contrast pair in the system (21:1 AAA).
+
+### Ghost Outline Button
+**Role:** Secondary navigation and tertiary actions
+
+Transparent background with 1px white border (rgb(255,255,255)), white text, 8px radius, 12px/18px padding, Suisse Int'l 16px. Used in nav bar for 'PRODUCTS', 'FOR EMPLOYERS', 'RESOURCES'.
+
+### Nav Glass Button
+**Role:** Sticky navigation items with glassmorphic treatment
+
+Background rgba(255,255,255,0.1), 1px white border, 8px radius, 9px/12px padding. Sits inside a nav bar with backdrop-filter blur(24px) over the Obsidian canvas — frosted glass over dark.
+
+### Pill Badge Button
+**Role:** Compact tag-style trigger for chat or messaging entry
+
+White 20% fill (rgba(255,255,255,0.2)), 1px white border, 100% radius (pill shape), 1px/6px padding. Icon-only or short text. Used for floating action affordances.
+
+### Pill Chip Label
+**Role:** Uppercase category or section eyebrow labels
+
+Background rgba(255,255,255,0.12), 1px border at rgba(255,255,255,0.15), 1440px border-radius (full pill), 10px/32px padding, white text #fafafa at 10-11px. Promotional messaging like the $1 promo.
+
+### Feature Category Card
+**Role:** Full-bleed colored tile for spending/investing/forecasting modules
+
+One of six chromatic backgrounds (Iris Gleam, Cyan Signal, Pale Iris, Deep Iris, Orchid Bloom, or Periwinkle), 30px border-radius, 32px padding on all sides, white or near-white text. Holds an icon, title (Lyon Display 38px/300), and short Suisse Int'l description. Color is the only differentiator between categories — no icons or labels needed for grouping.
+
+### Stat / Inverted Card
+**Role:** Light surface card for testimonials, stats, or feature callouts
+
+Background #cacaca (Silver), 30px border-radius, 32px padding. Dark text #000000 inside. Breaks the dark-only rhythm — used sparingly to spotlight a single piece of content.
+
+### Phone Mockup Module
+**Role:** Product showcase for app features
+
+Graphite background #2e2e2, 16px border-radius, 90px padding on all sides (dramatic breathing room). Contains a tilted iPhone render of the Origin app on Obsidian canvas. The largest padding value in the system — signals premium product framing.
+
+### AI Prompt Input
+**Role:** Natural-language query field for the AI financial advisor
+
+Black background (#000000), near-white text #fafafa, 8px border-radius, 8px vertical / 22px left padding (asymmetric: generous left padding for the cursor). Suisse Int'l 14-16px. Paired with a circular submit button (100% radius, white 20% fill, arrow icon). Placeholder: 'Where am I overspending this month?'
+
+### Promo Eyebrow Badge
+**Role:** Pill-shaped promotional or pricing label above headlines
+
+White 12% background, 1px white 15% border, 1440px radius, 10px/32px padding. Roboto Mono 12px weight 500, uppercase, white. Text examples follow the pattern: '$1 FOR 1 YEAR — LIMITED TIME'.
+
+### Award Laurel Badge
+**Role:** Third-party press or industry recognition marker
+
+Transparent background, white SVG laurel-wreath icon flanking publication name (Forbes, Fast Company) in Lyon Display 18px weight 300, with Roboto Mono 10-12px uppercase sub-text. Sits centered as social proof.
+
+### Display Headline
+**Role:** Hero and section-opening statements
+
+Lyon Display at weight 300, sizes 80-96px, line-height 0.9, color #ffffff or #f5f5f7. Italic word ('Own', 'Simplify') is mixed with roman to create editorial tension within a single headline. The whisper-weight at 96px is anti-convention — most fintech sites use 600-700, this achieves authority through restraint.
+
+### Section Subhead
+**Role:** Supporting text under headlines and card titles
+
+Suisse Int'l 18px weight 300 (echoing the display voice), line-height 1.5, color #ffffff for card titles or #9f9fa0 for body descriptions. The 300 weight on body is deliberate — creates vertical harmony with the 300 display.
+
+## Do's and Don'ts
+
+### Do
+- Set all display headlines in Lyon Display (or DM Serif Display substitute) at weight 300 — never bold the display
+- Use 8px radius for all buttons, inputs, and nav items; 16-30px for cards; 9999px only for true pill chips
+- Reserve chromatic colors (Iris Gleam, Cyan Signal, Orchid Bloom, etc.) exclusively for full-bleed feature category tiles — never as inline accents or borders
+- Use white-on-black (#ffffff fill, #000000 text) as the only primary action; contrast ratio is 21:1
+- Apply Roboto Mono uppercase at 10-12px with tracking 0.016-0.182em for all labels, badges, and data annotations
+- Maintain line-height 0.9 on Lyon Display 96px headlines — tight leading is a signature
+- Differentiate surfaces by color step (#0f1011 → #2e2e2 → #cacaca), not by shadow
+
+### Don't
+- Do not bold Lyon Display — weight 300 is the system's defining tension
+- Do not apply drop shadows to cards; the system is intentionally flat
+- Do not use chromatic accent colors on text smaller than 18px — they vibrate against dark backgrounds
+- Do not set body text at full #ffffff white — use #9f9fa0 (Ash) for descriptions and #f5f5f7 (Cloud) for headings instead
+- Do not break the three-voice typography system: serif display for emotion, sans for UI, mono for data
+- Do not add decorative gradients to UI surfaces — the only legitimate gradient is the dark chrome one (rgb(43,43,44) → rgb(19,19,19))
+- Do not use #00b3dd (Cyan Signal) for body color or large fills — it is reserved for data signals and chart lines
+
+## Surfaces
+
+| Level | Name | Value | Purpose |
+|-------|------|-------|---------|
+| 0 | Obsidian Canvas | `#0f1011` | Page background — the base everything sits on |
+| 1 | Abyss | `#090a0b` | Full-bleed dark sections alternating with canvas for subtle banding |
+| 2 | Graphite Card | `#2e2e2` | Elevated product cards and data modules |
+| 3 | Steel Hover | `#3f4041` | Interactive hover/pressed states on dark surfaces |
+| 4 | Silver Inverted | `#cacaca` | Light inverted cards for stat blocks and testimonials |
+
+## Elevation
+
+Elevation is expressed through surface color shifts, not drop shadows. Only one shadow token exists in the system (rgba(0,0,0,0.2) 0px 18px 20px — used on a single button), meaning the design deliberately trades shadow depth for a flat, gallery-wall aesthetic. Cards differentiate through #0f1011 → #2e2e2 → #cacaca stepping, and glassmorphism (backdrop-filter blur(24px)) on the nav bar provides the only true depth cue.
+
+## Imagery
+
+Atmospheric photography anchors the hero (a full-bleed cloud-and-sky photograph with a desaturated cool treatment that reads as aspirational open sky rather than literal weather). Product visualization is delivered through tilted iPhone renders of the Origin app on near-black backgrounds — the device is the hero, with a subtle volumetric glow rather than screen-glare effects. There are no illustrations, no abstract graphics, and no lifestyle photography. Icons are minimal, line-weight monoline SVGs rendered in white or as silhouette marks. The overall ratio is heavily text-dominant: typography carries ~80% of the visual weight, imagery is reserved for hero atmosphere and product proof.
+
+## Layout
+
+Full-bleed dark canvas (max-width 1200px content container, but sections break to edge). The page rhythm alternates: (1) atmospheric photo hero with centered headline and inline AI prompt, (2) full-bleed #0f1011 module sections, (3) light #cacaca inverted stat blocks for contrast, (4) product mockup bands with 90px internal padding. Headlines are always center-aligned; feature category cards are arranged in a 3-column grid with 12-15px gaps. Vertical section spacing ranges 24-80px, creating generous breathing room between modules. The navigation is a sticky top bar with glassmorphism (backdrop-filter blur(24px)) containing a logo mark, 3 nav items as ghost buttons, 'Log In' as text link, and a white 'Get Started' primary CTA flush right.
+
+## Agent Prompt Guide
+
+**Quick Color Reference**
+- Text primary: #ffffff
+- Text body: #9f9fa0
+- Text heading variant: #f5f5f7
+- Background canvas: #0f1011
+- Surface elevated: #2e2e2e
+- Inverted surface: #cacaca
+- primary action: #ffffff (filled action)
+- Accent (data/charts): #00b3dd
+
+**Example Component Prompts**
+
+1. **Hero Section**: Obsidian canvas #0f1011 full-bleed. Centered Lyon Display 80px weight 300, #ffffff, line-height 1.0, with the first word in italic. Subhead in Suisse Int'l 18px weight 300, #9f9fa0, line-height 1.5, max-width 560px. Primary CTA below: white #ffffff fill, #000000 text, 8px radius, 12px/18px padding, arrow icon trailing.
+
+2. **Feature Category Card**: Full-bleed Iris Gleam #847dff background, 30px border-radius, 32px padding. Lyon Display 38px weight 300 white headline. Suisse Int'l 16px weight 400 white description below at 1.5 line-height. No border, no shadow — color carries the entire card identity.
+
+3. **AI Prompt Input**: Obsidian background #0f1011, 8px radius, 8px top/bottom and 22px left padding, 1px solid rgba(255,255,255,0.1) border. Placeholder text 'Ask anything…' in Ash #9f9fa0, Suisse Int'l 16px weight 400. Circular submit button: 100% radius, rgba(255,255,255,0.2) fill, white arrow icon.
+
+4. Create a Primary Action Button: #ffffff background, #000000 text, 9999px radius, compact pill padding. Use this filled treatment for the main CTA.
+
+5. **Stat Inverted Card**: Silver #cacaca background, 30px border-radius, 32px padding. Lyon Display 38px weight 300 black #000000 headline, Suisse Int'l 16px weight 400 #000000 body. Used to break the dark rhythm — maximum 1-2 per page.
+
+## Gradient System
+
+The system uses exactly two gradients, both subtle and structural — never decorative:
+
+1. **Dark Chrome** — linear-gradient(135deg, rgb(43,43,44), rgb(19,19,19)): applied to product device frames and elevated chrome surfaces. Reads as machined metal in low light.
+
+2. **Sky Atmosphere** — linear-gradient(rgb(15,16,17), rgb(19,29,39) 18%, rgb(26,71,136) 37%, rgb(64,138,193) 69%, rgb(64,138,193) 102%): used behind the hero photograph to deepen the horizon and separate the cloud layer from the page canvas.
+
+Never apply gradients to text, buttons, or feature cards. Never use radial or conic gradients.
+
+## Motion Philosophy
+
+Motion is restrained and confident, not decorative. Three patterns define the system:
+
+- **Quick state transitions**: 0.2s ease on background-color and opacity for all hover/focus states
+- **Long atmospheric reveals**: 2.5s with cubic-bezier(0.455, 0.03, 0.515, 0.955) — used for hero text fade-ins and product mockup entrance
+- **Border trace**: named animation 'borderTurn' that animates a 1px stroke around hexagonal or circular frames, typically for feature highlights
+
+The 800× prevalence of plain 'ease' timing for short transitions confirms the system values predictability over spectacle. No bouncy springs, no overshoots, no parallax.
+
+## Similar Brands
+
+- **Wealthfront** — Same dark-canvas approach with whisper-quiet serif headlines and full-bleed feature category cards distinguished by color alone
+- **Mercury** — Identical near-black surface palette, neo-grotesque sans + monospace label system, and white-on-black single primary action
+- **Linear** — Same ultralight display weight anti-convention, flat elevation philosophy (color steps over shadows), and monospace micro-labels
+- **Fidelity Spire** — Editorial-meets-precision typography split (serif display + sans body + mono data) applied to a dark financial interface
+- **Copilot Money** — App-first dark product UI with full-bleed phone mockup bands and chromatic accent tiles per feature module
+
+## Quick Start
+
+### CSS Custom Properties
+
+```css
+:root {
+  /* Colors */
+  --color-iris-gleam: #847dff;
+  --color-cyan-signal: #00b3dd;
+  --color-pale-iris: #d1c9ff;
+  --color-deep-iris: #4b49aa;
+  --color-orchid-bloom: #dd90d8;
+  --color-periwinkle: #90b8f0;
+  --color-obsidian: #0f1011;
+  --color-abyss: #090a0b;
+  --color-graphite: #2e2e2e;
+  --color-steel: #3f4041;
+  --color-silver: #cacaca;
+  --color-fog: #6a6b6b;
+  --color-ash: #9f9fa0;
+  --color-cloud: #f5f5f7;
+  --color-pure: #ffffff;
+  --color-void: #000000;
+
+  /* Typography — Font Families */
+  --font-suisseintltrial: 'Suisseintltrial', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-lyon-display: 'Lyon Display', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-suisse-intl: 'Suisse Int'l', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-suisse-intl-trial: 'Suisse Int'l Trial', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-roboto-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-suisseintl: 'Suisseintl', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Typography — Scale */
+  --text-mono-label: 12px;
+  --leading-mono-label: 2;
+  --text-body-sm: 14px;
+  --leading-body-sm: 1.67;
+  --text-body: 16px;
+  --leading-body: 1.5;
+  --text-subheading: 18px;
+  --leading-subheading: 1.5;
+  --text-heading-lg: 38px;
+  --leading-heading-lg: 0.9;
+  --text-display-sm: 80px;
+  --leading-display-sm: 1;
+  --text-display: 96px;
+  --leading-display: 0.9;
+
+  /* Typography — Weights */
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+
+  /* Spacing */
+  --spacing-unit: 4px;
+  --spacing-4: 4px;
+  --spacing-8: 8px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+  --spacing-60: 60px;
+  --spacing-68: 68px;
+  --spacing-100: 100px;
+  --spacing-120: 120px;
+  --spacing-140: 140px;
+
+  /* Layout */
+  --page-max-width: 1200px;
+  --section-gap: 80px;
+  --card-padding: 32px;
+  --element-gap: 12px;
+
+  /* Border Radius */
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --radius-3xl-2: 30px;
+  --radius-full: 1440px;
+  --radius-full-2: 9999px;
+  --radius-full-3: 14385.6px;
+
+  /* Named Radii */
+  --radius-cards: 16px;
+  --radius-inputs: 8px;
+  --radius-buttons: 8px;
+  --radius-navitems: 8px;
+  --radius-statblocks: 16px;
+  --radius-pillbuttons: 9999px;
+  --radius-featurecards: 30px;
+  --radius-categorytiles: 30px;
+
+  /* Shadows */
+  --shadow-lg: rgba(0, 0, 0, 0.2) 0px 18px 20px 0px;
+
+  /* Surfaces */
+  --surface-obsidian-canvas: #0f1011;
+  --surface-abyss: #090a0b;
+  --surface-graphite-card: #2e2e2;
+  --surface-steel-hover: #3f4041;
+  --surface-silver-inverted: #cacaca;
 }
 ```
 
-Copy-paste these files for dependencies:
-```tsx
-shadcn/button
-import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
-import { cva, type VariantProps } from "class-variance-authority"
+### Tailwind v4
 
-import { cn } from "@/lib/utils"
+```css
+@theme {
+  /* Colors */
+  --color-iris-gleam: #847dff;
+  --color-cyan-signal: #00b3dd;
+  --color-pale-iris: #d1c9ff;
+  --color-deep-iris: #4b49aa;
+  --color-orchid-bloom: #dd90d8;
+  --color-periwinkle: #90b8f0;
+  --color-obsidian: #0f1011;
+  --color-abyss: #090a0b;
+  --color-graphite: #2e2e2e;
+  --color-steel: #3f4041;
+  --color-silver: #cacaca;
+  --color-fog: #6a6b6b;
+  --color-ash: #9f9fa0;
+  --color-cloud: #f5f5f7;
+  --color-pure: #ffffff;
+  --color-void: #000000;
 
-const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-      },
-      size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  },
-)
+  /* Typography */
+  --font-suisseintltrial: 'Suisseintltrial', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-lyon-display: 'Lyon Display', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-suisse-intl: 'Suisse Int'l', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-suisse-intl-trial: 'Suisse Int'l Trial', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-roboto-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-suisseintl: 'Suisseintl', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean
+  /* Typography — Scale */
+  --text-mono-label: 12px;
+  --leading-mono-label: 2;
+  --text-body-sm: 14px;
+  --leading-body-sm: 1.67;
+  --text-body: 16px;
+  --leading-body: 1.5;
+  --text-subheading: 18px;
+  --leading-subheading: 1.5;
+  --text-heading-lg: 38px;
+  --leading-heading-lg: 0.9;
+  --text-display-sm: 80px;
+  --leading-display-sm: 1;
+  --text-display: 96px;
+  --leading-display: 0.9;
+
+  /* Spacing */
+  --spacing-4: 4px;
+  --spacing-8: 8px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+  --spacing-60: 60px;
+  --spacing-68: 68px;
+  --spacing-100: 100px;
+  --spacing-120: 120px;
+  --spacing-140: 140px;
+
+  /* Border Radius */
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --radius-3xl-2: 30px;
+  --radius-full: 1440px;
+  --radius-full-2: 9999px;
+  --radius-full-3: 14385.6px;
+
+  /* Shadows */
+  --shadow-lg: rgba(0, 0, 0, 0.2) 0px 18px 20px 0px;
 }
-
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button"
-    return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        {...props}
-      />
-    )
-  },
-)
-Button.displayName = "Button"
-
-export { Button, buttonVariants }
-
 ```
-```tsx
-ibelick/infinite-slider
-'use client';
-import { cn } from '@/lib/utils';
-import { useMotionValue, animate, motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import useMeasure from 'react-use-measure';
-
-type InfiniteSliderProps = {
-  children: React.ReactNode;
-  gap?: number;
-  duration?: number;
-  durationOnHover?: number;
-  direction?: 'horizontal' | 'vertical';
-  reverse?: boolean;
-  className?: string;
-};
-
-export function InfiniteSlider({
-  children,
-  gap = 16,
-  duration = 25,
-  durationOnHover,
-  direction = 'horizontal',
-  reverse = false,
-  className,
-}: InfiniteSliderProps) {
-  const [currentDuration, setCurrentDuration] = useState(duration);
-  const [ref, { width, height }] = useMeasure();
-  const translation = useMotionValue(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [key, setKey] = useState(0);
-
-  useEffect(() => {
-    let controls;
-    const size = direction === 'horizontal' ? width : height;
-    const contentSize = size + gap;
-    const from = reverse ? -contentSize / 2 : 0;
-    const to = reverse ? 0 : -contentSize / 2;
-
-    if (isTransitioning) {
-      controls = animate(translation, [translation.get(), to], {
-        ease: 'linear',
-        duration:
-          currentDuration * Math.abs((translation.get() - to) / contentSize),
-        onComplete: () => {
-          setIsTransitioning(false);
-          setKey((prevKey) => prevKey + 1);
-        },
-      });
-    } else {
-      controls = animate(translation, [from, to], {
-        ease: 'linear',
-        duration: currentDuration,
-        repeat: Infinity,
-        repeatType: 'loop',
-        repeatDelay: 0,
-        onRepeat: () => {
-          translation.set(from);
-        },
-      });
-    }
-
-    return controls?.stop;
-  }, [
-    key,
-    translation,
-    currentDuration,
-    width,
-    height,
-    gap,
-    isTransitioning,
-    direction,
-    reverse,
-  ]);
-
-  const hoverProps = durationOnHover
-    ? {
-        onHoverStart: () => {
-          setIsTransitioning(true);
-          setCurrentDuration(durationOnHover);
-        },
-        onHoverEnd: () => {
-          setIsTransitioning(true);
-          setCurrentDuration(duration);
-        },
-      }
-    : {};
-
-  return (
-    <div className={cn('overflow-hidden', className)}>
-      <motion.div
-        className='flex w-max'
-        style={{
-          ...(direction === 'horizontal'
-            ? { x: translation }
-            : { y: translation }),
-          gap: `${gap}px`,
-          flexDirection: direction === 'horizontal' ? 'row' : 'column',
-        }}
-        ref={ref}
-        {...hoverProps}
-      >
-        {children}
-        {children}
-      </motion.div>
-    </div>
-  );
-}
-
-```
-```tsx
-ibelick/progressive-blur
-'use client';
-import { cn } from '@/lib/utils';
-import { HTMLMotionProps, motion } from 'motion/react';
-
-export const GRADIENT_ANGLES = {
-  top: 0,
-  right: 90,
-  bottom: 180,
-  left: 270,
-};
-
-export type ProgressiveBlurProps = {
-  direction?: keyof typeof GRADIENT_ANGLES;
-  blurLayers?: number;
-  className?: string;
-  blurIntensity?: number;
-} & HTMLMotionProps<'div'>;
-
-export function ProgressiveBlur({
-  direction = 'bottom',
-  blurLayers = 8,
-  className,
-  blurIntensity = 0.25,
-  ...props
-}: ProgressiveBlurProps) {
-  const layers = Math.max(blurLayers, 2);
-  const segmentSize = 1 / (blurLayers + 1);
-
-  return (
-    <div className={cn('relative', className)}>
-      {Array.from({ length: layers }).map((_, index) => {
-        const angle = GRADIENT_ANGLES[direction];
-        const gradientStops = [
-          index * segmentSize,
-          (index + 1) * segmentSize,
-          (index + 2) * segmentSize,
-          (index + 3) * segmentSize,
-        ].map(
-          (pos, posIndex) =>
-            `rgba(255, 255, 255, ${posIndex === 1 || posIndex === 2 ? 1 : 0}) ${pos * 100}%`
-        );
-
-        const gradient = `linear-gradient(${angle}deg, ${gradientStops.join(
-          ', '
-        )})`;
-
-        return (
-          <motion.div
-            key={index}
-            className='pointer-events-none absolute inset-0 rounded-[inherit]'
-            style={{
-              maskImage: gradient,
-              WebkitMaskImage: gradient,
-              backdropFilter: `blur(${index * blurIntensity}px)`,
-            }}
-            {...props}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
-```
-
-Install NPM dependencies:
-```bash
-lucide-react, @radix-ui/react-slot, class-variance-authority, framer-motion, react-use-measure, motion
-```
-
-Implementation Guidelines
- 1. Analyze the component structure and identify all required dependencies
- 2. Review the component's argumens and state
- 3. Identify any required context providers or hooks and install them
- 4. Questions to Ask
- - What data/props will be passed to this component?
- - Are there any specific state management requirements?
- - Are there any required assets (images, icons, etc.)?
- - What is the expected responsive behavior?
- - What is the best place to use this component in the app?
-
-Steps to integrate
- 0. Copy paste all the code above in the correct directories
- 1. Install external dependencies
- 2. Fill image assets with Unsplash stock images you know exist
- 3. Use lucide-react icons for svgs or logos if component requires them
